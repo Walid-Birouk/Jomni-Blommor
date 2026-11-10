@@ -44,4 +44,26 @@ const reviews = defineCollection({
   }),
 });
 
-export const collections = { services, seasons, reviews };
+/**
+ * Shop products. Names and prices from the shop's Wolt menu (10 Nov 2026).
+ * TODO: confirm the range and prices with the client before launch.
+ */
+const local = z.object({ sv: z.string(), en: z.string() });
+const products = defineCollection({
+  loader: file('src/content/products/products.json'),
+  schema: ({ image }) =>
+    z.object({
+      category: z.enum(['roses', 'bunches', 'plants', 'pots']),
+      /** Display order, as on the shop's menu. */
+      order: z.number(),
+      name: local,
+      unit: local.optional(),
+      /** Price in kronor; with priceMax it is a range ("55–115 kr"). */
+      price: z.number(),
+      priceMax: z.number().optional(),
+      image: image().optional(),
+      art: z.string().optional(),
+    }),
+});
+
+export const collections = { services, seasons, reviews, products };

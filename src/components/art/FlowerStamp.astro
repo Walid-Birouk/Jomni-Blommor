@@ -1,9 +1,9 @@
 ---
 /** A single line-drawn flower, used as a small stamp on cards. Draws itself in on reveal. */
 import { botanical, type FlowerKind } from '../../lib/botanical';
-interface Props { kind: FlowerKind; seed?: number; class?: string; }
-const { kind, seed = 3, class: cls } = Astro.props;
-const { stamp } = botanical(seed);
+interface Props { kind: FlowerKind; seed?: number; class?: string; /** Line colour; use birch on dark backgrounds. */ ink?: string; }
+const { kind, seed = 3, class: cls, ink } = Astro.props;
+const { stamp } = botanical(seed, ink, ink ? 'rgb(243 244 239 / 0.18)' : undefined);
 ---
 
 <svg class:list={['stamp', cls]} viewBox="0 0 60 80" aria-hidden="true" focusable="false" set:html={stamp(kind)} />

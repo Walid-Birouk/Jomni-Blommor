@@ -22,6 +22,8 @@ export interface Business {
   /** One line per row, e.g. { days: 'Mån–fre', hours: '10:00–18:00' }. */
   openingHours: { sv: string; en: string; hours: string }[] | null;
   social: { label: string; url: string }[];
+  /** The shop's Wolt page, used for delivery orders. */
+  wolt: string | null;
   /** Google rating as shown on the Google Maps listing. Not used in structured data. */
   googleRating: { rating: number; count: number; checked: string } | null;
 }
@@ -43,6 +45,8 @@ export const business: Business = {
     'https://www.google.com/maps/place/Jomni+Blommor/@59.3186797,18.0592419,17z/data=!3m1!4b1!4m6!3m5!1s0x465f77eeaa85a707:0xb2d94a6d5b320287!8m2!3d59.3186797!4d18.0618168!16s%2Fg%2F11lnmpg9ny',
   openingHours: null, // TODO: opening hours incl. holiday hours
   social: [], // TODO: Instagram, Facebook, Google Business Profile
+  // Found online by the developer on 10 Nov 2026. TODO: confirm the client wants it linked.
+  wolt: 'https://wolt.com/sv/swe/stockholm/venue/jomni-blommor',
   // From the Google Maps listing checked 5 Nov 2026. TODO: refresh before launch, or fetch live
   // with the Places API once there is a key and the client's OK.
   googleRating: { rating: 4.8, count: 40, checked: '2026-11-05' },

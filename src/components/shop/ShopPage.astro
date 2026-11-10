@@ -1,0 +1,126 @@
+---
+/**
+ * The shop: real products and prices from the shop's Wolt menu, grouped by category.
+ * "Beställ" opens the order form with the product filled in; delivery goes via Wolt.
+ * TODO: confirm range, prices and delivery details with the client.
+ */
+import { getCollection } from 'astro:content';
+import { business } from '../../data/business';
+import { t, routes, type Lang, type UiKey } from '../../i18n/utils';
+import ProductCard from './ProductCard.astro';
+import MeadowEdge from '../art/MeadowEdge.astro';
+import FlowerStamp from '../art/FlowerStamp.astro';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const products = (await getCollection('products')).sort((a, b) => a.data.order - b.data.order);
+const categories = ['roses', 'bunches', 'plants', 'pots'] as const;
+const groups = categories.map((c) => ({ id: c, label: t(lang, `shop.cat.${c}` as UiKey), items: products.filter((p) => p.data.category === c).map((p) => p.data) }));
+---
+
+<section class="shop-intro" aria-labelledby="page-heading">
+  <div class="container shop-intro__inner">
+    <div>
+      <h1 id="page-heading">{t(lang, 'shop.heading')}</h1>
+      <p class="shop-intro__lead">{t(lang, 'shop.lead')}</p>
+      <p class="shop-intro__actions">
+        <a class="btn btn--primary" href={routes.builder[lang]}>{t(lang, 'cta.build')}</a>
+        {business.wolt && <a class="btn btn--secondary" href={business.wolt}>{t(lang, 'shop.wolt')}</a>}
+      </p>
+      <p class="shop-intro__pickup">{t(lang, 'shop.pickup')}</p>
+    </div>
+    <nav class="cats" aria-label={t(lang, 'shop.categories')}>
+      <ul>
+        {groups.map((g) => <li><a href={`#${g.id}`}>{g.label}<span>{g.items.length}</span></a></li>)}
+      </ul>
+    </nav>
+  </div>
+</section>
+
+{groups.map((g, i) => (
+  <section id={g.id} class:list={['cat', { 'cat--alt': i % 2 === 1 }]} aria-labelledby={`cat-${g.id}`}>
+    {i === 1 && <MeadowEdge seed={71} />}
+    <div class="container">
+      <h2 id={`cat-${g.id}`} data-reveal>{g.label}</h2>
+      <ul class="products" data-reveal-group>
+        {g.items.map((p) => <ProductCard lang={lang} product={p} />)}
+      </ul>
+    </div>
+  </section>
+))}
+
+<section class="builder-band" aria-labelledby="builder-heading">
+  <div class="container builder-band__inner" data-reveal>
+    <div class="builder-band__art" aria-hidden="true">
+      <FlowerStamp kind="cosmos" seed={81} ink="#f3f4ef" /><FlowerStamp kind="tulip" seed={82} ink="#f3f4ef" /><FlowerStamp kind="umbel" seed={83} ink="#f3f4ef" />
+    </div>
+    <div>
+      <h2 id="builder-heading">{t(lang, 'shop.builder.heading')}</h2>
+      <p>{t(lang, 'shop.builder.text')}</p>
+      <p><a class="btn btn--on-dark" href={routes.builder[lang]}>{t(lang, 'cta.build')}</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="delivery" aria-labelledby="delivery-heading">
+  <div class="container" data-reveal>
+    <h2 id="delivery-heading">{t(lang, 'shop.deliveryHeading')}</h2>
+    <p>{t(lang, 'shop.deliveryText')} <em class="todo">{t(lang, 'todo.delivery')}</em></p>
+    <p class="delivery__note">{t(lang, 'shop.priceNote')}</p>
+  </div>
+</section>
+
+<style>
+  .shop-intro { padding-block: var(--space-7) var(--space-8); }
+  .shop-intro__inner { display: grid; gap: var(--space-7); align-items: end; }
+  .shop-intro__lead { margin-top: var(--space-4); max-width: 40ch; font-size: var(--step-1); line-height: 1.5; color: var(--color-text-muted); }
+  .shop-intro__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+  .shop-intro__pickup { margin-top: var(--space-4); font-size: var(--step--1); font-weight: 600; color: var(--color-text-muted); }
+  .cats ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .cats a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-min);
+    padding: 0 var(--space-4);
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: 999px;
+    color: var(--color-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .cats a:hover { background: var(--white); border-color: var(--moss); }
+  .cats span { font-size: var(--step--1); font-weight: 500; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+
+  .cat { position: relative; padding-block: var(--space-8); scroll-margin-top: 4rem; }
+  .cat--alt { background: var(--color-surface); }
+  .cat h2 { font-size: var(--step-3); font-weight: 400; }
+  .products {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-5);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: var(--space-5);
+  }
+
+  .builder-band { padding-block: var(--section-y); background: var(--moss-deep); color: var(--birch); --color-focus: var(--birch); margin-top: var(--space-8); }
+  .builder-band :global(::selection), .builder-band::selection { background: var(--peony); color: var(--white); }
+  .builder-band__inner { display: grid; gap: var(--space-6); align-items: center; }
+  .builder-band h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
+  .builder-band p { margin-top: var(--space-4); max-width: 44ch; font-size: var(--step-1); line-height: 1.5; }
+  .builder-band__art { display: flex; gap: var(--space-4); }
+  .builder-band__art :global(.stamp) { width: 4.5rem; filter: drop-shadow(0 0 0 transparent); }
+  .btn--on-dark { background: var(--birch); color: var(--ink); }
+  .btn--on-dark:hover { background: var(--white); color: var(--ink); }
+
+  .delivery { padding-block: var(--section-y); }
+  .delivery h2 { font-size: var(--step-3); font-weight: 400; }
+  .delivery p { margin-top: var(--space-3); max-width: var(--measure); }
+  .delivery__note { font-size: var(--step--1); color: var(--color-text-muted); }
+
+  @media (min-width: 48rem) {
+    .shop-intro__inner { grid-template-columns: 1.2fr 1fr; }
+    .cats ul { justify-content: flex-end; }
+    .builder-band__inner { grid-template-columns: auto 1fr; gap: var(--space-9); }
+  }
+</style>

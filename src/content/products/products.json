@@ -1,0 +1,285 @@
+[
+  {
+    "id": "ros-brudsloja-1",
+    "category": "roses",
+    "name": {
+      "sv": "1 röd ros med brudslöja",
+      "en": "1 red rose with gypsophila"
+    },
+    "price": 175,
+    "image": "../../assets/products/WOLT-1-ros-brudsloja.jpg",
+    "order": 0
+  },
+  {
+    "id": "rosor-brudsloja-3",
+    "category": "roses",
+    "name": {
+      "sv": "3 röda rosor med brudslöja",
+      "en": "3 red roses with gypsophila"
+    },
+    "price": 430,
+    "image": "../../assets/products/WOLT-3-rosor-brudsloja.jpg",
+    "order": 1
+  },
+  {
+    "id": "rosor-brudsloja-5",
+    "category": "roses",
+    "name": {
+      "sv": "5 röda rosor med brudslöja",
+      "en": "5 red roses with gypsophila"
+    },
+    "price": 675,
+    "image": "../../assets/products/WOLT-5-rosor-brudsloja.jpg",
+    "order": 2
+  },
+  {
+    "id": "rosor-brudsloja-10",
+    "category": "roses",
+    "name": {
+      "sv": "10 röda rosor med brudslöja",
+      "en": "10 red roses with gypsophila"
+    },
+    "price": 1298,
+    "image": "../../assets/products/WOLT-10-rosor-brudsloja.jpg",
+    "order": 3
+  },
+  {
+    "id": "ros-1",
+    "category": "roses",
+    "name": {
+      "sv": "En ros",
+      "en": "A single rose"
+    },
+    "price": 125,
+    "art": "rose",
+    "order": 4
+  },
+  {
+    "id": "rosor-3",
+    "category": "roses",
+    "name": {
+      "sv": "3 röda rosor",
+      "en": "3 red roses"
+    },
+    "price": 375,
+    "art": "rose",
+    "order": 5
+  },
+  {
+    "id": "rosor-5",
+    "category": "roses",
+    "name": {
+      "sv": "5 röda rosor",
+      "en": "5 red roses"
+    },
+    "price": 625,
+    "art": "rose",
+    "order": 6
+  },
+  {
+    "id": "rosor-10",
+    "category": "roses",
+    "name": {
+      "sv": "10 röda rosor",
+      "en": "10 red roses"
+    },
+    "price": 1249,
+    "art": "rose",
+    "order": 7
+  },
+  {
+    "id": "rosor-mix-10",
+    "category": "roses",
+    "name": {
+      "sv": "10 rosor, blandade färger",
+      "en": "10 roses, mixed colours"
+    },
+    "price": 225,
+    "art": "rose-mix",
+    "order": 8
+  },
+  {
+    "id": "solros",
+    "category": "bunches",
+    "name": {
+      "sv": "Solros",
+      "en": "Sunflower"
+    },
+    "price": 95,
+    "art": "sunflower",
+    "unit": {
+      "sv": "per styck",
+      "en": "each"
+    },
+    "order": 9
+  },
+  {
+    "id": "krysantemum",
+    "category": "bunches",
+    "name": {
+      "sv": "Krysantemum",
+      "en": "Chrysanthemum"
+    },
+    "price": 125,
+    "art": "chrysanthemum",
+    "unit": {
+      "sv": "knippe",
+      "en": "bunch"
+    },
+    "order": 10
+  },
+  {
+    "id": "eukalyptus",
+    "category": "bunches",
+    "name": {
+      "sv": "Eukalyptus",
+      "en": "Eucalyptus"
+    },
+    "price": 275,
+    "art": "eucalyptus",
+    "unit": {
+      "sv": "knippe",
+      "en": "bunch"
+    },
+    "order": 11
+  },
+  {
+    "id": "tistlar",
+    "category": "bunches",
+    "name": {
+      "sv": "Tistlar",
+      "en": "Thistles"
+    },
+    "price": 195,
+    "art": "thistle",
+    "unit": {
+      "sv": "knippe",
+      "en": "bunch"
+    },
+    "order": 12
+  },
+  {
+    "id": "brudsloja",
+    "category": "bunches",
+    "name": {
+      "sv": "Brudslöja",
+      "en": "Gypsophila"
+    },
+    "price": 125,
+    "art": "gyps",
+    "unit": {
+      "sv": "knippe",
+      "en": "bunch"
+    },
+    "order": 13
+  },
+  {
+    "id": "orkide",
+    "category": "plants",
+    "name": {
+      "sv": "Orkidé",
+      "en": "Orchid"
+    },
+    "price": 375,
+    "art": "orchid",
+    "order": 14
+  },
+  {
+    "id": "kaktus",
+    "category": "plants",
+    "name": {
+      "sv": "Kaktus",
+      "en": "Cactus"
+    },
+    "price": 545,
+    "art": "cactus",
+    "order": 15
+  },
+  {
+    "id": "julros",
+    "category": "plants",
+    "name": {
+      "sv": "Julros",
+      "en": "Christmas rose"
+    },
+    "price": 425,
+    "art": "plant-white",
+    "order": 16
+  },
+  {
+    "id": "julstjarna",
+    "category": "plants",
+    "name": {
+      "sv": "Julstjärna",
+      "en": "Poinsettia"
+    },
+    "price": 225,
+    "art": "plant-red",
+    "order": 17
+  },
+  {
+    "id": "doftpelargon",
+    "category": "plants",
+    "name": {
+      "sv": "Engelsk doftpelargon",
+      "en": "English scented geranium"
+    },
+    "price": 125,
+    "art": "plant",
+    "order": 18
+  },
+  {
+    "id": "jasmin",
+    "category": "plants",
+    "name": {
+      "sv": "Jasmin",
+      "en": "Jasmine"
+    },
+    "price": 195,
+    "art": "plant-white",
+    "order": 19
+  },
+  {
+    "id": "d-westerlund",
+    "category": "plants",
+    "name": {
+      "sv": "D. Westerlund",
+      "en": "D. Westerlund"
+    },
+    "price": 125,
+    "art": "plant",
+    "order": 20
+  },
+  {
+    "id": "lerkrukor",
+    "category": "pots",
+    "name": {
+      "sv": "Lerkrukor, bruna eller grå",
+      "en": "Clay pots, brown or grey"
+    },
+    "price": 55,
+    "priceMax": 115,
+    "art": "pot",
+    "unit": {
+      "sv": "15–23 cm",
+      "en": "15–23 cm"
+    },
+    "order": 21
+  },
+  {
+    "id": "lerfat",
+    "category": "pots",
+    "name": {
+      "sv": "Lerfat, bruna eller grå",
+      "en": "Clay saucers, brown or grey"
+    },
+    "price": 45,
+    "priceMax": 75,
+    "art": "saucer",
+    "unit": {
+      "sv": "15–19 cm",
+      "en": "15–19 cm"
+    },
+    "order": 22
+  }
+]
