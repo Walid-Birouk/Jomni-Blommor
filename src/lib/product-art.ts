@@ -14,12 +14,12 @@ const stem = (x1: number, y1: number, cx: number, cy: number, x2: number, y2: nu
   `<path class="b-line" pathLength="1" d="M${n(x1)} ${n(y1)} Q${n(cx)} ${n(cy)} ${n(x2)} ${n(y2)}" fill="none" ${line(1.6)}/>`;
 
 /** A rose seen from the side: cupped bloom with a scalloped rim, folded front petals and sepals. */
-const roseHead = (x: number, y: number, s: number, fill: string) =>
+export const roseHead = (x: number, y: number, s: number, fill: string) =>
   `<path d="M${n(x - s * 0.34)} ${n(y + s * 0.42)} L${n(x - s * 0.12)} ${n(y + s * 0.62)} L${n(x)} ${n(y + s * 0.46)} L${n(x + s * 0.12)} ${n(y + s * 0.62)} L${n(x + s * 0.34)} ${n(y + s * 0.42)}" fill="#a8bfa0" ${line(1.1)}/>` +
   `<path d="M${n(x - s * 0.6)} ${n(y - s * 0.12)} C${n(x - s * 0.6)} ${n(y + s * 0.56)} ${n(x + s * 0.6)} ${n(y + s * 0.56)} ${n(x + s * 0.6)} ${n(y - s * 0.12)} Q${n(x + s * 0.46)} ${n(y - s * 0.56)} ${n(x + s * 0.16)} ${n(y - s * 0.44)} Q${n(x)} ${n(y - s * 0.76)} ${n(x - s * 0.16)} ${n(y - s * 0.44)} Q${n(x - s * 0.46)} ${n(y - s * 0.56)} ${n(x - s * 0.6)} ${n(y - s * 0.12)} Z" fill="${fill}" ${line(1.3)}/>` +
   `<path d="M${n(x - s * 0.38)} ${n(y - s * 0.18)} Q${n(x)} ${n(y + s * 0.3)} ${n(x + s * 0.38)} ${n(y - s * 0.18)} M${n(x - s * 0.14)} ${n(y - s * 0.4)} Q${n(x)} ${n(y - s * 0.14)} ${n(x + s * 0.14)} ${n(y - s * 0.4)}" fill="none" ${line(1.1)}/>`;
 
-const radial = (x: number, y: number, s: number, count: number, petal: string, center: string, thin = 0.26) => {
+export const radial = (x: number, y: number, s: number, count: number, petal: string, center: string, thin = 0.26) => {
   let p = '';
   for (let i = 0; i < count; i++) {
     const a = (i / count) * 360;
@@ -28,7 +28,7 @@ const radial = (x: number, y: number, s: number, count: number, petal: string, c
   return p + `<circle cx="${n(x)}" cy="${n(y)}" r="${n(s * 0.32)}" fill="${center}" ${line(1.1)}/>`;
 };
 
-const leaf = (x: number, y: number, len: number, ang: number, fill = '#dfe6d8') =>
+export const leaf = (x: number, y: number, len: number, ang: number, fill = '#dfe6d8') =>
   `<path d="M${n(x)} ${n(y)} q${n(len * 0.35)} ${n(-len * 0.25)} ${n(len)} 0 q${n(-len * 0.45)} ${n(len * 0.3)} ${n(-len)} 0 Z" transform="rotate(${n(ang)} ${n(x)} ${n(y)})" fill="${fill}" ${line(1.2)}/>`;
 
 const pot = (fill: string, top = 150, w = 92, h = 64) => {

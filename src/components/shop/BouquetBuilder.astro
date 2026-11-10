@@ -1,0 +1,350 @@
+---
+/**
+ * Bouquet builder: six steps (occasion, size, colours, flowers, card, pick-up or delivery)
+ * with a live line-drawn preview. With JavaScript it is a one-step-at-a-time wizard;
+ * without, every step shows as one form. DEMO: the request is not sent yet.
+ * TODO: connect to the form service with the order form (see OrderForm.astro).
+ */
+import { t, type Lang, type UiKey } from '../../i18n/utils';
+import { drawBouquet } from '../../scripts/bouquet-preview';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const k = (key: string, vars?: Record<string, string>) => t(lang, `builder.${key}` as UiKey, vars);
+
+const occasions = ['birthday', 'thanks', 'love', 'congrats', 'justbecause', 'wedding', 'funeral', 'other'];
+const sizes = ['small', 'medium', 'large'];
+const colors: [string, string[]][] = [
+  ['pink-white', ['#e3a3b5', '#fbfbf8', '#c25a78']], ['red', ['#9e2f4f', '#b4405f', '#7f2440']],
+  ['white-green', ['#fbfbf8', '#dfe6d8', '#8a9a7b']], ['yellow-orange', ['#e8b83a', '#f0a35e', '#f6d58e']],
+  ['purple-blue', ['#8e7aa8', '#7f7fb0', '#b9a9d0']], ['florist', ['#e3a3b5', '#e8b83a', '#8e7aa8']],
+];
+const flowers = ['roses', 'peonies', 'tulips', 'chrysanthemums', 'sunflowers', 'thistles', 'eucalyptus', 'gypsophila'];
+const initial = drawBouquet({ size: 'medium', colors: 'pink-white', flowers: [] });
+const steps = ['occasion', 'size', 'colors', 'flowers', 'card', 'delivery'];
+const labels = {
+  occasion: Object.fromEntries(occasions.map((o) => [o, k(`occ.${o}`)])),
+  size: Object.fromEntries(sizes.map((s) => [s, k(`size.${s}`)])),
+  colors: Object.fromEntries(colors.map(([c]) => [c, k(`col.${c}`)])),
+  flowers: Object.fromEntries(flowers.map((f) => [f, k(`fl.${f}`)])),
+  delivery: { pickup: k('pickup'), delivery: k('delivery') },
+};
+---
+
+<section class="builder" aria-labelledby="page-heading">
+  <div class="container">
+    <header class="builder__head">
+      <h1 id="page-heading">{k('heading')}</h1>
+      <p>{k('lead')}</p>
+    </header>
+
+    <div class="builder__grid">
+      <div class="preview__card" role="group" aria-label={k('previewLabel')}>
+          <svg class="preview__svg" viewBox="0 70 400 350" aria-hidden="true" focusable="false" data-preview set:html={initial} />
+          <p class="preview__note">{k('previewNote')}</p>
+      </div>
+      <div class="summary">
+          <h2 class="summary__title">{k('summary')}</h2>
+          <dl data-summary>
+            {steps.slice(0, 5).map((s) => (
+              <div><dt>{k(`step.${s}`)}</dt><dd data-sum={s}>{s === 'size' ? labels.size.medium : s === 'colors' ? labels.colors['pink-white'] : k('none')}</dd></div>
+            ))}
+          </dl>
+      </div>
+
+      <form class="wizard" novalidate data-builder data-labels={JSON.stringify(labels)} data-none={k('none')}
+        data-progress={k('progress', { n: '{n}', total: '{total}' })}>
+        <p class="wizard__progress" aria-live="polite" data-progress-text hidden></p>
+
+        <fieldset class="step" data-step>
+          <legend tabindex="-1">{k('step.occasion')}</legend>
+          <div class="chips">
+            {occasions.map((o) => (
+              <label class="chip"><input type="radio" name="occasion" value={o} /><span>{labels.occasion[o]}</span></label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="step" data-step>
+          <legend tabindex="-1">{k('step.size')}</legend>
+          <div class="options">
+            {sizes.map((s) => (
+              <label class="option">
+                <input type="radio" name="size" value={s} checked={s === 'medium'} />
+                <span class="option__body"><strong>{labels.size[s]}</strong><span>{k(`size.${s}Hint`)}</span></span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="step" data-step>
+          <legend tabindex="-1">{k('step.colors')}</legend>
+          <div class="chips">
+            {colors.map(([c, sw]) => (
+              <label class="chip chip--swatch">
+                <input type="radio" name="colors" value={c} checked={c === 'pink-white'} />
+                <span><i aria-hidden="true">{sw.map((col) => <b style={`background:${col}`} />)}</i>{labels.colors[c]}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="step" data-step aria-describedby="bb-flowers-hint">
+          <legend tabindex="-1">{k('step.flowers')}</legend>
+          <p class="hint" id="bb-flowers-hint">{k('flowersHint')}</p>
+          <div class="chips">
+            {flowers.map((f) => (
+              <label class="chip"><input type="checkbox" name="flowers" value={f} /><span>{labels.flowers[f]}</span></label>
+            ))}
+          </div>
+        </fieldset>
+
+        <fieldset class="step" data-step>
+          <legend tabindex="-1">{k('step.card')}</legend>
+          <label class="visually-hidden" for="bb-card">{k('step.card')}</label>
+          <textarea id="bb-card" name="card" rows="4" maxlength="200" aria-describedby="bb-card-hint bb-card-count"></textarea>
+          <p class="hint" id="bb-card-hint">{k('cardHint')}</p>
+          <p class="hint" id="bb-card-count" data-count={k('cardCount', { n: '{n}' })}>{k('cardCount', { n: '0' })}</p>
+        </fieldset>
+
+        <fieldset class="step" data-step>
+          <legend tabindex="-1">{k('step.delivery')}</legend>
+          <div class="options">
+            <label class="option"><input type="radio" name="delivery" value="pickup" checked /><span class="option__body"><strong>{k('pickup')}</strong><span>{k('pickupHint')}</span></span></label>
+            <label class="option"><input type="radio" name="delivery" value="delivery" /><span class="option__body"><strong>{k('delivery')}</strong><span>{k('deliveryHint')}</span></span></label>
+          </div>
+          <div class="fields">
+            <div class="field field--wide" data-address hidden>
+              <label for="bb-address">{k('address')}</label>
+              <input id="bb-address" name="address" type="text" autocomplete="street-address" />
+            </div>
+            <div class="field">
+              <label for="bb-date">{t(lang, 'form.date')}</label>
+              <input id="bb-date" name="date" type="date" />
+            </div>
+            <div class="field">
+              <label for="bb-name">{t(lang, 'form.name')}</label>
+              <input id="bb-name" name="name" type="text" autocomplete="name" required aria-describedby="bb-name-error" />
+              <p class="error" id="bb-name-error" hidden>{t(lang, 'form.error.name')}</p>
+            </div>
+            <div class="field">
+              <label for="bb-phone">{t(lang, 'form.phone')}</label>
+              <input id="bb-phone" name="phone" type="tel" autocomplete="tel" aria-describedby="bb-contact-error" />
+            </div>
+            <div class="field">
+              <label for="bb-email">{t(lang, 'form.email')}</label>
+              <input id="bb-email" name="email" type="email" autocomplete="email" aria-describedby="bb-contact-error" />
+            </div>
+            <p class="error field--wide" id="bb-contact-error" hidden>{t(lang, 'form.error.contact')}</p>
+          </div>
+          <div class="hp" aria-hidden="true"><label for="bb-website">{t(lang, 'form.honeypot')}</label><input id="bb-website" name="website" tabindex="-1" autocomplete="off" /></div>
+        </fieldset>
+
+        <div class="wizard__nav">
+          <button type="button" class="btn btn--secondary" data-back hidden>{k('back')}</button>
+          <button type="button" class="btn btn--primary" data-next hidden>{k('next')}</button>
+          <button type="submit" class="btn btn--primary" data-submit>{k('submit')}</button>
+        </div>
+
+        <div class="done" role="status" tabindex="-1" hidden>
+          <p class="done__title">{k('doneTitle')}</p>
+          <p>{t(lang, 'form.demoBody')}</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { drawBouquet } from '../../scripts/bouquet-preview';
+
+  const form = document.querySelector<HTMLFormElement>('[data-builder]');
+  const svg = document.querySelector<SVGSVGElement>('[data-preview]');
+  if (form && svg) {
+    const labels = JSON.parse(form.dataset.labels!) as Record<string, Record<string, string>>;
+    const none = form.dataset.none!;
+    const steps = [...form.querySelectorAll<HTMLFieldSetElement>('[data-step]')];
+    const back = form.querySelector<HTMLButtonElement>('[data-back]')!;
+    const next = form.querySelector<HTMLButtonElement>('[data-next]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const progress = form.querySelector<HTMLElement>('[data-progress-text]')!;
+    const done = form.querySelector<HTMLElement>('.done')!;
+    const value = (name: string) => (form.elements.namedItem(name) as RadioNodeList | null)?.value ?? '';
+    const checked = (name: string) => [...form.querySelectorAll<HTMLInputElement>(`input[name="${name}"]:checked`)].map((i) => i.value);
+    const sum = (key: string, text: string) => { const el = form.ownerDocument.querySelector(`[data-sum="${key}"]`); if (el) el.textContent = text || none; };
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let current = 0;
+    let lastDrawn = '';
+
+    const update = () => {
+      const choice = { size: value('size') || 'medium', colors: value('colors') || 'florist', flowers: checked('flowers') };
+      const key = JSON.stringify(choice);
+      if (key !== lastDrawn) {
+        lastDrawn = key;
+        svg.innerHTML = drawBouquet(choice);
+        if (!reduce.matches) { svg.classList.remove('is-new'); void svg.getBoundingClientRect(); svg.classList.add('is-new'); }
+      }
+      sum('occasion', labels.occasion[value('occasion')] ?? '');
+      sum('size', labels.size[choice.size]);
+      sum('colors', labels.colors[choice.colors]);
+      sum('flowers', choice.flowers.map((f) => labels.flowers[f]).join(', '));
+      const card = (form.elements.namedItem('card') as HTMLTextAreaElement).value.trim();
+      sum('card', card ? `“${card.length > 60 ? card.slice(0, 60) + '…' : card}”` : '');
+      form.querySelector<HTMLElement>('[data-address]')!.hidden = value('delivery') !== 'delivery';
+    };
+
+    // Wizard mode: one step at a time.
+    const show = (i: number, focus = true) => {
+      current = i;
+      steps.forEach((s, j) => { s.hidden = j !== i; });
+      back.hidden = i === 0;
+      next.hidden = i === steps.length - 1;
+      submit.hidden = i !== steps.length - 1;
+      progress.hidden = false;
+      progress.textContent = form.dataset.progress!.replace('{n}', String(i + 1)).replace('{total}', String(steps.length));
+      if (focus) steps[i].querySelector<HTMLElement>('legend')?.focus();
+    };
+    form.classList.add('is-wizard');
+    show(0, false);
+
+    next.addEventListener('click', () => show(Math.min(current + 1, steps.length - 1)));
+    back.addEventListener('click', () => show(Math.max(current - 1, 0)));
+    form.addEventListener('input', update);
+    form.addEventListener('change', update);
+
+    const count = form.querySelector<HTMLElement>('#bb-card-count')!;
+    form.querySelector('#bb-card')!.addEventListener('input', (e) => {
+      count.textContent = count.dataset.count!.replace('{n}', String((e.target as HTMLTextAreaElement).value.length));
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if ((form.elements.namedItem('website') as HTMLInputElement).value) return; // honeypot
+      const name = form.elements.namedItem('name') as HTMLInputElement;
+      const phone = form.elements.namedItem('phone') as HTMLInputElement;
+      const email = form.elements.namedItem('email') as HTMLInputElement;
+      const badName = !name.value.trim();
+      const badContact = !phone.value.trim() && !(email.value.trim() && email.validity.valid);
+      form.querySelector<HTMLElement>('#bb-name-error')!.hidden = !badName;
+      form.querySelector<HTMLElement>('#bb-contact-error')!.hidden = !badContact;
+      name.setAttribute('aria-invalid', String(badName));
+      phone.setAttribute('aria-invalid', String(badContact));
+      email.setAttribute('aria-invalid', String(badContact));
+      if (badName || badContact) { show(steps.length - 1, false); (badName ? name : phone).focus(); return; }
+      // DEMO: nothing is sent. TODO: post to the form service here.
+      steps.forEach((s) => { s.hidden = true; });
+      form.querySelector<HTMLElement>('.wizard__nav')!.hidden = true;
+      progress.hidden = true;
+      done.hidden = false;
+      done.focus();
+    });
+
+    update();
+  }
+</script>
+
+<style>
+  .builder { padding-block: var(--space-7) var(--section-y); }
+  .builder__head { max-width: 46rem; }
+  .builder__head p { margin-top: var(--space-4); font-size: var(--step-1); line-height: 1.5; color: var(--color-text-muted); }
+  /* Phone: preview, then the steps, then the summary. Desktop: preview and summary beside the steps. */
+  .builder__grid { display: grid; grid-template-areas: 'card' 'wizard' 'summary'; gap: var(--space-7); margin-top: var(--space-7); }
+  .preview__card { grid-area: card; }
+  .wizard { grid-area: wizard; }
+  .summary { grid-area: summary; }
+
+  .preview__card {
+    position: relative;
+    background: var(--color-surface);
+    border-radius: var(--radius-control);
+    padding: var(--space-4) var(--space-4) 0;
+    overflow: hidden;
+  }
+  .preview__svg { width: 100%; height: auto; display: block; }
+  .preview__svg.is-new :global(.pv-grow) { animation: pv-in 600ms var(--ease-out) both; transform-box: fill-box; transform-origin: 50% 100%; }
+  @keyframes pv-in { from { opacity: 0.2; transform: scale(0.92); } }
+  .preview__note { position: absolute; left: var(--space-4); top: var(--space-3); font-size: 0.75rem; color: var(--color-text-muted); }
+  .summary__title { font-size: var(--step-2); font-weight: 400; }
+  .summary dl { margin-top: var(--space-3); display: grid; gap: var(--space-2); }
+  .summary div { display: grid; grid-template-columns: 9rem 1fr; gap: var(--space-3); font-size: var(--step--1); }
+  .summary dt { color: var(--color-text-muted); }
+  .summary dd { margin: 0; font-weight: 600; }
+
+  .wizard { display: grid; gap: var(--space-6); align-content: start; }
+  .wizard__progress { font-size: var(--step--1); font-weight: 700; color: var(--peony); }
+  .step { border: 0; padding: 0; margin: 0; display: grid; gap: var(--space-4); }
+  .step[hidden] { display: none; }
+  .step legend { font-family: var(--font-display-stack); font-size: var(--step-3); line-height: var(--leading-snug); padding: 0; margin-bottom: var(--space-4); }
+  .step legend:focus { outline: none; }
+  .step legend:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 4px; }
+  .hint { font-size: var(--step--1); color: var(--color-text-muted); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .chip { position: relative; cursor: var(--cursor-hover); }
+  .chip input, .option input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: inherit; }
+  .chip > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-min);
+    padding: 0 var(--space-4);
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: 999px;
+    background: var(--white);
+    font-weight: 600;
+    transition: background-color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out);
+  }
+  .chip input:checked + span { background: var(--moss); border-color: var(--moss); color: var(--white); }
+  .chip input:focus-visible + span, .option input:focus-visible + .option__body { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+  .chip--swatch i { display: inline-flex; }
+  .chip--swatch b { width: 0.9rem; height: 0.9rem; border-radius: 50%; border: 1px solid rgb(30 42 36 / 0.25); margin-left: -0.3rem; }
+  .chip--swatch b:first-child { margin-left: 0; }
+
+  .options { display: grid; gap: var(--space-3); }
+  .option { position: relative; cursor: var(--cursor-hover); }
+  .option__body {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    background: var(--white);
+  }
+  .option__body span { font-size: var(--step--1); color: var(--color-text-muted); }
+  .option input:checked + .option__body { border-color: var(--moss); box-shadow: inset 0 0 0 1.5px var(--moss); background: #f7f9f4; }
+
+  textarea, .field input {
+    width: 100%;
+    min-height: var(--tap-min);
+    padding: var(--space-2) var(--space-3);
+    background: var(--white);
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    font-size: var(--step-0);
+  }
+  .fields { display: grid; gap: var(--space-4); margin-top: var(--space-3); }
+  .field { display: grid; gap: var(--space-2); }
+  .field label { font-weight: 600; }
+  .field[hidden] { display: none; }
+  .error { color: var(--peony-deep); font-weight: 600; font-size: var(--step--1); }
+  [aria-invalid='true'] { border-color: var(--peony-deep); }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .wizard__nav { display: flex; flex-wrap: wrap; gap: var(--space-3); }
+  .wizard__nav [hidden] { display: none; }
+  /* Without JavaScript every step shows; only the submit button is needed. */
+  .wizard:not(.is-wizard) .wizard__nav [data-back], .wizard:not(.is-wizard) .wizard__nav [data-next] { display: none; }
+
+  .done { display: grid; gap: var(--space-3); padding: var(--space-6); background: var(--white); border: 1.5px solid var(--moss); border-radius: var(--radius-control); }
+  .done[hidden] { display: none; }
+  .done__title { font-family: var(--font-display-stack); font-size: var(--step-2); }
+
+  @media (min-width: 40rem) {
+    .options { grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+    .fields { grid-template-columns: 1fr 1fr; }
+    .field--wide { grid-column: 1 / -1; }
+  }
+  @media (min-width: 56rem) {
+    .builder__grid { grid-template-columns: 0.9fr 1.1fr; grid-template-areas: 'card wizard' 'summary wizard'; gap: var(--space-5) var(--space-9); align-items: start; }
+    .preview__card { position: sticky; top: 5.5rem; }
+  }
+</style>
