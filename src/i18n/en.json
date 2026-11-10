@@ -26,10 +26,10 @@
   "footer.hours": "Opening hours",
   "footer.follow": "Follow us",
   "footer.rights": "Jomni Blommor",
-  "home.title": "Jomni Blommor, flower shop in [city]",
-  "home.description": "Bouquets, wedding flowers, funeral flowers and flowers for events. Hand-tied at Jomni Blommor in [city].",
+  "home.title": "Jomni Blommor, flower shop on Södermalm in Stockholm",
+  "home.description": "Bouquets, wedding flowers, funeral flowers and flowers for events. Hand-tied at Jomni Blommor on Hornsgatan, Södermalm, Stockholm.",
   "home.hero.heading": "Flowers tied by hand, for big days and small ones",
-  "home.hero.lead": "We are a flower shop in {city}. Come in and choose, or order a bouquet and we will make it for you.",
+  "home.hero.lead": "We are a flower shop {place}. Come in and choose, or order a bouquet and we will make it for you.",
   "home.hero.alt": "Placeholder for a bouquet in daylight. To be replaced with the client's photo.",
   "home.services.heading": "What we do",
   "home.services.intro": "From a Friday bouquet to the flowers at your wedding. Tell us what you need and we will help.",
@@ -48,7 +48,7 @@
   "404.heading": "This page does not exist",
   "404.body": "The link may be old or misspelled. Go to the home page to find what you are looking for.",
   "404.home": "Go to the home page",
-  "site.taglineCity": "Flower shop in {city}",
+  "site.taglineCity": "Flower shop {place}",
   "home.contact.email.cta": "Email us",
   "home.contact.missing": "Contact details will be added once the client confirms them."
 }

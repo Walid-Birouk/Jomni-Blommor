@@ -27,7 +27,7 @@ const alternates = (Object.keys(routes[route]) as Lang[]).map((l) => ({
 const xDefault = new URL(routes[route][defaultLang], site).href;
 const ogImageUrl = new URL(ogImage, site).href;
 
-// Structured data: only confirmed facts. TODO: add address, geo, telephone,
+// Structured data: only confirmed facts. TODO: add telephone,
 // openingHoursSpecification, priceRange, sameAs and areaServed once confirmed.
 const jsonLd: Record<string, unknown> = {
   '@context': 'https://schema.org',
@@ -47,6 +47,10 @@ if (business.streetAddress && business.city) {
     addressCountry: 'SE',
   };
 }
+if (business.geo) {
+  jsonLd.geo = { '@type': 'GeoCoordinates', ...business.geo };
+}
+if (business.mapUrl) jsonLd.hasMap = business.mapUrl;
 if (business.social.length) jsonLd.sameAs = business.social.map((s) => s.url);
 ---
 

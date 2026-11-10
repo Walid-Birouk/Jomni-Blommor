@@ -11,7 +11,7 @@ const year = new Date().getFullYear();
   <div class="container site-footer__grid">
     <div class="site-footer__brand">
       <p class="site-footer__name">{business.name}</p>
-      <p>{business.city ? t(lang, 'site.taglineCity', { city: business.city }) : <>{t(lang, 'site.tagline')} <em class="todo">{t(lang, 'todo.city')}</em></>}</p>
+      <p>{business.locality ? t(lang, 'site.taglineCity', { place: business.locality[lang] }) : <>{t(lang, 'site.tagline')} <em class="todo">{t(lang, 'todo.city')}</em></>}</p>
     </div>
 
     <section aria-labelledby="footer-visit">

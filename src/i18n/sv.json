@@ -26,10 +26,10 @@
   "footer.hours": "Öppettider",
   "footer.follow": "Följ oss",
   "footer.rights": "Jomni Blommor",
-  "home.title": "Jomni Blommor, blomsterbutik i [stad]",
-  "home.description": "Buketter, bröllopsblommor, begravningsblommor och blommor till event. Handbundet hos Jomni Blommor i [stad].",
+  "home.title": "Jomni Blommor, blomsterbutik på Södermalm i Stockholm",
+  "home.description": "Buketter, bröllopsblommor, begravningsblommor och blommor till event. Handbundet hos Jomni Blommor på Hornsgatan, Södermalm.",
   "home.hero.heading": "Blommor bundna för hand, för stora och små dagar",
-  "home.hero.lead": "Vi är en blomsterbutik i {city}. Kom in och välj själv, eller beställ en bukett så gör vi den åt dig.",
+  "home.hero.lead": "Vi är en blomsterbutik {place}. Kom in och välj själv, eller beställ en bukett så gör vi den åt dig.",
   "home.hero.alt": "Platshållarbild för en bukett i dagsljus. Ersätts med kundens foto.",
   "home.services.heading": "Vad vi gör",
   "home.services.intro": "Från en bukett på fredagen till blommorna på bröllopet. Berätta vad du behöver så hjälper vi dig.",
@@ -48,7 +48,7 @@
   "404.heading": "Den här sidan finns inte",
   "404.body": "Länken kan vara gammal eller felstavad. Gå till startsidan och hitta det du söker där.",
   "404.home": "Till startsidan",
-  "site.taglineCity": "Blomsterbutik i {city}",
+  "site.taglineCity": "Blomsterbutik {place}",
   "home.contact.email.cta": "Mejla oss",
   "home.contact.missing": "Kontaktuppgifter läggs in när kunden bekräftat dem."
 }

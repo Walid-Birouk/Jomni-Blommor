@@ -6,6 +6,9 @@
 export interface Business {
   name: string;
   city: string | null;
+  /** Neighbourhood phrase used in copy, per language. */
+  locality: { sv: string; en: string } | null;
+  geo: { latitude: number; longitude: number } | null;
   streetAddress: string | null;
   postalCode: string | null;
   /** E.164 format for tel: links, e.g. "+46812345678". */
@@ -22,13 +25,18 @@ export interface Business {
 
 export const business: Business = {
   name: 'Jomni Blommor',
-  city: null, // TODO: city
-  streetAddress: null, // TODO: address
-  postalCode: null, // TODO: postal code
+  // Address, coordinates and map link: Google Maps listing checked 5 Nov 2026.
+  // TODO: confirm with the client that the listing is current.
+  city: 'Stockholm',
+  locality: { sv: 'på Södermalm i Stockholm', en: 'on Södermalm in Stockholm' },
+  geo: { latitude: 59.3186797, longitude: 18.0618168 },
+  streetAddress: 'Hornsgatan 33A',
+  postalCode: '118 49',
   phoneE164: null, // TODO: phone
   phoneDisplay: null, // TODO: phone
   email: null, // TODO: email
-  mapUrl: null, // TODO: map link
+  mapUrl:
+    'https://www.google.com/maps/place/Jomni+Blommor/@59.3186797,18.0592419,17z/data=!3m1!4b1!4m6!3m5!1s0x465f77eeaa85a707:0xb2d94a6d5b320287!8m2!3d59.3186797!4d18.0618168!16s%2Fg%2F11lnmpg9ny',
   openingHours: null, // TODO: opening hours incl. holiday hours
   social: [], // TODO: Instagram, Facebook, Google Business Profile
 };

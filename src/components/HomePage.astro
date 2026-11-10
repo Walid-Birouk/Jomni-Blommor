@@ -16,7 +16,7 @@ const { lang } = Astro.props;
 const services = (await getCollection('services', (s) => s.id.startsWith(`${lang}/`)))
   .sort((a, b) => a.data.order - b.data.order);
 
-const cityText = business.city;
+const place = business.locality?.[lang];
 const hasContact = business.phoneE164 || business.email || business.mapUrl;
 ---
 
@@ -25,9 +25,9 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
     <!-- TODO: client copy -->
     <h1 id="hero-heading">{t(lang, 'home.hero.heading')}</h1>
     <p class="hero__lead">
-      {cityText
-        ? t(lang, 'home.hero.lead', { city: cityText })
-        : <Fragment set:html={t(lang, 'home.hero.lead', { city: `<em class="todo">${t(lang, 'todo.city')}</em>` })} />}
+      {place
+        ? t(lang, 'home.hero.lead', { place })
+        : <Fragment set:html={t(lang, 'home.hero.lead', { place: `<em class="todo">${t(lang, 'todo.city')}</em>` })} />}
     </p>
     <p class="hero__actions">
       <a class="btn btn--primary" href="#kontakt">{t(lang, 'cta.order')}</a>
