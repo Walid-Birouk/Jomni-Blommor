@@ -29,7 +29,6 @@
   "home.title": "Jomni Blommor, flower shop on Södermalm in Stockholm",
   "home.description": "Bouquets, wedding flowers, funeral flowers and flowers for events. Hand-tied at Jomni Blommor on Hornsgatan, Södermalm, Stockholm.",
   "home.hero.heading": "Flowers tied by hand, for big days and small ones",
-  "home.hero.lead": "We are a flower shop {place}. Come in and choose, or order a bouquet and we will make it for you.",
   "home.services.heading": "What we do",
   "home.services.intro": "From a Friday bouquet to the flowers at your wedding. Tell us what you need and we will help.",
   "home.services.more": "Ask about {service}",
@@ -92,9 +91,5 @@
   "form.demoBody": "This is a demo version of the site, so nothing was sent. On the real site the request goes straight to the shop.",
   "form.again": "Write a new request",
   "form.honeypot": "Leave this field empty",
-  "hero.alt.bouquet": "Sample image: a hand holding out a large bouquet of pale pink peonies.",
-  "hero.alt.tying": "Sample image: hands tying a bouquet together with twine.",
-  "hero.alt.shop": "Sample image: daffodils in a glass vase inside a flower shop.",
-  "hero.alt.bridal": "Sample image: bridal bouquet with pink and white peonies.",
-  "hero.alt.table": "Sample image: dinner table with dahlias in a glass vase."
+  "home.hero.leadShort": "Come in and choose, or order a bouquet and we will make it for you."
 }

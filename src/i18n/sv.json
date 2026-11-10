@@ -29,7 +29,6 @@
   "home.title": "Jomni Blommor, blomsterbutik på Södermalm i Stockholm",
   "home.description": "Buketter, bröllopsblommor, begravningsblommor och blommor till event. Handbundet hos Jomni Blommor på Hornsgatan, Södermalm.",
   "home.hero.heading": "Blommor bundna för hand, för stora och små dagar",
-  "home.hero.lead": "Vi är en blomsterbutik {place}. Kom in och välj själv, eller beställ en bukett så gör vi den åt dig.",
   "home.services.heading": "Vad vi gör",
   "home.services.intro": "Från en bukett på fredagen till blommorna på bröllopet. Berätta vad du behöver så hjälper vi dig.",
   "home.services.more": "Fråga om {service}",
@@ -92,9 +91,5 @@
   "form.demoBody": "Det här är en demoversion av sidan, så inget skickades. På den riktiga sidan går förfrågan direkt till butiken.",
   "form.again": "Skriv en ny förfrågan",
   "form.honeypot": "Lämna det här fältet tomt",
-  "hero.alt.bouquet": "Exempelbild: en hand håller fram en stor bukett med ljusrosa pioner.",
-  "hero.alt.tying": "Exempelbild: händer som binder ihop en bukett med snöre.",
-  "hero.alt.shop": "Exempelbild: narcisser i en glasvas inne i en blomsterbutik.",
-  "hero.alt.bridal": "Exempelbild: brudbukett med rosa och vita pioner.",
-  "hero.alt.table": "Exempelbild: middagsbord med dahlior i glasvas."
+  "home.hero.leadShort": "Kom in och välj själv, eller beställ en bukett så gör vi den åt dig."
 }

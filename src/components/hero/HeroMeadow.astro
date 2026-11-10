@@ -1,15 +1,19 @@
 ---
 /**
- * Hero variant C: a line-drawn meadow growing up from the bottom of the hero.
- * The wind rolls through it as a wave from left to right, and the cursor parts the stems.
+ * The hero: a line-drawn meadow the wind rolls through as a wave; the cursor parts the stems.
+ * Phone: the meadow fills the first screen, with the headline, place and address over its
+ * bottom on a birch fade. The rest of the words follow just below the first screen.
  * Desktop: the meadow sits behind the words, low on the left and tall on the right.
- * Phone: its own full-width band of flowers under the words. Still for prefers-reduced-motion.
+ * Arrival: the flowers grow up from the ground in a left-to-right wave (CSS, plays once).
+ * Still for prefers-reduced-motion.
  */
-import type { Lang } from '../../i18n/utils';
-import HeroText from './HeroText.astro';
+import { business } from '../../data/business';
+import { t, type Lang } from '../../i18n/utils';
 import WindPetals from '../WindPetals.astro';
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
+const place = business.locality?.[lang];
+const address = [business.streetAddress, business.district].filter(Boolean).join(', ');
 
 // Deterministic random so the meadow is the same on every build.
 let seed = 7;
@@ -18,7 +22,7 @@ const r = (a: number, b: number) => a + rnd() * (b - a);
 const n = (v: number) => v.toFixed(1);
 
 const INK = '#3e5b40';
-type Stem = { x: number; h: number; svg: string; phase: number };
+type Stem = { x: number; h: number; svg: string; phase: number; delay: number };
 const kinds = ['cosmos', 'tulip', 'umbel', 'bud', 'cosmos', 'grass', 'umbel', 'tulip'] as const;
 const fills = { peony: '#9e2f4f', rose: '#c25a78', blush: '#e3a3b5', pale: '#f1d5dc', white: '#fbfbf8' };
 
@@ -81,33 +85,63 @@ const meadow = (W: number, H: number, count: number, height: (t: number) => numb
     } else {
       svg += head(kind, tx, ty, r(18, 28) * scale);
     }
-    stems.push({ x, h, svg, phase: rnd() * 6.28 });
+    // Arrival: growth rolls left to right like the wind, with a little jitter.
+    stems.push({ x, h, svg, phase: rnd() * 6.28, delay: Math.round(t * 450 + r(0, 120)) });
   }
   return stems;
 };
 
 // Desktop: low on the left where the words sit, tall on the right.
 const DW = 1200, DH = 640;
-const wide = meadow(DW, DH, 34, (t) => (t < 0.56 ? r(0.04, 0.1) : r(0.42, 0.86) * (0.7 + t * 0.35)), 1);
-// Phone: a full-width band under the words, rolling heights, larger blooms.
-const PW = 400, PH = 330;
-const narrow = meadow(PW, PH, 15, (t) => 0.42 + Math.sin(t * Math.PI * 2.2 + 0.6) * 0.16 + r(0, 0.3), 1.25);
+const wide = meadow(DW, DH, 34, (t) => (t < 0.56 ? r(0.03, 0.07) : r(0.42, 0.86) * (0.7 + t * 0.35)), 1);
+// Phone: a tall portrait meadow that fills the first screen; heads fill the upper part.
+const PW = 400, PH = 640;
+const narrow = meadow(PW, PH, 18, (t) => 0.5 + Math.sin(t * Math.PI * 2.4 + 0.4) * 0.14 + r(0, 0.26), 1.3);
 ---
 
 <section class="hero-c" aria-labelledby="hero-heading">
-  <div class="container hero-c__inner">
-    <HeroText lang={lang} />
-  </div>
   <div class="hero-c__meadow" aria-hidden="true">
-    <svg class="meadow meadow--wide" viewBox={`0 0 ${DW} ${DH}`} preserveAspectRatio="xMaxYMax slice" focusable="false" data-h={DH}>
-      {wide.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase} set:html={s.svg} />)}
+    <svg class="meadow meadow--wide" viewBox={`0 0 ${DW} ${DH}`} preserveAspectRatio="xMaxYMax slice" focusable="false">
+      {wide.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase}><g class="m-grow" style={`--d: ${s.delay}ms`} set:html={s.svg} /></g>)}
       <path d={`M0 ${DH - 1} H${DW}`} stroke={INK} stroke-width="1.5" vector-effect="non-scaling-stroke" />
     </svg>
-    <svg class="meadow meadow--narrow" viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMax meet" focusable="false" data-h={PH}>
-      {narrow.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase} set:html={s.svg} />)}
+    <svg class="meadow meadow--narrow" viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMax slice" focusable="false">
+      {narrow.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase}><g class="m-grow" style={`--d: ${s.delay}ms`} set:html={s.svg} /></g>)}
       <path d={`M0 ${PH - 1} H${PW}`} stroke={INK} stroke-width="1.5" vector-effect="non-scaling-stroke" />
     </svg>
   </div>
+
+  <div class="hero-c__top" data-wind-quiet>
+    <div class="container"><div class="hero-c__col">
+      <!-- TODO: client copy -->
+      <h1 id="hero-heading">{t(lang, 'home.hero.heading')}</h1>
+      <p class="hero-c__place">
+        {place ? t(lang, 'site.taglineCity', { place }) : <>{t(lang, 'site.tagline')} <em class="todo">{t(lang, 'todo.city')}</em></>}
+      </p>
+      <p class="hero-c__address">
+        {business.streetAddress && business.mapUrl
+          ? <a href={business.mapUrl}>{address}<span class="visually-hidden">{t(lang, 'hero.facts.mapSuffix')}</span></a>
+          : <em class="todo">{t(lang, 'todo.address')}</em>}
+      </p>
+    </div></div>
+  </div>
+
+  <div class="hero-c__more" data-wind-quiet>
+    <div class="container"><div class="hero-c__col">
+      <!-- TODO: client copy -->
+      <p class="hero-c__lead">{t(lang, 'home.hero.leadShort')}</p>
+      <p class="hero-c__actions"><a class="btn btn--primary" href="#kontakt">{t(lang, 'cta.order')}</a></p>
+      <ul class="hero-c__facts" aria-label={t(lang, 'hero.facts.label')}>
+        <li>
+          {t(lang, 'hero.facts.openToday')}{' '}
+          {/* TODO: compute "Öppet idag till 18:30" from machine-readable hours once confirmed. */}
+          <em class="todo">{t(lang, 'todo.hours')}</em>
+        </li>
+        <li>{t(lang, 'hero.facts.services')}</li>
+      </ul>
+    </div></div>
+  </div>
+
   <WindPetals lang={lang} />
 </section>
 
@@ -132,8 +166,8 @@ const narrow = meadow(PW, PH, 15, (t) => 0.42 + Math.sin(t * Math.PI * 2.2 + 0.6
     for (const m of svgs) {
       const rect = m.svg.getBoundingClientRect();
       if (!rect.height) continue; // the composition for the other screen size
-      // Map viewBox coordinates to the screen: wide is "slice" aligned right, narrow is "meet" centred.
-      const k = m.wide ? rect.height / m.H : Math.min(rect.width / m.W, rect.height / m.H);
+      // Map viewBox coordinates to the screen. Both use "slice": wide is aligned right, narrow is centred.
+      const k = m.wide ? rect.height / m.H : Math.max(rect.width / m.W, rect.height / m.H);
       const left = m.wide ? rect.right - m.W * k : rect.left + (rect.width - m.W * k) / 2;
       for (const s of m.stems) {
         // The breeze travels as a wave from left to right across the meadow.
@@ -156,23 +190,81 @@ const narrow = meadow(PW, PH, 15, (t) => 0.42 + Math.sin(t * Math.PI * 2.2 + 0.6
 </script>
 
 <style>
+  /* Phone: the meadow and the headline share the first screen; the rest follows. */
   .hero-c {
     position: relative;
     isolation: isolate;
     display: grid;
-    padding-top: var(--space-6);
+    grid-template-areas: 'screen' 'more';
+    grid-template-rows: clamp(30rem, calc(100svh - 8.75rem - env(safe-area-inset-bottom)), 46rem) auto;
   }
-  .hero-c__inner { position: relative; z-index: 2; }
-  .hero-c__meadow { position: relative; z-index: 0; margin-top: var(--space-2); }
-  .meadow { display: block; width: 100%; }
+  .hero-c__meadow { grid-area: screen; position: relative; z-index: 0; overflow: hidden; }
+  .meadow { display: block; width: 100%; height: 100%; }
   .meadow--wide { display: none; }
-  .meadow--narrow { height: auto; aspect-ratio: 400 / 330; max-height: 22rem; }
+
+  .hero-c__top {
+    grid-area: screen;
+    align-self: end;
+    position: relative;
+    z-index: 2;
+    padding-top: var(--space-9);
+    padding-bottom: var(--space-4);
+    /* Birch fade so the words sit on calm ground while the flowers rise above. */
+    background: linear-gradient(to top, var(--birch) 64%, rgb(243 244 239 / 0.85) 82%, rgb(243 244 239 / 0));
+  }
+  .hero-c__top h1 { font-size: var(--step-4); }
+  .hero-c__place {
+    margin-top: var(--space-3);
+    font-size: var(--step-1);
+    line-height: 1.4;
+    color: var(--color-text-muted);
+  }
+  .hero-c__address a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    font-weight: 600;
+  }
+
+  .hero-c__more { grid-area: more; position: relative; z-index: 2; padding-block: var(--space-4) var(--space-9); }
+  .hero-c__lead { font-size: var(--step-1); line-height: 1.45; max-width: 34ch; }
+  .hero-c__actions { margin-top: var(--space-5); }
+  .hero-c__facts {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-5);
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+
+  /* Arrival: each flower grows up from the ground, rolling left to right. */
+  @media (prefers-reduced-motion: no-preference) {
+    .m-grow {
+      transform-box: fill-box;
+      transform-origin: 50% 100%;
+      animation: m-grow 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: var(--d);
+    }
+  }
+  @keyframes m-grow {
+    from { transform: scale(0.7, 0.03); }
+  }
 
   @media (min-width: 48rem) {
-    .hero-c { min-height: min(48rem, calc(100svh - 4rem)); align-content: start; padding-top: var(--space-9); padding-bottom: var(--space-9); }
-    .hero-c :global(.hero__text) { max-width: 34rem; }
-    .hero-c__meadow { position: absolute; inset: 0; height: auto; margin: 0; }
-    .meadow--wide { display: block; height: 100%; }
+    .hero-c {
+      display: block;
+      min-height: min(48rem, calc(100svh - 4rem));
+      padding-block: var(--space-9);
+    }
+    .hero-c__meadow { position: absolute; inset: 0; }
+    .meadow--wide { display: block; }
     .meadow--narrow { display: none; }
+    .hero-c__top { padding: 0; background: none; }
+    .hero-c__top h1 { font-size: var(--step-5); }
+    .hero-c__col { max-width: 34rem; }
+    .hero-c__place { margin-top: var(--space-4); }
+    .hero-c__more { padding-block: var(--space-3) 0; }
   }
 </style>
