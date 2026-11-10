@@ -15,10 +15,16 @@ const { lang } = Astro.props;
 <button
   class="wind-toggle"
   type="button"
+  aria-label={t(lang, 'wind.pause')}
+  title={t(lang, 'wind.pause')}
   data-label-pause={t(lang, 'wind.pause')}
   data-label-play={t(lang, 'wind.play')}
   hidden
->{t(lang, 'wind.pause')}</button>
+>
+  <svg class="wind-toggle__icon wind-toggle__icon--pause" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9M11 3.5v9" stroke="currentColor" stroke-width="2" stroke-linecap="round" /></svg>
+  <svg class="wind-toggle__icon wind-toggle__icon--play" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3.2v9.6L12.8 8Z" fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" /></svg>
+  <span class="wind-toggle__label" aria-hidden="true">{t(lang, 'wind.pause')}</span>
+</button>
 
 <script>
   import { wind, onTick, onState, onEmit, setPaused, gustNow, startWind, isRunning } from '../scripts/wind';
@@ -191,7 +197,12 @@ const { lang } = Astro.props;
         toggle.hidden = false;
       }
       if (!isRunning()) draw();
-      toggle.textContent = wind.paused ? toggle.dataset.labelPlay! : toggle.dataset.labelPause!;
+      const label = wind.paused ? toggle.dataset.labelPlay! : toggle.dataset.labelPause!;
+      toggle.setAttribute('aria-label', label);
+      toggle.title = label;
+      toggle.dataset.paused = String(wind.paused);
+      const text = toggle.querySelector('.wind-toggle__label');
+      if (text) text.textContent = label;
     });
 
     toggle.addEventListener('click', () => {
@@ -233,22 +244,61 @@ const { lang } = Astro.props;
     z-index: 1;
     pointer-events: none;
   }
+  /* Phone: a small round icon with a 44px tap area. Desktop: icon and label. */
   .wind-toggle {
     position: absolute;
-    right: var(--gutter);
-    bottom: var(--space-4);
+    right: calc(var(--gutter) - 4px);
+    bottom: var(--space-2);
     z-index: 3;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    min-width: var(--tap-min);
     min-height: var(--tap-min);
-    padding: 0 var(--space-4);
-    background: rgb(243 244 239 / 0.92);
+    padding: 0;
+    background: none;
+    border: 0;
     color: var(--color-text);
-    border: 1.5px solid var(--color-border-strong);
-    border-radius: var(--radius-control);
     font-size: var(--step--1);
     font-weight: 600;
     cursor: var(--cursor-hover);
     touch-action: manipulation;
   }
-  .wind-toggle:hover { background: var(--white); }
+  /* The visible disc is smaller than the tap area. */
+  .wind-toggle::before {
+    content: '';
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 2rem;
+    height: 2rem;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgb(243 244 239 / 0.92);
+    border: 1.5px solid var(--color-border-strong);
+    z-index: -1;
+  }
+  .wind-toggle:hover::before { background: var(--white); }
+  .wind-toggle__icon { width: 0.85rem; height: 0.85rem; flex: none; }
+  .wind-toggle__icon--play, .wind-toggle[data-paused='true'] .wind-toggle__icon--pause { display: none; }
+  .wind-toggle[data-paused='true'] .wind-toggle__icon--play { display: block; }
+  .wind-toggle__label { display: none; }
+
+  @media (min-width: 48rem) {
+    .wind-toggle {
+      right: var(--gutter);
+      bottom: var(--space-4);
+      padding: 0 var(--space-4);
+      min-width: 0;
+    }
+    .wind-toggle::before {
+      inset: 0;
+      width: auto;
+      height: auto;
+      transform: none;
+      border-radius: var(--radius-control);
+    }
+    .wind-toggle__label { display: inline; }
+  }
   .wind-toggle[hidden] { display: none; }
 </style>

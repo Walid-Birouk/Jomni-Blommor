@@ -3,7 +3,7 @@
  * Hero variant C: a line-drawn meadow growing up from the bottom of the hero.
  * The wind rolls through it as a wave from left to right, and the cursor parts the stems.
  * Desktop: the meadow sits behind the words, low on the left and tall on the right.
- * Phone: the meadow follows the words. Still for prefers-reduced-motion.
+ * Phone: its own full-width band of flowers under the words. Still for prefers-reduced-motion.
  */
 import type { Lang } from '../../i18n/utils';
 import HeroText from './HeroText.astro';
@@ -17,7 +17,6 @@ const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 const r = (a: number, b: number) => a + rnd() * (b - a);
 const n = (v: number) => v.toFixed(1);
 
-const W = 1200, H = 640;
 const INK = '#3e5b40';
 type Stem = { x: number; h: number; svg: string; phase: number };
 const kinds = ['cosmos', 'tulip', 'umbel', 'bud', 'cosmos', 'grass', 'umbel', 'tulip'] as const;
@@ -56,30 +55,43 @@ const head = (kind: string, x: number, y: number, s: number) => {
   return '';
 };
 
-const stems: Stem[] = [];
-for (let i = 0; i < 34; i++) {
-  const x = 20 + (i / 33) * (W - 40) + r(-14, 14);
-  // Low on the left where the words sit, tall on the right.
-  const t = x / W;
-  const h = H * (t < 0.56 ? r(0.04, 0.1) : r(0.42, 0.86) * (0.7 + t * 0.35));
-  const kind = kinds[i % kinds.length];
-  const bend = r(-40, 40);
-  const tx = x + bend * 0.6, ty = H - h;
-  let svg = `<path d="M${n(x)} ${H} Q${n(x + bend)} ${n(H - h * 0.55)} ${n(tx)} ${n(ty)}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
-  const leaves = kind === 'grass' ? 0 : Math.round(r(1, 3));
-  for (let k = 0; k < leaves; k++) {
-    const u = r(0.2, 0.6);
-    const lx = x + (bend * 2 * (1 - u) * u) + (tx - x) * u * u;
-    const ly = H - h * 0.55 * 2 * (1 - u) * u - h * u * u;
-    svg += leafAt(lx, ly, r(22, 40), k % 2 ? r(-160, -120) : r(-60, -20));
+/**
+ * Build one meadow. `height(t)` gives each stem's height as a share of H for its
+ * position t (0 = left, 1 = right); `scale` sizes the flower heads.
+ */
+const meadow = (W: number, H: number, count: number, height: (t: number) => number, scale: number) => {
+  const stems: Stem[] = [];
+  for (let i = 0; i < count; i++) {
+    const x = 16 + (i / (count - 1)) * (W - 32) + r(-10, 10);
+    const t = x / W;
+    const h = H * height(t);
+    const kind = kinds[i % kinds.length];
+    const bend = r(-30, 30);
+    const tx = x + bend * 0.6, ty = H - h;
+    let svg = `<path d="M${n(x)} ${H} Q${n(x + bend)} ${n(H - h * 0.55)} ${n(tx)} ${n(ty)}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+    const leaves = kind === 'grass' ? 0 : Math.round(r(1, 3));
+    for (let k = 0; k < leaves; k++) {
+      const u = r(0.2, 0.6);
+      const lx = x + (bend * 2 * (1 - u) * u) + (tx - x) * u * u;
+      const ly = H - h * 0.55 * 2 * (1 - u) * u - h * u * u;
+      svg += leafAt(lx, ly, r(20, 34) * scale, k % 2 ? r(-160, -120) : r(-60, -20));
+    }
+    if (kind === 'grass') {
+      svg = `<path d="M${n(x)} ${H} Q${n(x + bend)} ${n(H - h * 0.5)} ${n(x + bend * 1.4)} ${n(H - h * 0.75)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+    } else {
+      svg += head(kind, tx, ty, r(18, 28) * scale);
+    }
+    stems.push({ x, h, svg, phase: rnd() * 6.28 });
   }
-  if (kind === 'grass') {
-    svg = `<path d="M${n(x)} ${H} Q${n(x + bend)} ${n(H - h * 0.5)} ${n(x + bend * 1.4)} ${n(H - h * 0.75)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
-  } else {
-    svg += head(kind, tx, ty, r(18, 30) * (0.8 + t * 0.4));
-  }
-  stems.push({ x, h, svg, phase: rnd() * 6.28 });
-}
+  return stems;
+};
+
+// Desktop: low on the left where the words sit, tall on the right.
+const DW = 1200, DH = 640;
+const wide = meadow(DW, DH, 34, (t) => (t < 0.56 ? r(0.04, 0.1) : r(0.42, 0.86) * (0.7 + t * 0.35)), 1);
+// Phone: a full-width band under the words, rolling heights, larger blooms.
+const PW = 400, PH = 330;
+const narrow = meadow(PW, PH, 15, (t) => 0.42 + Math.sin(t * Math.PI * 2.2 + 0.6) * 0.16 + r(0, 0.3), 1.25);
 ---
 
 <section class="hero-c" aria-labelledby="hero-heading">
@@ -87,9 +99,13 @@ for (let i = 0; i < 34; i++) {
     <HeroText lang={lang} />
   </div>
   <div class="hero-c__meadow" aria-hidden="true">
-    <svg class="meadow" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMaxYMax slice" focusable="false">
-      {stems.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase} set:html={s.svg} />)}
-      <path d={`M0 ${H - 1} H${W}`} stroke={INK} stroke-width="1.5" vector-effect="non-scaling-stroke" />
+    <svg class="meadow meadow--wide" viewBox={`0 0 ${DW} ${DH}`} preserveAspectRatio="xMaxYMax slice" focusable="false" data-h={DH}>
+      {wide.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase} set:html={s.svg} />)}
+      <path d={`M0 ${DH - 1} H${DW}`} stroke={INK} stroke-width="1.5" vector-effect="non-scaling-stroke" />
+    </svg>
+    <svg class="meadow meadow--narrow" viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMax meet" focusable="false" data-h={PH}>
+      {narrow.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase} set:html={s.svg} />)}
+      <path d={`M0 ${PH - 1} H${PW}`} stroke={INK} stroke-width="1.5" vector-effect="non-scaling-stroke" />
     </svg>
   </div>
   <WindPetals lang={lang} />
@@ -98,40 +114,45 @@ for (let i = 0; i < 34; i++) {
 <script>
   import { wind, onTick, onState } from '../../scripts/wind';
 
-  const svg = document.querySelector<SVGSVGElement>('svg.meadow');
-  if (svg) {
-    const H = 640;
-    const stems = [...svg.querySelectorAll<SVGGElement>('.m-stem')].map((g) => ({
-      g, x: Number(g.dataset.x), h: Number(g.dataset.h), phase: Number(g.dataset.phase), a: 0, v: 0,
-    }));
-    let time = 0;
-    onState(() => { if (wind.reduced) stems.forEach((s) => s.g.removeAttribute('transform')); });
-    onTick((dt) => {
-      time += dt;
-      const rect = svg.getBoundingClientRect();
-      // Map viewBox x to screen x for xMaxYMax slice: scale by height, align right.
-      const k = rect.height / H;
-      const offset = rect.right - 1200 * k;
-      const strength = Math.min((wind.base + wind.gust) / 120, 2.2);
-      const p = wind.pointer;
-      for (const s of stems) {
+  const svgs = [...document.querySelectorAll<SVGSVGElement>('svg.meadow')].map((svg) => {
+    const vb = svg.viewBox.baseVal;
+    return {
+      svg, W: vb.width, H: vb.height, wide: svg.classList.contains('meadow--wide'),
+      stems: [...svg.querySelectorAll<SVGGElement>('.m-stem')].map((g) => ({
+        g, x: Number(g.dataset.x), h: Number(g.dataset.h), phase: Number(g.dataset.phase), a: 0, v: 0,
+      })),
+    };
+  });
+  let time = 0;
+  onState(() => { if (wind.reduced) svgs.forEach((m) => m.stems.forEach((s) => s.g.removeAttribute('transform'))); });
+  onTick((dt) => {
+    time += dt;
+    const strength = Math.min((wind.base + wind.gust) / 120, 2.2);
+    const p = wind.pointer;
+    for (const m of svgs) {
+      const rect = m.svg.getBoundingClientRect();
+      if (!rect.height) continue; // the composition for the other screen size
+      // Map viewBox coordinates to the screen: wide is "slice" aligned right, narrow is "meet" centred.
+      const k = m.wide ? rect.height / m.H : Math.min(rect.width / m.W, rect.height / m.H);
+      const left = m.wide ? rect.right - m.W * k : rect.left + (rect.width - m.W * k) / 2;
+      for (const s of m.stems) {
         // The breeze travels as a wave from left to right across the meadow.
-        const wave = Math.sin(time * 1.6 - s.x * 0.006 + s.phase * 0.3);
-        const tall = 0.6 + (s.h / H) * 0.8;
+        const wave = Math.sin(time * 1.6 - (s.x / m.W) * 7 + s.phase * 0.3);
+        const tall = 0.6 + (s.h / m.H) * 0.8;
         let push = 0;
         if (p.active) {
-          const sx = offset + s.x * k, sy = rect.bottom - s.h * k * 0.8;
+          const sx = left + s.x * k, sy = rect.bottom - s.h * k * 0.8;
           const dx = sx - p.x, dy = sy - p.y, d = Math.hypot(dx, dy), R = 170;
-          // Cursor effect: the stems part around the pointer.
+          // Cursor and touch effect: the stems part around the pointer.
           if (d < R) push = (dx / R) * (1 - d / R) * 18 + p.vx * 0.005 * (1 - d / R);
         }
         const target = wave * 3.2 * tall * (0.4 + strength * 0.6) + (wind.gust / 220) * 9 * tall + Math.max(-20, Math.min(20, push));
         s.v += (30 * (target - s.a) - 6 * s.v) * dt;
         s.a += s.v * dt;
-        s.g.setAttribute('transform', `rotate(${s.a.toFixed(2)} ${s.x.toFixed(1)} ${H})`);
+        s.g.setAttribute('transform', `rotate(${s.a.toFixed(2)} ${s.x.toFixed(1)} ${m.H})`);
       }
-    });
-  }
+    }
+  });
 </script>
 
 <style>
@@ -142,12 +163,16 @@ for (let i = 0; i < 34; i++) {
     padding-top: var(--space-6);
   }
   .hero-c__inner { position: relative; z-index: 2; }
-  .hero-c__meadow { position: relative; z-index: 0; height: 17rem; margin-top: var(--space-5); }
-  .meadow { width: 100%; height: 100%; }
+  .hero-c__meadow { position: relative; z-index: 0; margin-top: var(--space-2); }
+  .meadow { display: block; width: 100%; }
+  .meadow--wide { display: none; }
+  .meadow--narrow { height: auto; aspect-ratio: 400 / 330; max-height: 22rem; }
 
   @media (min-width: 48rem) {
     .hero-c { min-height: min(48rem, calc(100svh - 4rem)); align-content: start; padding-top: var(--space-9); padding-bottom: var(--space-9); }
     .hero-c :global(.hero__text) { max-width: 34rem; }
     .hero-c__meadow { position: absolute; inset: 0; height: auto; margin: 0; }
+    .meadow--wide { display: block; height: 100%; }
+    .meadow--narrow { display: none; }
   }
 </style>
