@@ -1,0 +1,65 @@
+---
+/**
+ * Hero variant A: one large photo running edge to edge behind the words.
+ * Desktop: the photo fills the hero and a birch wash on the left keeps the text readable.
+ * Phone: the words come first so the button stays above the fold, then the photo runs edge to edge.
+ */
+import type { Lang } from '../../i18n/utils';
+import { t } from '../../i18n/utils';
+import HeroText from './HeroText.astro';
+import WindPetals from '../WindPetals.astro';
+import Photo from '../Photo.astro';
+import photo from '../../assets/stock/STOCK-bukett-hand.jpg';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<section class="hero-a" aria-labelledby="hero-heading">
+  <Photo
+    src={photo}
+    alt={t(lang, 'hero.alt.bouquet')}
+    lang={lang}
+    eager
+    ratio="auto"
+    sizes="100vw"
+    widths={[480, 768, 1080, 1440, 1920]}
+    class="hero-a__photo"
+  />
+  <div class="container hero-a__inner">
+    <HeroText lang={lang} />
+  </div>
+  <WindPetals lang={lang} />
+</section>
+
+<style>
+  .hero-a { position: relative; isolation: isolate; display: grid; }
+  .hero-a :global(.hero-a__photo) {
+    border-radius: 0;
+    height: min(62svh, 34rem);
+  }
+  .hero-a :global(.hero-a__photo .photo__img) { object-position: 60% 40%; }
+  .hero-a__inner { order: -1; padding-block: var(--space-6) var(--space-7); }
+
+  @media (min-width: 48rem) {
+    .hero-a { min-height: min(50rem, calc(100svh - 4rem)); align-items: center; }
+    .hero-a :global(.hero-a__photo) {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      z-index: 0;
+    }
+    .hero-a :global(.hero-a__photo .photo__img) { object-position: 75% 45%; }
+    .hero-a :global(.hero-a__photo .photo__tag) { left: auto; right: var(--space-4); top: var(--space-4); bottom: auto; }
+    /* Birch wash so the words sit on calm ground; the flowers stay clear on the right. */
+    .hero-a::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: linear-gradient(90deg, var(--birch) 0%, var(--birch) 34%, rgb(243 244 239 / 0.82) 46%, rgb(243 244 239 / 0) 66%);
+    }
+    .hero-a__inner { order: 0; position: relative; z-index: 2; padding-block: var(--space-9); }
+    .hero-a__inner :global(.hero__text) { max-width: 36rem; }
+  }
+</style>

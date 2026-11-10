@@ -44,7 +44,7 @@ export default defineConfig({
         defaultLocale: 'sv',
         locales: { sv: 'sv', en: 'en' },
       },
-      filter: (page) => !page.includes('/404'),
+      filter: (page) => !page.includes('/404') && !page.includes('/dev/'),
     }),
   ],
 });

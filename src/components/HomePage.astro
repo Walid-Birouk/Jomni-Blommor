@@ -7,8 +7,11 @@
 import { getCollection } from 'astro:content';
 import { business } from '../data/business';
 import { t, type Lang } from '../i18n/utils';
-import WindPetals from './WindPetals.astro';
-import Bouquet from './Bouquet.astro';
+import HeroBouquet from './hero/HeroBouquet.astro';
+import HeroFullBleed from './hero/HeroFullBleed.astro';
+import HeroLine from './hero/HeroLine.astro';
+import HeroMeadow from './hero/HeroMeadow.astro';
+import HeroBleed from './hero/HeroBleed.astro';
 import Photo from './Photo.astro';
 import OrderForm from './OrderForm.astro';
 import PageDrift from './PageDrift.astro';
@@ -19,14 +22,13 @@ import bench4 from '../assets/stock/STOCK-butik-narcisser.jpg';
 import bench5 from '../assets/stock/STOCK-brudbukett-eukalyptus.jpg';
 import shopImage from '../assets/stock/STOCK-florist-i-butik.jpg';
 
-interface Props { lang: Lang; }
-const { lang } = Astro.props;
+export type HeroVariant = 'bouquet' | 'fullbleed' | 'line' | 'meadow' | 'bleed';
+interface Props { lang: Lang; hero?: HeroVariant; }
+const { lang, hero = 'bouquet' } = Astro.props;
 
 const services = (await getCollection('services', (s) => s.id.startsWith(`${lang}/`)))
   .sort((a, b) => a.data.order - b.data.order);
 const season = (await getCollection('seasons', (s) => s.data.active))[0];
-const place = business.locality?.[lang];
-const address = [business.streetAddress, business.district].filter(Boolean).join(', ');
 const instagram = business.social.find((s) => /instagram/i.test(s.label));
 const bench = [
   { src: bench1, alt: t(lang, 'home.bench.alt1'), cls: 'bench__a' },
@@ -39,37 +41,11 @@ const bench = [
 
 <PageDrift />
 
-<section class="hero container" aria-labelledby="hero-heading">
-  <div class="hero__text">
-    <!-- TODO: client copy -->
-    <h1 id="hero-heading">{t(lang, 'home.hero.heading')}</h1>
-    <p class="hero__lead" data-wind-quiet>
-      {place
-        ? t(lang, 'home.hero.lead', { place })
-        : <Fragment set:html={t(lang, 'home.hero.lead', { place: `<em class="todo">${t(lang, 'todo.city')}</em>` })} />}
-    </p>
-    <p class="hero__actions" data-wind-quiet>
-      <a class="btn btn--primary" href="#kontakt">{t(lang, 'cta.order')}</a>
-    </p>
-    <ul class="hero__facts" data-wind-quiet aria-label={t(lang, 'hero.facts.label')}>
-      <li>
-        {business.streetAddress && business.mapUrl
-          ? <a href={business.mapUrl}>{address}<span class="visually-hidden">{t(lang, 'hero.facts.mapSuffix')}</span></a>
-          : <em class="todo">{t(lang, 'todo.address')}</em>}
-      </li>
-      <li>
-        {t(lang, 'hero.facts.openToday')}{' '}
-        {/* TODO: compute "Öppet idag till 18:30" from machine-readable hours once confirmed. */}
-        <em class="todo">{t(lang, 'todo.hours')}</em>
-      </li>
-      <li>{t(lang, 'hero.facts.services')}</li>
-    </ul>
-  </div>
-  <div class="hero__media">
-    <Bouquet />
-  </div>
-  <WindPetals lang={lang} />
-</section>
+{hero === 'bouquet' && <HeroBouquet lang={lang} />}
+{hero === 'fullbleed' && <HeroFullBleed lang={lang} />}
+{hero === 'line' && <HeroLine lang={lang} />}
+{hero === 'meadow' && <HeroMeadow lang={lang} />}
+{hero === 'bleed' && <HeroBleed lang={lang} />}
 
 {season && (
   <section class="season" aria-labelledby="season-heading">
@@ -175,41 +151,6 @@ const bench = [
 </section>
 
 <style>
-  /* Hero: text first on phones so what, where and the button sit above the fold. */
-  .hero {
-    position: relative;
-    isolation: isolate;
-    display: grid;
-    gap: var(--space-6);
-    padding-block: var(--space-6) var(--section-y);
-  }
-  .hero__text { position: relative; z-index: 2; }
-  .hero__lead {
-    margin-top: var(--space-4);
-    max-width: 34ch;
-    font-size: var(--step-1);
-    line-height: 1.45;
-    color: var(--color-text-muted);
-  }
-  .hero__actions { margin-top: var(--space-5); }
-  .hero__facts {
-    list-style: none;
-    padding: 0;
-    margin-top: var(--space-5);
-    display: grid;
-    gap: var(--space-1);
-    font-size: var(--step--1);
-    color: var(--color-text-muted);
-  }
-  .hero__facts a {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--tap-min);
-    margin-block: calc(var(--space-3) * -1);
-    font-weight: 600;
-  }
-  .hero__media { position: relative; z-index: 0; justify-self: stretch; }
-
   /* Seasonal banner: the one dark band on the page. */
   .season {
     --color-focus: var(--birch);
@@ -290,13 +231,6 @@ const bench = [
   .contact__hour { display: block; font-variant-numeric: tabular-nums; }
 
   @media (min-width: 48rem) {
-    .hero {
-      grid-template-columns: 1.1fr 1fr;
-      align-items: end;
-      gap: var(--space-8);
-      padding-top: var(--space-8);
-    }
-    .hero__text { padding-bottom: var(--space-8); }
     .bench__grid { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 13rem; }
     .bench__grid :global(.bench__a) { grid-column: 1 / span 2; grid-row: 1 / span 2; }
     .bench__grid :global(.bench__b) { grid-column: 3 / span 2; grid-row: 1; }

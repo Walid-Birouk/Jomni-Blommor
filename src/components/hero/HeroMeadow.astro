@@ -1,0 +1,153 @@
+---
+/**
+ * Hero variant C: a line-drawn meadow growing up from the bottom of the hero.
+ * The wind rolls through it as a wave from left to right, and the cursor parts the stems.
+ * Desktop: the meadow sits behind the words, low on the left and tall on the right.
+ * Phone: the meadow follows the words. Still for prefers-reduced-motion.
+ */
+import type { Lang } from '../../i18n/utils';
+import HeroText from './HeroText.astro';
+import WindPetals from '../WindPetals.astro';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+
+// Deterministic random so the meadow is the same on every build.
+let seed = 7;
+const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+const r = (a: number, b: number) => a + rnd() * (b - a);
+const n = (v: number) => v.toFixed(1);
+
+const W = 1200, H = 640;
+const INK = '#3e5b40';
+type Stem = { x: number; h: number; svg: string; phase: number };
+const kinds = ['cosmos', 'tulip', 'umbel', 'bud', 'cosmos', 'grass', 'umbel', 'tulip'] as const;
+const fills = { peony: '#9e2f4f', rose: '#c25a78', blush: '#e3a3b5', pale: '#f1d5dc', white: '#fbfbf8' };
+
+const leafAt = (x: number, y: number, len: number, ang: number) =>
+  `<path d="M${n(x)} ${n(y)} q${n(len * 0.35)} ${n(-len * 0.25)} ${n(len)} 0 q${n(-len * 0.45)} ${n(len * 0.3)} ${n(-len)} 0 Z" transform="rotate(${n(ang)} ${n(x)} ${n(y)})" fill="#dfe6d8" stroke="${INK}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>`;
+
+const head = (kind: string, x: number, y: number, s: number) => {
+  if (kind === 'cosmos') {
+    const c = [fills.blush, fills.pale, fills.rose, fills.white][Math.floor(r(0, 4))];
+    let p = '';
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * 360;
+      p += `<ellipse cx="${n(x)}" cy="${n(y - s * 0.55)}" rx="${n(s * 0.28)}" ry="${n(s * 0.55)}" transform="rotate(${a} ${n(x)} ${n(y)})" fill="${c}" fill-opacity="0.9" stroke="${INK}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
+    }
+    return p + `<circle cx="${n(x)}" cy="${n(y)}" r="${n(s * 0.2)}" fill="#c9a24a" stroke="${INK}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
+  }
+  if (kind === 'tulip') {
+    const c = rnd() > 0.5 ? fills.peony : fills.rose;
+    return `<path d="M${n(x - s * 0.5)} ${n(y - s * 0.2)} Q${n(x - s * 0.55)} ${n(y + s * 0.7)} ${n(x)} ${n(y + s * 0.7)} Q${n(x + s * 0.55)} ${n(y + s * 0.7)} ${n(x + s * 0.5)} ${n(y - s * 0.2)} L${n(x + s * 0.22)} ${n(y + s * 0.05)} L${n(x)} ${n(y - s * 0.45)} L${n(x - s * 0.22)} ${n(y + s * 0.05)} Z" fill="${c}" fill-opacity="0.92" stroke="${INK}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
+  }
+  if (kind === 'umbel') {
+    let p = '';
+    for (let i = 0; i < 9; i++) {
+      const a = Math.PI * (1.1 + (i / 8) * 0.8);
+      const ex = x + Math.cos(a) * s * 0.9, ey = y + Math.sin(a) * s * 0.7;
+      p += `<path d="M${n(x)} ${n(y + s * 0.3)} L${n(ex)} ${n(ey)}" stroke="${INK}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+      p += `<circle cx="${n(ex)}" cy="${n(ey)}" r="${n(s * 0.13)}" fill="${fills.white}" stroke="${INK}" stroke-width="0.9" vector-effect="non-scaling-stroke"/>`;
+    }
+    return p;
+  }
+  if (kind === 'bud') {
+    return `<path d="M${n(x)} ${n(y - s * 0.7)} Q${n(x + s * 0.45)} ${n(y)} ${n(x)} ${n(y + s * 0.4)} Q${n(x - s * 0.45)} ${n(y)} ${n(x)} ${n(y - s * 0.7)} Z" fill="${fills.blush}" stroke="${INK}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
+  }
+  return '';
+};
+
+const stems: Stem[] = [];
+for (let i = 0; i < 34; i++) {
+  const x = 20 + (i / 33) * (W - 40) + r(-14, 14);
+  // Low on the left where the words sit, tall on the right.
+  const t = x / W;
+  const h = H * (t < 0.56 ? r(0.04, 0.1) : r(0.42, 0.86) * (0.7 + t * 0.35));
+  const kind = kinds[i % kinds.length];
+  const bend = r(-40, 40);
+  const tx = x + bend * 0.6, ty = H - h;
+  let svg = `<path d="M${n(x)} ${H} Q${n(x + bend)} ${n(H - h * 0.55)} ${n(tx)} ${n(ty)}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  const leaves = kind === 'grass' ? 0 : Math.round(r(1, 3));
+  for (let k = 0; k < leaves; k++) {
+    const u = r(0.2, 0.6);
+    const lx = x + (bend * 2 * (1 - u) * u) + (tx - x) * u * u;
+    const ly = H - h * 0.55 * 2 * (1 - u) * u - h * u * u;
+    svg += leafAt(lx, ly, r(22, 40), k % 2 ? r(-160, -120) : r(-60, -20));
+  }
+  if (kind === 'grass') {
+    svg = `<path d="M${n(x)} ${H} Q${n(x + bend)} ${n(H - h * 0.5)} ${n(x + bend * 1.4)} ${n(H - h * 0.75)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  } else {
+    svg += head(kind, tx, ty, r(18, 30) * (0.8 + t * 0.4));
+  }
+  stems.push({ x, h, svg, phase: rnd() * 6.28 });
+}
+---
+
+<section class="hero-c" aria-labelledby="hero-heading">
+  <div class="container hero-c__inner">
+    <HeroText lang={lang} />
+  </div>
+  <div class="hero-c__meadow" aria-hidden="true">
+    <svg class="meadow" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMaxYMax slice" focusable="false">
+      {stems.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase} set:html={s.svg} />)}
+      <path d={`M0 ${H - 1} H${W}`} stroke={INK} stroke-width="1.5" vector-effect="non-scaling-stroke" />
+    </svg>
+  </div>
+  <WindPetals lang={lang} />
+</section>
+
+<script>
+  import { wind, onTick, onState } from '../../scripts/wind';
+
+  const svg = document.querySelector<SVGSVGElement>('svg.meadow');
+  if (svg) {
+    const H = 640;
+    const stems = [...svg.querySelectorAll<SVGGElement>('.m-stem')].map((g) => ({
+      g, x: Number(g.dataset.x), h: Number(g.dataset.h), phase: Number(g.dataset.phase), a: 0, v: 0,
+    }));
+    let time = 0;
+    onState(() => { if (wind.reduced) stems.forEach((s) => s.g.removeAttribute('transform')); });
+    onTick((dt) => {
+      time += dt;
+      const rect = svg.getBoundingClientRect();
+      // Map viewBox x to screen x for xMaxYMax slice: scale by height, align right.
+      const k = rect.height / H;
+      const offset = rect.right - 1200 * k;
+      const strength = Math.min((wind.base + wind.gust) / 120, 2.2);
+      const p = wind.pointer;
+      for (const s of stems) {
+        // The breeze travels as a wave from left to right across the meadow.
+        const wave = Math.sin(time * 1.6 - s.x * 0.006 + s.phase * 0.3);
+        const tall = 0.6 + (s.h / H) * 0.8;
+        let push = 0;
+        if (p.active) {
+          const sx = offset + s.x * k, sy = rect.bottom - s.h * k * 0.8;
+          const dx = sx - p.x, dy = sy - p.y, d = Math.hypot(dx, dy), R = 170;
+          // Cursor effect: the stems part around the pointer.
+          if (d < R) push = (dx / R) * (1 - d / R) * 18 + p.vx * 0.005 * (1 - d / R);
+        }
+        const target = wave * 3.2 * tall * (0.4 + strength * 0.6) + (wind.gust / 220) * 9 * tall + Math.max(-20, Math.min(20, push));
+        s.v += (30 * (target - s.a) - 6 * s.v) * dt;
+        s.a += s.v * dt;
+        s.g.setAttribute('transform', `rotate(${s.a.toFixed(2)} ${s.x.toFixed(1)} ${H})`);
+      }
+    });
+  }
+</script>
+
+<style>
+  .hero-c {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    padding-top: var(--space-6);
+  }
+  .hero-c__inner { position: relative; z-index: 2; }
+  .hero-c__meadow { position: relative; z-index: 0; height: 17rem; margin-top: var(--space-5); }
+  .meadow { width: 100%; height: 100%; }
+
+  @media (min-width: 48rem) {
+    .hero-c { min-height: min(48rem, calc(100svh - 4rem)); align-content: start; padding-top: var(--space-9); padding-bottom: var(--space-9); }
+    .hero-c :global(.hero__text) { max-width: 34rem; }
+    .hero-c__meadow { position: absolute; inset: 0; height: auto; margin: 0; }
+  }
+</style>

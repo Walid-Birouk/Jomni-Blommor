@@ -91,5 +91,10 @@
   "form.demoTitle": "Thank you, we have received your request",
   "form.demoBody": "This is a demo version of the site, so nothing was sent. On the real site the request goes straight to the shop.",
   "form.again": "Write a new request",
-  "form.honeypot": "Leave this field empty"
+  "form.honeypot": "Leave this field empty",
+  "hero.alt.bouquet": "Sample image: a hand holding out a large bouquet of pale pink peonies.",
+  "hero.alt.tying": "Sample image: hands tying a bouquet together with twine.",
+  "hero.alt.shop": "Sample image: daffodils in a glass vase inside a flower shop.",
+  "hero.alt.bridal": "Sample image: bridal bouquet with pink and white peonies.",
+  "hero.alt.table": "Sample image: dinner table with dahlias in a glass vase."
 }

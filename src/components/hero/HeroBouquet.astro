@@ -1,0 +1,37 @@
+---
+/** Hero variant: the illustrated bouquet in a zinc bucket inside the arch (current live hero). */
+import type { Lang } from '../../i18n/utils';
+import HeroText from './HeroText.astro';
+import Bouquet from '../Bouquet.astro';
+import WindPetals from '../WindPetals.astro';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<section class="hero container" aria-labelledby="hero-heading">
+  <HeroText lang={lang} />
+  <div class="hero__media">
+    <Bouquet />
+  </div>
+  <WindPetals lang={lang} />
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-6) var(--section-y);
+  }
+  .hero__media { position: relative; z-index: 0; justify-self: stretch; }
+  @media (min-width: 48rem) {
+    .hero {
+      grid-template-columns: 1.1fr 1fr;
+      align-items: end;
+      gap: var(--space-8);
+      padding-top: var(--space-8);
+    }
+    .hero :global(.hero__text) { padding-bottom: var(--space-8); }
+  }
+</style>

@@ -1,0 +1,64 @@
+---
+/**
+ * Hero variant D: a tall photo of hands tying a bouquet runs off the right edge
+ * of the screen, with a smaller shop photo overlapping it. Matches the headline
+ * "Blommor bundna för hand". Petals drift across both.
+ */
+import type { Lang } from '../../i18n/utils';
+import { t } from '../../i18n/utils';
+import HeroText from './HeroText.astro';
+import WindPetals from '../WindPetals.astro';
+import Photo from '../Photo.astro';
+import big from '../../assets/stock/STOCK-binder-bukett.jpg';
+import small from '../../assets/stock/STOCK-butik-narcisser.jpg';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<section class="hero-d" aria-labelledby="hero-heading">
+  <div class="hero-d__text">
+    <HeroText lang={lang} />
+  </div>
+  <div class="hero-d__media">
+    <Photo src={big} alt={t(lang, 'hero.alt.tying')} lang={lang} eager ratio="auto" sizes="(min-width: 48rem) 55vw, 100vw" widths={[480, 768, 1080, 1440]} class="hero-d__big" />
+    <Photo src={small} alt={t(lang, 'hero.alt.shop')} lang={lang} ratio="4 / 5" sizes="(min-width: 48rem) 16vw, 40vw" widths={[240, 360, 540]} class="hero-d__small" />
+  </div>
+  <WindPetals lang={lang} />
+</section>
+
+<style>
+  .hero-d { position: relative; isolation: isolate; display: grid; }
+  .hero-d__media { position: relative; z-index: 0; margin-bottom: var(--space-7); }
+  .hero-d :global(.hero-d__big) { border-radius: 0; height: min(56svh, 30rem); }
+  .hero-d :global(.hero-d__small) {
+    position: absolute;
+    right: var(--gutter);
+    bottom: calc(var(--space-7) * -1);
+    width: 34%;
+    border: 6px solid var(--birch);
+    box-shadow: 0 16px 30px -18px rgb(30 42 36 / 0.5);
+  }
+  .hero-d__text {
+    position: relative;
+    z-index: 2;
+    padding: var(--space-6) var(--gutter) var(--space-7);
+    max-width: var(--container);
+  }
+
+  @media (min-width: 48rem) {
+    .hero-d {
+      /* The text column lines up with the site container; the photo runs to the screen edge. */
+      grid-template-columns: max(var(--gutter), calc((100% - var(--container)) / 2 + var(--gutter))) minmax(0, 0.9fr) minmax(0, 1.1fr);
+      min-height: min(48rem, calc(100svh - 4rem));
+    }
+    .hero-d__text { grid-column: 2; align-self: center; padding: var(--space-9) var(--space-7) var(--space-9) 0; }
+    .hero-d__media { grid-column: 3; margin-bottom: 0; }
+    .hero-d :global(.hero-d__big) { height: 100%; min-height: 100%; }
+    .hero-d :global(.hero-d__small) {
+      right: auto;
+      left: calc(var(--space-6) * -1);
+      bottom: var(--space-8);
+      width: clamp(9rem, 15vw, 13rem);
+    }
+  }
+</style>

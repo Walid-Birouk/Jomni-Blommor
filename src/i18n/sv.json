@@ -91,5 +91,10 @@
   "form.demoTitle": "Tack, vi har tagit emot din förfrågan",
   "form.demoBody": "Det här är en demoversion av sidan, så inget skickades. På den riktiga sidan går förfrågan direkt till butiken.",
   "form.again": "Skriv en ny förfrågan",
-  "form.honeypot": "Lämna det här fältet tomt"
+  "form.honeypot": "Lämna det här fältet tomt",
+  "hero.alt.bouquet": "Exempelbild: en hand håller fram en stor bukett med ljusrosa pioner.",
+  "hero.alt.tying": "Exempelbild: händer som binder ihop en bukett med snöre.",
+  "hero.alt.shop": "Exempelbild: narcisser i en glasvas inne i en blomsterbutik.",
+  "hero.alt.bridal": "Exempelbild: brudbukett med rosa och vita pioner.",
+  "hero.alt.table": "Exempelbild: middagsbord med dahlior i glasvas."
 }

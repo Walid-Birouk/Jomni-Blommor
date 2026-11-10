@@ -30,6 +30,7 @@ const { src, alt, lang, sizes, widths = [360, 540, 720, 960, 1280], sample = tru
     widths={widths}
     sizes={sizes}
     loading={eager ? 'eager' : 'lazy'}
+    fetchpriority={eager ? 'high' : 'auto'}
     class="photo__img"
   />
   {sample && <span class="photo__tag" aria-hidden="true">{t(lang, 'photo.sample')}</span>}

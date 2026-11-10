@@ -1,0 +1,25 @@
+---
+/**
+ * Preview pages for hero variants, for choosing with the client.
+ * Not linked from the site, noindex, and filtered out of the sitemap.
+ * TODO: delete this folder once a hero is chosen.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import HomePage, { type HeroVariant } from '../../../components/HomePage.astro';
+
+export function getStaticPaths() {
+  const variants: { variant: string; hero: HeroVariant; name: string }[] = [
+    { variant: 'a', hero: 'fullbleed', name: 'A: Helbild' },
+    { variant: 'b', hero: 'line', name: 'B: Bilder på en lina' },
+    { variant: 'c', hero: 'meadow', name: 'C: Äng' },
+    { variant: 'd', hero: 'bleed', name: 'D: Utfallande bild' },
+    { variant: 'nu', hero: 'bouquet', name: 'Nuvarande: hink' },
+  ];
+  return variants.map((v) => ({ params: { variant: v.variant }, props: v }));
+}
+const { hero, name } = Astro.props;
+---
+
+<BaseLayout lang="sv" route="home" title={`Hjältevariant ${name} | Jomni Blommor`} description="Förhandsvisning av hjältevarianter." noindex>
+  <HomePage lang="sv" hero={hero} />
+</BaseLayout>
