@@ -1,0 +1,239 @@
+---
+/**
+ * Illustrated bouquet for the hero arch. Each stem sways around the point where
+ * the bouquet is tied, driven by the shared hero wind (src/scripts/wind.ts).
+ * Cursor effects: flowers lean away from the pointer, a quick pass over a bloom
+ * shakes a petal loose into the falling-petal layer, and a tap shakes the bouquet.
+ * Decorative (aria-hidden). Static for prefers-reduced-motion.
+ * TODO: the client's real photos may replace or join this illustration later.
+ */
+const BX = 200;
+const BY = 338;
+const n = (v: number) => v.toFixed(1);
+const STEM = '#5f7a5c';
+const LINE = 'rgb(30 42 36 / 0.14)';
+
+const stem = (hx: number, hy: number, bend = 0) => {
+  const cx = (BX + hx) / 2 + bend;
+  const cy = (BY + hy) / 2;
+  return `<path d="M${BX} ${BY} Q${n(cx)} ${n(cy)} ${hx} ${hy}" fill="none" stroke="${STEM}" stroke-width="3.2" stroke-linecap="round"/>`;
+};
+
+const peony = (cx: number, cy: number, r: number, c: string[]) => {
+  let s = `<circle cx="${cx}" cy="${cy}" r="${n(r * 0.92)}" fill="${c[0]}"/>`;
+  const rings: [number, number, string, number][] = [
+    [r, 9, c[0], 0], [r * 0.74, 7, c[1], 18], [r * 0.5, 6, c[2], 7], [r * 0.3, 5, c[3], 30],
+  ];
+  for (const [rr, count, col, off] of rings) {
+    for (let i = 0; i < count; i++) {
+      const a = (i / count) * 360 + off;
+      const rad = (a * Math.PI) / 180;
+      const px = cx + Math.cos(rad) * rr * 0.45;
+      const py = cy + Math.sin(rad) * rr * 0.45;
+      s += `<ellipse cx="${n(px)}" cy="${n(py)}" rx="${n(rr * 0.5)}" ry="${n(rr * 0.38)}" transform="rotate(${n(a)} ${n(px)} ${n(py)})" fill="${col}" stroke="${LINE}" stroke-width="0.7"/>`;
+    }
+  }
+  return s;
+};
+
+const ranunculus = (cx: number, cy: number, r: number) => {
+  let s = '';
+  const fills = ['#fbfbf8', '#f1ede4', '#fbfbf8', '#ece6da', '#f7f4ee'];
+  [1, 0.8, 0.62, 0.45, 0.3].forEach((k, i) => {
+    s += `<circle cx="${cx}" cy="${n(cy - r * 0.05 * i)}" r="${n(r * k)}" fill="${fills[i]}" stroke="#d6cfc0" stroke-width="0.9"/>`;
+  });
+  return s + `<circle cx="${cx}" cy="${n(cy - r * 0.24)}" r="${n(r * 0.14)}" fill="#8a9a7b"/>`;
+};
+
+const tulip = (cx: number, cy: number, r: number, col: string, light: string) =>
+  `<path d="M${n(cx - r)} ${n(cy - r * 0.35)} Q${n(cx - r)} ${n(cy + r)} ${cx} ${n(cy + r)} Q${n(cx + r)} ${n(cy + r)} ${n(cx + r)} ${n(cy - r * 0.35)} L${n(cx + r * 0.45)} ${n(cy - r * 0.05)} L${cx} ${n(cy - r * 0.7)} L${n(cx - r * 0.45)} ${n(cy - r * 0.05)} Z" fill="${col}" stroke="${LINE}" stroke-width="0.8"/>` +
+  `<path d="M${cx} ${n(cy - r * 0.6)} Q${n(cx - r * 0.35)} ${n(cy + r * 0.2)} ${cx} ${n(cy + r * 0.9)} Q${n(cx + r * 0.35)} ${n(cy + r * 0.2)} ${cx} ${n(cy - r * 0.6)} Z" fill="${light}" opacity="0.55"/>`;
+
+const gyps = (cx: number, cy: number) => {
+  let s = '';
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2 + 0.3;
+    const d = i % 2 ? 9 : 13;
+    const x = cx + Math.cos(a) * d;
+    const y = cy + Math.sin(a) * d * 0.8;
+    s += `<path d="M${cx} ${cy + 6} L${n(x)} ${n(y)}" stroke="${STEM}" stroke-width="0.8"/>`;
+    s += `<circle cx="${n(x)}" cy="${n(y)}" r="3.4" fill="#fbfbf8" stroke="#d6cfc0" stroke-width="0.6"/>`;
+  }
+  return s;
+};
+
+const euca = (tx: number, ty: number) => {
+  let s = stem(tx, ty, 0);
+  const dx = tx - BX, dy = ty - BY;
+  const len = Math.hypot(dx, dy);
+  const nx = -dy / len, ny = dx / len;
+  [0.42, 0.54, 0.66, 0.77, 0.87, 0.96].forEach((t, i) => {
+    const side = i % 2 ? 1 : -1;
+    const r = 11 - i * 0.9;
+    const x = BX + dx * t + nx * side * 10;
+    const y = BY + dy * t + ny * side * 10;
+    s += `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="${i % 2 ? '#8a9a7b' : '#9dab90'}" stroke="#6f7a69" stroke-width="0.6"/>`;
+  });
+  return s;
+};
+
+const leaf = (x: number, y: number, len: number, ang: number, col: string) =>
+  `<g transform="rotate(${ang} ${x} ${y})"><path d="M${x} ${y} Q${x + len * 0.32} ${y - len * 0.5} ${x} ${y - len} Q${x - len * 0.32} ${y - len * 0.5} ${x} ${y} Z" fill="${col}"/><path d="M${x} ${y - 4} L${x} ${y - len + 6}" stroke="rgb(243 244 239 / 0.4)" stroke-width="1"/></g>`;
+
+const DEEP = ['#9e2f4f', '#b4405f', '#c25a78', '#e3a3b5'];
+const BLUSH = ['#e3a3b5', '#ebb9c6', '#f1d5dc', '#f7e6ea'];
+const ROSE = ['#c25a78', '#d47891', '#e3a3b5', '#f1d5dc'];
+
+type Part = { hx: number; hy: number; r: number; amp: number; freq: number; phase: number; color: string; stem: string; head: string };
+const parts: Part[] = [
+  { hx: 62, hy: 214, r: 14, amp: 5, freq: 0.9, phase: 0.2, color: '', stem: euca(62, 214), head: '' },
+  { hx: 342, hy: 222, r: 14, amp: 5, freq: 1.0, phase: 1.4, color: '', stem: euca(342, 222), head: '' },
+  { hx: 214, hy: 42, r: 14, amp: 4, freq: 0.8, phase: 2.1, color: '', stem: euca(214, 42), head: '' },
+  { hx: 112, hy: 270, r: 0, amp: 3, freq: 1.1, phase: 0.9, color: '', stem: '', head: leaf(150, 300, 78, -58, '#3e5b40') },
+  { hx: 292, hy: 272, r: 0, amp: 3, freq: 1.2, phase: 2.6, color: '', stem: '', head: leaf(252, 302, 72, 54, '#4d6b4c') },
+  { hx: 148, hy: 112, r: 19, amp: 5, freq: 1.2, phase: 0.6, color: '#9e2f4f', stem: stem(148, 112, -8), head: tulip(148, 112, 19, '#9e2f4f', '#c25a78') },
+  { hx: 262, hy: 116, r: 25, amp: 5, freq: 1.05, phase: 1.9, color: '#c25a78', stem: stem(262, 116, 8), head: peony(262, 116, 25, ROSE) },
+  { hx: 98, hy: 150, r: 14, amp: 6, freq: 1.3, phase: 0.1, color: '#fbfbf8', stem: stem(98, 150, -6), head: gyps(98, 150) },
+  { hx: 312, hy: 150, r: 14, amp: 6, freq: 1.25, phase: 2.9, color: '#fbfbf8', stem: stem(312, 150, 6), head: gyps(312, 150) },
+  { hx: 236, hy: 74, r: 14, amp: 6, freq: 1.4, phase: 1.1, color: '#fbfbf8', stem: stem(236, 74, 4), head: gyps(236, 74) },
+  { hx: 168, hy: 66, r: 14, amp: 6, freq: 1.35, phase: 2.3, color: '#fbfbf8', stem: stem(168, 66, -4), head: gyps(168, 66) },
+  { hx: 126, hy: 208, r: 36, amp: 4, freq: 0.95, phase: 2.0, color: '#e3a3b5', stem: stem(126, 208, -10), head: peony(126, 208, 36, BLUSH) },
+  { hx: 280, hy: 204, r: 31, amp: 4, freq: 1.0, phase: 0.4, color: '#fbfbf8', stem: stem(280, 204, 10), head: ranunculus(280, 204, 31) },
+  { hx: 160, hy: 262, r: 0, amp: 2.5, freq: 1.0, phase: 0.5, color: '', stem: '', head: leaf(176, 298, 62, -34, '#5f7a5c') },
+  { hx: 244, hy: 262, r: 0, amp: 2.5, freq: 1.1, phase: 1.7, color: '', stem: '', head: leaf(226, 298, 60, 32, '#3e5b40') },
+  { hx: 200, hy: 240, r: 0, amp: 2, freq: 0.9, phase: 2.4, color: '', stem: '', head: leaf(204, 300, 66, -6, '#4d6b4c') },
+  { hx: 168, hy: 252, r: 22, amp: 3.5, freq: 1.1, phase: 2.7, color: '#c25a78', stem: stem(168, 252, -4), head: peony(168, 252, 22, ROSE) },
+  { hx: 306, hy: 254, r: 16, amp: 4, freq: 1.2, phase: 0.8, color: '#9e2f4f', stem: stem(306, 254, 6), head: tulip(306, 254, 16, '#b4405f', '#e3a3b5') },
+  { hx: 96, hy: 262, r: 14, amp: 5, freq: 1.3, phase: 1.5, color: '#fbfbf8', stem: stem(96, 262, -4), head: gyps(96, 262) },
+  { hx: 200, hy: 176, r: 47, amp: 3, freq: 0.85, phase: 1.2, color: '#9e2f4f', stem: stem(200, 176), head: peony(200, 176, 47, DEEP) },
+  { hx: 224, hy: 256, r: 17, amp: 3.5, freq: 1.15, phase: 3.0, color: '#fbfbf8', stem: stem(224, 256, 3), head: ranunculus(224, 256, 17) },
+];
+---
+
+<div class="hero__bouquet">
+  <svg class="bouquet" viewBox="0 0 400 500" aria-hidden="true" focusable="false">
+    <ellipse cx="200" cy="482" rx="78" ry="9" fill="rgb(30 42 36 / 0.1)" />
+    <g class="b-all">
+      <path d="M126 300 L82 150 Q120 168 168 214 L176 300 Z" fill="#efe5d3" stroke="#cbbb9c" stroke-width="1.2" />
+      <path d="M274 300 L322 146 Q282 166 232 214 L224 300 Z" fill="#e8dcc6" stroke="#cbbb9c" stroke-width="1.2" />
+      {parts.map((p) => (
+        <g
+          class="b-sway"
+          data-hx={p.hx}
+          data-hy={p.hy}
+          data-r={p.r}
+          data-amp={p.amp}
+          data-freq={p.freq}
+          data-phase={p.phase}
+          data-color={p.color}
+        >
+          <g set:html={p.stem} />
+          <g class="b-head" set:html={p.head} />
+        </g>
+      ))}
+      <!-- Paper wrap and ribbon sit in front of the stems and do not sway on their own. -->
+      <path d="M104 282 L200 478 L296 282 Q248 304 200 298 Q152 304 104 282 Z" fill="#f4ecdd" stroke="#cbbb9c" stroke-width="1.2" />
+      <path d="M200 298 L200 478 L296 282 Q248 304 200 298 Z" fill="#e8dcc6" />
+      <path d="M137 338 L263 338 L257 352 L143 352 Z" fill="#3e5b40" />
+      <ellipse cx="186" cy="345" rx="15" ry="8" transform="rotate(-18 186 345)" fill="none" stroke="#3e5b40" stroke-width="4" />
+      <ellipse cx="214" cy="345" rx="15" ry="8" transform="rotate(18 214 345)" fill="none" stroke="#3e5b40" stroke-width="4" />
+      <path d="M198 349 L184 384 M202 349 L218 380" stroke="#3e5b40" stroke-width="4" stroke-linecap="round" />
+      <circle cx="200" cy="346" r="5" fill="#2f4631" />
+    </g>
+  </svg>
+</div>
+
+<script>
+  import { wind, onTick, onState, emit } from '../scripts/wind';
+
+  const svg = document.querySelector<SVGSVGElement>('svg.bouquet');
+  if (svg) {
+    const BX = 200, BY = 338, VIEW_W = 400;
+    const all = svg.querySelector<SVGGElement>('.b-all')!;
+    const items = [...svg.querySelectorAll<SVGGElement>('.b-sway')].map((g) => ({
+      g,
+      head: g.querySelector<SVGGElement>('.b-head'),
+      hx: Number(g.dataset.hx), hy: Number(g.dataset.hy), r: Number(g.dataset.r),
+      amp: Number(g.dataset.amp), freq: Number(g.dataset.freq), phase: Number(g.dataset.phase),
+      color: g.dataset.color ?? '',
+      a: 0, v: 0, cool: 0,
+    }));
+    let time = 0, lean = 0, leanV = 0;
+
+    const rest = () => {
+      items.forEach((i) => { i.g.removeAttribute('transform'); i.head?.removeAttribute('transform'); i.a = 0; i.v = 0; });
+      all.removeAttribute('transform');
+    };
+    onState(() => { if (wind.reduced) rest(); });
+
+    onTick((dt, now) => {
+      time += dt;
+      const rect = svg.getBoundingClientRect();
+      const k = rect.width / VIEW_W;
+      const strength = Math.min((wind.base + wind.gust) / 120, 2.2);
+      const p = wind.pointer;
+      const speed = Math.hypot(p.vx, p.vy);
+      const R = 150;
+      for (const i of items) {
+        const sway = Math.sin(time * i.freq * 2 + i.phase) * i.amp * (0.35 + strength * 0.5);
+        const gustLean = (wind.gust / 220) * i.amp * 1.6;
+        let push = 0;
+        if (p.active) {
+          const sx = rect.left + i.hx * k, sy = rect.top + i.hy * k;
+          const dx = sx - p.x, dy = sy - p.y;
+          const d = Math.hypot(dx, dy);
+          if (d < R) {
+            // Cursor effect: the flower leans away from the pointer.
+            push = (dx / R) * (1 - d / R) * 14 + p.vx * 0.004 * (1 - d / R);
+            // A quick pass over a bloom shakes a petal loose.
+            if (i.color && d < i.r * k * 1.3 && speed > 500 && now > i.cool) {
+              emit(sx, sy, i.color);
+              i.cool = now + 160;
+            }
+          }
+        }
+        const target = sway + gustLean + Math.max(-16, Math.min(16, push));
+        i.v += (36 * (target - i.a) - 7 * i.v) * dt;
+        i.a += i.v * dt;
+        i.g.setAttribute('transform', `rotate(${i.a.toFixed(2)} ${BX} ${BY})`);
+        if (i.head && i.r) {
+          const flutter = Math.sin(time * i.freq * 3.1 + i.phase) * i.amp * 0.6 * strength + i.v * 0.04;
+          i.head.setAttribute('transform', `rotate(${flutter.toFixed(2)} ${i.hx} ${i.hy})`);
+        }
+      }
+      const leanTarget = Math.sin(time * 0.7) * 0.8 * strength + (wind.gust / 220) * 1.5;
+      leanV += (20 * (leanTarget - lean) - 5 * leanV) * dt;
+      lean += leanV * dt;
+      all.setAttribute('transform', `rotate(${lean.toFixed(2)} 200 478)`);
+    });
+
+    // Tap or click: shake the bouquet and let a few petals go.
+    svg.addEventListener('pointerdown', () => {
+      if (wind.reduced || wind.paused) return;
+      items.forEach((i) => { i.v += (Math.random() - 0.5) * 160; });
+      const rect = svg.getBoundingClientRect();
+      const k = rect.width / VIEW_W;
+      items
+        .filter((i) => i.color)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 4)
+        .forEach((i) => emit(rect.left + i.hx * k, rect.top + i.hy * k, i.color));
+    });
+  }
+</script>
+
+<style>
+  .hero__bouquet {
+    aspect-ratio: 4 / 5;
+    background: var(--color-surface);
+    border-radius: var(--radius-arch);
+    overflow: hidden;
+  }
+  .bouquet {
+    width: 100%;
+    height: 100%;
+    touch-action: manipulation;
+    cursor: grab;
+  }
+  .bouquet:active { cursor: grabbing; }
+</style>

@@ -6,7 +6,12 @@ Status: **proposal, awaiting client approval.** Replace with the client's brand 
 
 A Swedish flower shop in cool northern daylight. The background is pale like birch bark. Green comes from moss and stems. Colour accents come from the flowers themselves. The photos carry the page, and everything around them stays quiet.
 
-The one bold element is the **glasshouse arch**: the hero photo has a rounded top like an orangery window. Nothing else on the site uses that shape.
+The one bold element is the **glasshouse arch** with a **bouquet in the wind**. The arch is rounded at the top like an orangery window, and nothing else on the site uses that shape. Inside it, an illustrated hand-tied bouquet sways on a shared breeze while petals and leaves drift across the hero.
+
+- Gusts come on load, every 7 to 13 seconds, and when the visitor scrolls.
+- Flowers lean away from the cursor, a quick pass over a bloom shakes a petal loose, and a tap shakes the bouquet.
+- A "Stoppa vinden" button pauses it all. It stops off-screen, and shows a still frame for reduced motion.
+- The illustration stands in for photos in this mock. Real photos of the client's bouquets can replace it or sit beside it later.
 
 ## Colour
 
@@ -44,7 +49,7 @@ Peony is reserved for the single main action on each screen, so it always means 
 
 - 4 px base spacing scale (`--space-1` to `--space-9`). Sections use fluid vertical padding.
 - Radius by role: controls 6 px, photos 2 px, and the hero arch is fully rounded at the top.
-- Motion stays minimal: colour transitions on buttons and links, nothing that animates on scroll. Reduced motion is respected.
+- Motion lives in the hero only: the wind. Everything else stays still apart from colour transitions on buttons and links. Reduced motion is respected.
 
 ## Open questions for the client
 

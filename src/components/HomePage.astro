@@ -8,7 +8,7 @@ import { getCollection } from 'astro:content';
 import { business } from '../data/business';
 import { t, type Lang } from '../i18n/utils';
 import WindPetals from './WindPetals.astro';
-import heroImage from '../assets/placeholder/PLACEHOLDER-hero.jpg';
+import Bouquet from './Bouquet.astro';
 import shopImage from '../assets/placeholder/PLACEHOLDER-butiken.jpg';
 
 interface Props { lang: Lang; }
@@ -48,16 +48,7 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
     </ul>
   </div>
   <div class="hero__media">
-    <Picture
-      src={heroImage}
-      alt={t(lang, 'home.hero.alt')}
-      formats={['avif', 'webp']}
-      widths={[360, 540, 720, 960, 1200]}
-      sizes="(min-width: 48rem) 45vw, 100vw"
-      loading="eager"
-      fetchpriority="high"
-      class="hero__img"
-    />
+    <Bouquet />
   </div>
   <WindPetals lang={lang} />
 </section>
@@ -187,13 +178,6 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
     font-weight: 600;
   }
   .hero__media { position: relative; z-index: 0; justify-self: stretch; }
-  /* The glasshouse arch: the one shape on the site that is not a rectangle. */
-  .hero__media :global(.hero__img) {
-    width: 100%;
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-    border-radius: var(--radius-arch);
-  }
 
   .services { padding-block: var(--section-y); border-top: 1px solid var(--color-border); }
   .services__head { max-width: var(--measure); }

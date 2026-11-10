@@ -1,10 +1,10 @@
 ---
 /**
- * Petals and leaves carried on a breeze across the hero.
- * One authored moment: a gust blows them in on load, then they drift.
- * Scrolling or moving the pointer stirs a new gust.
- * Decorative only (aria-hidden). Pausable (WCAG 2.2.2), stops off-screen and
- * when the tab is hidden, and draws a still frame for prefers-reduced-motion.
+ * Petals and leaves carried on the shared hero wind (src/scripts/wind.ts).
+ * A gust blows them in on load, then they drift. The cursor pushes nearby petals
+ * aside, and the bouquet sheds petals into this layer when brushed.
+ * Decorative only (aria-hidden). Pausable (WCAG 2.2.2), stops off-screen and when
+ * the tab is hidden, and draws a still frame for prefers-reduced-motion.
  */
 import { t, type Lang } from '../i18n/utils';
 interface Props { lang: Lang; }
@@ -21,15 +21,19 @@ const { lang } = Astro.props;
 >{t(lang, 'wind.pause')}</button>
 
 <script>
+  import { wind, onTick, onState, onEmit, setPaused, gustNow, startWind, isRunning } from '../scripts/wind';
+
   type Bit = {
-    x: number; y: number; size: number; kind: 'petal' | 'leaf';
-    color: string; vy: number; rot: number; spin: number;
-    flip: number; flipSpeed: number; sway: number; swaySpeed: number; depth: number;
+    x: number; y: number; size: number; kind: 'petal' | 'leaf'; color: string;
+    vy: number; kx: number; ky: number; rot: number; spin: number;
+    flip: number; flipSpeed: number; sway: number; swaySpeed: number; depth: number; extra: boolean;
   };
 
   const PETALS = ['#9e2f4f', '#c25a78', '#e3a3b5', '#f1d5dc', '#fbfbf8'];
   const LEAVES = ['#3e5b40', '#5f7a5c', '#8a9a7b'];
   const STORE_KEY = 'jomni-wind-paused';
+  const MAX_EXTRA = 24;
+  const PUSH_RADIUS = 110;
 
   const canvas = document.querySelector<HTMLCanvasElement>('canvas.wind');
   const toggle = document.querySelector<HTMLButtonElement>('.wind-toggle');
@@ -37,13 +41,8 @@ const { lang } = Astro.props;
   const ctx = canvas?.getContext('2d');
 
   if (canvas && toggle && host && ctx) {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     let w = 0, h = 0, dpr = 1;
     let bits: Bit[] = [];
-    let wind = 0;            // current horizontal wind, px/s
-    let gust = 0;            // extra wind from gusts, decays
-    let last = 0, raf = 0;
-    let visible = true, paused = false, nextGust = 0;
     // Areas with small text where petals fade so they never hurt legibility.
     let quiet: DOMRect[] = [];
 
@@ -60,6 +59,7 @@ const { lang } = Astro.props;
         kind,
         color: kind === 'petal' ? pick(PETALS) : pick(LEAVES),
         vy: rand(18, 38) * depth,
+        kx: 0, ky: 0,
         rot: rand(0, Math.PI * 2),
         spin: rand(-1.2, 1.2),
         flip: rand(0, Math.PI * 2),
@@ -67,6 +67,7 @@ const { lang } = Astro.props;
         sway: rand(0, Math.PI * 2),
         swaySpeed: rand(0.6, 1.4),
         depth,
+        extra: false,
       };
     };
 
@@ -85,9 +86,12 @@ const { lang } = Astro.props;
         const q = el.getBoundingClientRect();
         return new DOMRect(q.left - r.left - 8, q.top - r.top - 8, q.width + 16, q.height + 16);
       });
+      const base = bits.filter((b) => !b.extra);
+      const extras = bits.filter((b) => b.extra);
       const n = count();
-      while (bits.length < n) bits.push(make(false));
-      bits.length = n;
+      while (base.length < n) base.push(make(false));
+      base.length = n;
+      bits = [...base, ...extras];
     };
 
     const drawBit = (b: Bit) => {
@@ -129,107 +133,94 @@ const { lang } = Astro.props;
       for (const b of bits) drawBit(b);
     };
 
-    const step = (dt: number, now: number) => {
-      if (now > nextGust) {
-        gust += rand(60, 140);
-        nextGust = now + rand(7000, 13000);
-      }
-      gust *= Math.pow(0.55, dt);          // gusts die down over a few seconds
-      wind = 24 + gust;
-      for (const b of bits) {
+    onTick((dt) => {
+      const g = wind.gust;
+      const windX = wind.base + g;
+      const hostRect = host.getBoundingClientRect();
+      const p = wind.pointer;
+      const px = p.x - hostRect.left, py = p.y - hostRect.top;
+      const decay = Math.pow(0.12, dt);
+      for (let i = bits.length - 1; i >= 0; i--) {
+        const b = bits[i];
         b.sway += b.swaySpeed * dt;
-        b.flip += b.flipSpeed * dt * (1 + gust / 120);
-        b.rot += b.spin * dt * (1 + gust / 200);
-        b.x += (wind * b.depth + Math.sin(b.sway) * 16) * dt;
-        b.y += (b.vy + Math.cos(b.sway * 0.7) * 6 - gust * 0.08) * dt;
-        if (b.y > h + 30 || b.x > w + 40) {
+        b.flip += b.flipSpeed * dt * (1 + g / 120);
+        b.rot += b.spin * dt * (1 + g / 200);
+        // Cursor effect: petals near the pointer are pushed out of its way.
+        if (p.active) {
+          const dx = b.x - px, dy = b.y - py;
+          const d = Math.hypot(dx, dy);
+          if (d < PUSH_RADIUS && d > 0.1) {
+            const f = (1 - d / PUSH_RADIUS) * 1400 * dt;
+            b.kx += (dx / d) * f + p.vx * 0.02 * (1 - d / PUSH_RADIUS);
+            b.ky += (dy / d) * f;
+            b.flip += f * 0.02;
+          }
+        }
+        b.kx *= decay; b.ky *= decay;
+        b.x += (windX * b.depth + Math.sin(b.sway) * 16 + b.kx) * dt;
+        b.y += (b.vy + Math.cos(b.sway * 0.7) * 6 - g * 0.08 + b.ky) * dt;
+        if (b.y > h + 30 || b.x > w + 40 || b.x < -w * 0.4 || b.y < -h * 0.7) {
+          if (b.extra) { bits.splice(i, 1); continue; }
           Object.assign(b, make(Math.random() < 0.5));
           if (b.x >= 0) b.y = rand(-60, -15);
         }
       }
-    };
-
-    const frame = (now: number) => {
-      const dt = Math.min((now - last) / 1000, 0.05);
-      last = now;
-      step(dt, now);
       draw();
-      raf = requestAnimationFrame(frame);
-    };
+    });
 
-    const running = () => raf !== 0;
-    const start = () => {
-      if (running() || paused || !visible || document.hidden || reduce.matches) return;
-      last = performance.now();
-      raf = requestAnimationFrame(frame);
-    };
-    const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+    // Petals shaken loose from the bouquet join the drift.
+    onEmit((cx, cy, color) => {
+      if (bits.filter((b) => b.extra).length >= MAX_EXTRA) return;
+      const r = host.getBoundingClientRect();
+      const b = make(false);
+      Object.assign(b, {
+        x: cx - r.left + rand(-6, 6), y: cy - r.top + rand(-6, 6),
+        kind: 'petal', color, size: rand(10, 15), depth: rand(0.85, 1),
+        kx: rand(-40, 80) + wind.pointer.vx * 0.05, ky: rand(-60, -10), extra: true,
+      });
+      bits.push(b);
+    });
 
-    const setPaused = (value: boolean) => {
-      paused = value;
-      toggle.textContent = value ? toggle.dataset.labelPlay! : toggle.dataset.labelPause!;
+    onState(() => {
+      if (wind.reduced) {
+        // Reduced motion: a few petals resting where they fell, no movement.
+        bits = bits.filter((b) => !b.extra);
+        bits.forEach((b) => { b.flip = 0.4; });
+        toggle.hidden = true;
+      } else {
+        toggle.hidden = false;
+      }
+      if (!isRunning()) draw();
+      toggle.textContent = wind.paused ? toggle.dataset.labelPlay! : toggle.dataset.labelPause!;
+    });
+
+    toggle.addEventListener('click', () => {
+      const value = !wind.paused;
       try { localStorage.setItem(STORE_KEY, value ? '1' : '0'); } catch { /* storage unavailable */ }
-      value ? stop() : start();
-    };
-
-    const stir = (strength: number) => {
-      if (!running()) return;
-      gust = Math.min(gust + strength, 220);
-    };
-
-    const stillFrame = () => {
-      // Reduced motion: a few petals resting where they fell, no movement.
-      stop();
-      bits.forEach((b) => { b.flip = 0.4; });
-      draw();
-      toggle.hidden = true;
-    };
-
-    const init = () => {
-      resize();
-      if (reduce.matches) { stillFrame(); return; }
-      toggle.hidden = false;
-      try { paused = localStorage.getItem(STORE_KEY) === '1'; } catch { paused = false; }
-      setPaused(paused);
-      // The opening gust: bits blow in from the left through the shop door.
-      bits = bits.map((_, i) => (i % 3 === 0 ? make(false) : make(true)));
-      gust = paused ? 0 : 320;
-      nextGust = performance.now() + 9000;
-      if (paused) draw();
-      start();
-    };
-
-    new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      visible ? start() : stop();
-    }).observe(host);
-
-    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
-    toggle.addEventListener('click', () => setPaused(!paused));
-
-    let lastY = window.scrollY;
-    window.addEventListener('scroll', () => {
-      const dy = Math.abs(window.scrollY - lastY);
-      lastY = window.scrollY;
-      stir(Math.min(dy * 0.6, 40));
-    }, { passive: true });
-
-    let lastX = 0;
-    host.addEventListener('pointermove', (e) => {
-      const dx = Math.abs(e.clientX - lastX);
-      lastX = e.clientX;
-      if (e.pointerType === 'mouse') stir(Math.min(dx * 0.25, 12));
-    }, { passive: true });
+      setPaused(value);
+    });
 
     let resizeTimer = 0;
     new ResizeObserver(() => {
       clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => { resize(); if (!running()) draw(); }, 120);
+      resizeTimer = window.setTimeout(() => { resize(); if (!isRunning()) draw(); }, 120);
     }).observe(host);
 
-    reduce.addEventListener('change', () => (reduce.matches ? stillFrame() : init()));
+    const init = () => {
+      resize();
+      let paused = false;
+      try { paused = localStorage.getItem(STORE_KEY) === '1'; } catch { paused = false; }
+      wind.paused = paused;
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!paused && !reduced) {
+        // The opening gust: bits blow in from the left through the shop door.
+        bits = bits.map((_, i) => (i % 3 === 0 ? make(false) : make(true)));
+        gustNow(320);
+      }
+      startWind(host);
+    };
 
-    // Start after first paint so the hero image stays the LCP priority.
+    // Start after first paint so the hero stays fast.
     if ('requestIdleCallback' in window) requestIdleCallback(init, { timeout: 1200 });
     else setTimeout(init, 300);
   }
