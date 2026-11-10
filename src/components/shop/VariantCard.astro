@@ -1,0 +1,102 @@
+---
+/**
+ * A product sold in sizes (e.g. 1, 3, 5 or 10 roses). The size buttons show their own price;
+ * the photo and the big price follow the chosen size with CSS only, so it works without JS.
+ */
+import { Picture } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import { t, orderHref, type Lang } from '../../i18n/utils';
+import { productArt, type ArtKind } from '../../lib/product-art';
+type Product = CollectionEntry<'products'>['data'];
+interface Props { lang: Lang; group: string; title: string; text: string; items: Product[]; initial?: number; }
+const { lang, group, title, text, items, initial = 3 } = Astro.props;
+const fmt = (v: number) => v.toLocaleString(lang === 'sv' ? 'sv-SE' : 'en-GB');
+const name = `size-${group}`;
+---
+
+<li class="vcard" data-reveal>
+  <div class="vcard__media">
+    {items.map((p) => (
+      <div class="vcard__img" data-qty={p.qty}>
+        {p.image
+          ? <Picture src={p.image} alt={p.name[lang]} formats={['avif', 'webp']} widths={[360, 540, 720, 960]} sizes="(min-width: 56rem) 40vw, 92vw" loading="lazy" />
+          : <svg viewBox="0 0 240 240" aria-hidden="true" focusable="false" set:html={productArt((p.art ?? 'rose') as ArtKind)} />}
+      </div>
+    ))}
+  </div>
+  <div class="vcard__body">
+    <h3>{title}</h3>
+    <p class="vcard__text">{text}</p>
+    <fieldset class="sizes">
+      <legend>{t(lang, 'shop.size')}</legend>
+      <div class="sizes__row">
+        {items.map((p) => (
+          <label class="size">
+            <input type="radio" name={name} value={p.qty} data-name={p.name[lang]} checked={p.qty === initial} />
+            <span><strong>{t(lang, 'shop.qty', { n: String(p.qty) })}</strong><small>{fmt(p.price)} kr</small></span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+    <div class="vcard__buy">
+      <p class="vcard__price" aria-hidden="true">
+        {items.map((p) => <span data-qty={p.qty}>{fmt(p.price)} kr</span>)}
+      </p>
+      <a class="btn btn--primary vcard__add" href={orderHref(lang, 'bouquet', title)} data-add data-group={name} data-product={title}>
+        <svg class="tick" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <span data-add-label>{t(lang, 'shop.add')}</span>
+      </a>
+    </div>
+  </div>
+</li>
+
+<style>
+  .vcard {
+    display: grid;
+    background: var(--white);
+    border-radius: var(--radius-control);
+    overflow: hidden;
+    box-shadow: 0 18px 40px -30px rgb(30 42 36 / 0.55);
+  }
+  .vcard__media { position: relative; aspect-ratio: 16 / 10; background: var(--white); }
+  .vcard__img { position: absolute; inset: 0; display: none; }
+  .vcard__img :global(picture), .vcard__img :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .vcard__img svg { width: 100%; height: 100%; padding: var(--space-4); background: #f6e7ea; }
+  /* Show the picture and price for the chosen size. */
+  .vcard:has(input[value='1']:checked) [data-qty='1'],
+  .vcard:has(input[value='3']:checked) [data-qty='3'],
+  .vcard:has(input[value='5']:checked) [data-qty='5'],
+  .vcard:has(input[value='10']:checked) [data-qty='10'] { display: block; }
+  .vcard__body { display: grid; gap: var(--space-3); padding: var(--space-5); }
+  .vcard h3 { font-size: var(--step-2); font-weight: 400; }
+  .vcard__text { color: var(--color-text-muted); }
+  .sizes { border: 0; padding: 0; margin: 0; }
+  .sizes legend { font-size: var(--step--1); font-weight: 700; margin-bottom: var(--space-2); padding: 0; }
+  .sizes__row { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2); }
+  .size { position: relative; cursor: var(--cursor-hover); }
+  .size input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: inherit; }
+  .size span {
+    display: grid;
+    justify-items: center;
+    min-height: 3.25rem;
+    align-content: center;
+    padding: var(--space-1);
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    text-align: center;
+    line-height: 1.2;
+  }
+  .size small { font-size: 0.75rem; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+  .size input:checked + span { border-color: var(--moss); background: var(--moss); color: var(--white); }
+  .size input:checked + span small { color: rgb(255 255 255 / 0.85); }
+  .size input:focus-visible + span { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+  .vcard__buy { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-top: var(--space-2); }
+  .vcard__price span { display: none; font-family: var(--font-display-stack); font-size: var(--step-3); line-height: 1; font-variant-numeric: tabular-nums; }
+  .vcard__add .tick { width: 1rem; height: 1rem; display: none; }
+  .vcard__add:global(.is-added) .tick { display: block; }
+  .vcard__add:global(.is-added) { background: var(--moss); }
+  @media (min-width: 56rem) {
+    .vcard { grid-template-columns: 1.1fr 1fr; }
+    .vcard__media { aspect-ratio: auto; min-height: 100%; }
+  }
+</style>

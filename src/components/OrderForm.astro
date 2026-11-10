@@ -143,7 +143,7 @@ const opt = `(${t(lang, 'form.optional')})`;
     const wanted = params.get('tillfalle');
     if (wanted && [...occasionSelect.options].some((o) => o.value === wanted)) occasionSelect.value = wanted;
     const product = params.get('produkt');
-    if (product) el('product').value = product.slice(0, 200);
+    if (product) el('product').value = product.slice(0, 600);
 
     // Service links pre-select the occasion.
     document.addEventListener('click', (e) => {

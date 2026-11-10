@@ -1,0 +1,118 @@
+---
+/**
+ * A small bar that appears once something is added in the shop. It shows how many products
+ * are in the request and sends them to the contact form in one go. Hidden without JavaScript,
+ * where every "Lägg till" button is a plain link to the form instead.
+ */
+import { t, routes, type Lang } from '../../i18n/utils';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<div class="request" data-request hidden
+  data-count={t(lang, 'shop.request.count', { n: '{n}' })}
+  data-count1={t(lang, 'shop.request.count1')}
+  data-form={routes.about[lang]}
+  data-added={t(lang, 'shop.added')}
+  data-live={t(lang, 'shop.request.addedLive', { product: '{product}' })}
+  role="region" aria-label={t(lang, 'shop.request.label')}>
+  <div class="request__inner">
+    <p class="request__count" data-request-count></p>
+    <p class="request__items" data-request-items></p>
+    <div class="request__actions">
+      <button type="button" class="request__clear" data-request-clear>{t(lang, 'shop.request.clear')}</button>
+      <a class="btn btn--primary" href={routes.about[lang]} data-request-send>{t(lang, 'shop.request.send')}</a>
+    </div>
+  </div>
+</div>
+<p class="visually-hidden" aria-live="polite" data-request-live></p>
+
+<script>
+  import { addItem, clearItems, onChange } from '../../scripts/request';
+
+  const bar = document.querySelector<HTMLElement>('[data-request]');
+  if (bar) {
+    const count = bar.querySelector<HTMLElement>('[data-request-count]')!;
+    const list = bar.querySelector<HTMLElement>('[data-request-items]')!;
+    const send = bar.querySelector<HTMLAnchorElement>('[data-request-send]')!;
+    const live = document.querySelector<HTMLElement>('[data-request-live]')!;
+
+    onChange((items) => {
+      bar.hidden = items.length === 0;
+      document.documentElement.classList.toggle('has-request', items.length > 0);
+      count.textContent = items.length === 1 ? bar.dataset.count1! : bar.dataset.count!.replace('{n}', String(items.length));
+      list.textContent = items.join(', ');
+      const q = new URLSearchParams({ tillfalle: 'bouquet', produkt: items.join(', ') });
+      send.href = `${bar.dataset.form}?${q}#kontakt`;
+    });
+    bar.querySelector('[data-request-clear]')!.addEventListener('click', () => clearItems());
+
+    // "Lägg till" buttons: links to the form without JS, add to the request with JS.
+    document.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-add]');
+      if (!btn) return;
+      e.preventDefault();
+      let name = btn.dataset.product ?? '';
+      const group = btn.dataset.group;
+      if (group) {
+        const picked = document.querySelector<HTMLInputElement>(`input[name="${group}"]:checked`);
+        name = picked?.dataset.name ?? name;
+      }
+      if (!name) return;
+      addItem(name);
+      live.textContent = bar.dataset.live!.replace('{product}', name);
+      const label = btn.querySelector<HTMLElement>('[data-add-label]');
+      if (label) {
+        const before = label.textContent;
+        btn.classList.add('is-added');
+        label.textContent = bar.dataset.added!;
+        setTimeout(() => { btn.classList.remove('is-added'); label.textContent = before; }, 1400);
+      }
+    });
+  }
+</script>
+
+<style>
+  .request {
+    position: fixed;
+    inset: auto var(--space-3) calc(var(--space-3) + env(safe-area-inset-bottom)) var(--space-3);
+    z-index: var(--z-sticky-cta);
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .request[hidden] { display: none; }
+  .request__inner {
+    pointer-events: auto;
+    width: min(100%, 40rem);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--space-1) var(--space-4);
+    padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5);
+    background: var(--ink);
+    color: var(--birch);
+    border-radius: var(--radius-control);
+    box-shadow: 0 18px 40px -18px rgb(30 42 36 / 0.6);
+    --color-focus: var(--birch);
+    animation: request-in 320ms var(--ease-out) both;
+  }
+  @keyframes request-in { from { transform: translateY(1rem); opacity: 0; } }
+  .request__count { font-weight: 700; }
+  .request__items { grid-column: 1; font-size: var(--step--1); color: rgb(243 244 239 / 0.75); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .request__actions { grid-column: 2; grid-row: 1 / span 2; display: flex; align-items: center; gap: var(--space-2); }
+  .request__clear {
+    min-height: var(--tap-min);
+    padding: 0 var(--space-3);
+    background: none;
+    border: 0;
+    color: var(--birch);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+    cursor: var(--cursor-hover);
+  }
+  .request .btn--primary { background: var(--peony); }
+  /* While the bar is up it replaces the mobile quick-action bar. */
+  :global(html.has-request .sticky-cta) { display: none; }
+</style>

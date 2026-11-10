@@ -8,7 +8,9 @@
     },
     "price": 175,
     "image": "../../assets/products/WOLT-1-ros-brudsloja.jpg",
-    "order": 0
+    "order": 0,
+    "group": "rosor-brudsloja",
+    "qty": 1
   },
   {
     "id": "rosor-brudsloja-3",
@@ -19,7 +21,9 @@
     },
     "price": 430,
     "image": "../../assets/products/WOLT-3-rosor-brudsloja.jpg",
-    "order": 1
+    "order": 1,
+    "group": "rosor-brudsloja",
+    "qty": 3
   },
   {
     "id": "rosor-brudsloja-5",
@@ -30,7 +34,9 @@
     },
     "price": 675,
     "image": "../../assets/products/WOLT-5-rosor-brudsloja.jpg",
-    "order": 2
+    "order": 2,
+    "group": "rosor-brudsloja",
+    "qty": 5
   },
   {
     "id": "rosor-brudsloja-10",
@@ -41,7 +47,9 @@
     },
     "price": 1298,
     "image": "../../assets/products/WOLT-10-rosor-brudsloja.jpg",
-    "order": 3
+    "order": 3,
+    "group": "rosor-brudsloja",
+    "qty": 10
   },
   {
     "id": "ros-1",
@@ -51,8 +59,10 @@
       "en": "A single rose"
     },
     "price": 125,
-    "art": "rose",
-    "order": 4
+    "art": "rose-single",
+    "order": 4,
+    "group": "rosor-roda",
+    "qty": 1
   },
   {
     "id": "rosor-3",
@@ -63,7 +73,9 @@
     },
     "price": 375,
     "art": "rose",
-    "order": 5
+    "order": 5,
+    "group": "rosor-roda",
+    "qty": 3
   },
   {
     "id": "rosor-5",
@@ -73,8 +85,10 @@
       "en": "5 red roses"
     },
     "price": 625,
-    "art": "rose",
-    "order": 6
+    "art": "rose-5",
+    "order": 6,
+    "group": "rosor-roda",
+    "qty": 5
   },
   {
     "id": "rosor-10",
@@ -84,8 +98,10 @@
       "en": "10 red roses"
     },
     "price": 1249,
-    "art": "rose",
-    "order": 7
+    "art": "rose-10",
+    "order": 7,
+    "group": "rosor-roda",
+    "qty": 10
   },
   {
     "id": "rosor-mix-10",

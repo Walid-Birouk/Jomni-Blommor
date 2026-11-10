@@ -63,6 +63,9 @@ const products = defineCollection({
       priceMax: z.number().optional(),
       image: image().optional(),
       art: z.string().optional(),
+      /** Products sold in sizes share a group; qty is the number of stems. */
+      group: z.string().optional(),
+      qty: z.number().optional(),
     }),
 });
 

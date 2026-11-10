@@ -13,7 +13,7 @@ const price = product.priceMax
   : t(lang, 'shop.price', { price: fmt(product.price) });
 ---
 
-<li class="product" data-reveal>
+<li class:list={['product', `product--${product.category}`]} data-reveal>
   <div class:list={['product__media', { 'product__media--art': !product.image }]}>
     {product.image ? (
       <Picture src={product.image} alt={name} formats={['avif', 'webp']} widths={[320, 480, 640]} sizes="(min-width: 64rem) 22vw, (min-width: 40rem) 45vw, 90vw" loading="lazy" class="product__img" />
@@ -28,28 +28,47 @@ const price = product.priceMax
     <h3>{name}</h3>
     {product.unit && <p class="product__unit">{product.unit[lang]}</p>}
     <p class="product__price">{price}</p>
-    <a class="btn btn--secondary product__order" href={orderHref(lang, 'bouquet', name)} aria-label={t(lang, 'shop.orderLabel', { product: name })}>{t(lang, 'shop.order')}</a>
+    <a class="btn btn--secondary product__add" href={orderHref(lang, 'bouquet', name)} data-add data-product={name} aria-label={t(lang, 'shop.addLabel', { product: name })}>
+      <svg class="tick" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      <span data-add-label>{t(lang, 'shop.add')}</span>
+    </a>
   </div>
 </li>
 
 <style>
+  /* Phone: compact row (picture left, details right). Wider: a card. */
   .product {
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-columns: 7.5rem 1fr;
     background: var(--white);
     border-radius: var(--radius-control);
     overflow: hidden;
     box-shadow: 0 14px 30px -26px rgb(30 42 36 / 0.5);
   }
-  .product__media { position: relative; aspect-ratio: 4 / 3; background: var(--white); }
+  .product__media { position: relative; background: var(--white); min-height: 7.5rem; }
   .product__media :global(picture) { display: block; height: 100%; }
   .product__media :global(.product__img) { width: 100%; height: 100%; object-fit: cover; }
-  .product__media--art { background: var(--color-surface); display: grid; place-items: center; }
-  .product__media--art svg { width: 72%; height: 92%; }
-  .product__note { position: absolute; left: var(--space-2); bottom: var(--space-2); font-size: 0.72rem; color: var(--color-text-muted); }
-  .product__body { display: grid; align-content: start; gap: var(--space-1); padding: var(--space-4) var(--space-4) var(--space-5); }
-  .product h3 { font-size: var(--step-1); font-weight: 500; line-height: 1.3; }
+  .product__media--art { display: grid; place-items: center; background: var(--tint, var(--color-surface)); }
+  .product__media--art svg { width: 88%; height: 88%; }
+  .product--roses { --tint: #f6e7ea; }
+  .product--bunches { --tint: #eef2e8; }
+  .product--plants { --tint: #e3ebe0; }
+  .product--pots { --tint: #f0e8de; }
+  .product__note { display: none; }
+  .product__body { display: grid; align-content: center; gap: var(--space-1); padding: var(--space-3) var(--space-4); }
+  .product h3 { font-size: var(--step-0); font-weight: 600; font-family: var(--font-body-stack); line-height: 1.3; }
   .product__unit { font-size: var(--step--1); color: var(--color-text-muted); }
-  .product__price { margin-top: var(--space-1); font-weight: 700; font-variant-numeric: tabular-nums; }
-  .product__order { justify-self: start; margin-top: var(--space-3); }
+  .product__price { font-family: var(--font-display-stack); font-size: var(--step-1); font-variant-numeric: tabular-nums; }
+  .product__add { justify-self: start; margin-top: var(--space-1); min-height: 2.75rem; padding-inline: var(--space-4); }
+  .product__add .tick { width: 1rem; height: 1rem; display: none; }
+  .product__add:global(.is-added) { background: var(--moss); color: var(--white); border-color: var(--moss); }
+  .product__add:global(.is-added) .tick { display: block; }
+
+  @media (min-width: 40rem) {
+    .product { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .product__media { aspect-ratio: 1 / 1; min-height: 0; }
+    .product__note { display: block; position: absolute; left: var(--space-2); bottom: var(--space-2); font-size: 0.72rem; color: var(--color-text-muted); }
+    .product__body { align-content: start; padding: var(--space-4); }
+    .product h3 { font-family: var(--font-display-stack); font-weight: 500; font-size: var(--step-1); }
+  }
 </style>

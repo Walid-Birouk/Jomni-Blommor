@@ -5,7 +5,7 @@
 import { botanical, INK } from './botanical';
 
 export type ArtKind =
-  | 'rose' | 'rose-mix' | 'sunflower' | 'chrysanthemum' | 'eucalyptus' | 'thistle' | 'gyps'
+  | 'rose' | 'rose-single' | 'rose-5' | 'rose-10' | 'rose-mix' | 'sunflower' | 'chrysanthemum' | 'eucalyptus' | 'thistle' | 'gyps'
   | 'orchid' | 'cactus' | 'plant' | 'plant-red' | 'plant-white' | 'pot' | 'saucer';
 
 const n = (v: number) => v.toFixed(1);
@@ -56,8 +56,14 @@ const bunch = (count: number, drawHead: (x: number, y: number, i: number) => str
 export function productArt(kind: ArtKind): string {
   const { r } = botanical(kind.length * 31);
   switch (kind) {
+    case 'rose-single':
+      return bunch(1, (x, y) => roseHead(x, y + 10, 40, '#9e2f4f'));
     case 'rose':
       return bunch(3, (x, y) => roseHead(x, y, 34, '#9e2f4f'), 46);
+    case 'rose-5':
+      return bunch(5, (x, y) => roseHead(x, y, 30, '#9e2f4f'), 58);
+    case 'rose-10':
+      return bunch(7, (x, y, i) => roseHead(x, y, 26, i % 2 ? '#7f2440' : '#9e2f4f'), 70);
     case 'rose-mix': {
       const c = ['#9e2f4f', '#e3a3b5', '#fbfbf8', '#c25a78', '#f1d5dc'];
       return bunch(5, (x, y, i) => roseHead(x, y, 28, c[i % c.length]), 62);
