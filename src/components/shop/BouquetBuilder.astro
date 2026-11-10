@@ -345,6 +345,6 @@ const labels = {
   }
   @media (min-width: 56rem) {
     .builder__grid { grid-template-columns: 0.9fr 1.1fr; grid-template-areas: 'card wizard' 'summary wizard'; gap: var(--space-5) var(--space-9); align-items: start; }
-    .preview__card { position: sticky; top: 5.5rem; }
+    .preview__card { position: sticky; top: calc(var(--header-offset) + 1.5rem); transition: top 320ms var(--ease-out); }
   }
 </style>

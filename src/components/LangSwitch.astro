@@ -1,0 +1,51 @@
+---
+/**
+ * Language switch: a small two-option toggle with flag icons. The current language is
+ * marked (not a link); the other links to the same page in that language.
+ */
+import { routes, type Lang, type RouteId } from '../i18n/utils';
+interface Props { lang: Lang; route: RouteId; class?: string; }
+const { lang, route, class: cls } = Astro.props;
+const options = [
+  { code: 'sv' as Lang, short: 'SV', name: 'Svenska' },
+  { code: 'en' as Lang, short: 'EN', name: 'English' },
+];
+---
+
+<div class:list={['lang', cls]} role="group" aria-label={lang === 'sv' ? 'Språk' : 'Language'}>
+  {options.map((o) => {
+    const flag = o.code === 'sv'
+      ? <svg class="flag" viewBox="0 0 16 10" aria-hidden="true"><rect width="16" height="10" fill="#006aa7" /><rect x="5" width="2" height="10" fill="#fecc02" /><rect y="4" width="16" height="2" fill="#fecc02" /></svg>
+      : <svg class="flag" viewBox="0 0 60 30" aria-hidden="true"><clipPath id={`uk-clip-${cls ?? 'a'}`}><path d="M30,15 h30 v15 z v15 h-30 z h-30 v-15 z v-15 h30 z" /></clipPath><rect width="60" height="30" fill="#012169" /><path d="M0,0 L60,30 M60,0 L0,30" stroke="#fff" stroke-width="6" /><path d="M0,0 L60,30 M60,0 L0,30" clip-path={`url(#uk-clip-${cls ?? 'a'})`} stroke="#c8102e" stroke-width="4" /><path d="M30,0 v30 M0,15 h60" stroke="#fff" stroke-width="10" /><path d="M30,0 v30 M0,15 h60" stroke="#c8102e" stroke-width="6" /></svg>;
+    return o.code === lang
+      ? <span class="lang__opt is-current" aria-current="true" lang={o.code}>{flag}<span aria-hidden="true">{o.short}</span><span class="visually-hidden">{o.name}</span></span>
+      : <a class="lang__opt" href={routes[route][o.code]} hreflang={o.code} lang={o.code}>{flag}<span aria-hidden="true">{o.short}</span><span class="visually-hidden">{o.name}</span></a>;
+  })}
+</div>
+
+<style>
+  .lang {
+    display: inline-flex;
+    padding: 2px;
+    gap: 2px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.55);
+  }
+  .lang__opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: var(--tap-min);
+    padding: 0 0.75rem 0 0.55rem;
+    border-radius: 999px;
+    color: var(--color-text-muted);
+    font-size: var(--step--1);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+  a.lang__opt:hover { color: var(--color-text); background: var(--white); }
+  .lang__opt.is-current { background: var(--white); color: var(--color-text); box-shadow: 0 1px 3px rgb(30 42 36 / 0.15); }
+  .flag { width: 1.15rem; height: 0.75rem; border-radius: 2px; box-shadow: 0 0 0 1px rgb(30 42 36 / 0.15); flex: none; }
+</style>

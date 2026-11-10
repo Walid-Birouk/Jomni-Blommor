@@ -76,6 +76,10 @@
   --duration-fast: 150ms;
   --duration-base: 240ms;
 
+  /* Header: its height, and how far sticky bars below it sit (0 while it is hidden). */
+  --header-h: 3.75rem;
+  --header-offset: var(--header-h);
+
   /* Layers */
   --z-header: 20;
   --z-sticky-cta: 30;

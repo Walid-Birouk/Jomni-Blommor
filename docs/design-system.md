@@ -14,6 +14,14 @@ The one bold element is the **meadow in the wind**: line-drawn flowers that grow
 - Gusts also come every 7 to 13 seconds and when the visitor scrolls. The cursor parts the stems and pushes drifting petals aside.
 - A pause button stops it all. It stops off-screen, and reduced motion shows the meadow still and fully grown.
 
+## Logo (proposal)
+
+A "J" drawn as a flower stem, with a peony bloom as its dot and a single leaf, in the same line-drawn hand as the meadow. The navbar shows the mark beside the wordmark "Jomni Blommor" in Fraunces. The favicon (`public/favicon.svg`, plus a 32 px PNG and a 180 px touch icon) puts the mark on a moss tile so it reads at 16 px on light and dark tabs. The share image (`public/og-image.jpg`) uses the mark and wordmark on moss. Replace all of these if the client has a logo.
+
+## Header
+
+Slim (3.75 rem) and solid. It slides away while scrolling down and returns on any scroll up; it stays put while the menu is open, while focus is inside it, and for reduced motion. Sticky bars below it (the shop's categories, the builder preview) follow its position through `--header-offset`. The language switch is a small SV/EN toggle with flags; the current language is marked, the other links to the same page.
+
 ## Colour
 
 | Token | Hex | Use | Contrast |

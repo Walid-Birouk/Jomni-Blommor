@@ -145,9 +145,10 @@ const label = (c: string) => t(lang, `shop.cat.${c}` as UiKey);
 
   .catbar {
     position: sticky;
-    top: 4rem;
+    top: var(--header-offset);
     z-index: 15;
-    background: rgb(243 244 239 / 0.94);
+    transition: top 320ms var(--ease-out);
+    background: var(--color-bg);
     border-block: 1px solid var(--color-border);
   }
   /* Phone: one row that scrolls inside the bar (the page itself never scrolls sideways). */
@@ -178,7 +179,7 @@ const label = (c: string) => t(lang, `shop.cat.${c}` as UiKey);
   .catbar a.is-current { color: var(--color-link); border-bottom-color: var(--peony); }
   .catbar span { display: none; font-size: var(--step--1); font-weight: 500; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
 
-  .cat { position: relative; padding-block: var(--space-8); scroll-margin-top: 7.25rem; }
+  .cat { position: relative; padding-block: var(--space-8); scroll-margin-top: calc(var(--header-h) + 3.5rem); }
   .cat--alt { background: var(--color-surface); }
   .cat h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
   .variants { list-style: none; padding: 0; margin-top: var(--space-6); display: grid; gap: var(--space-6); }
