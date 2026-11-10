@@ -7,11 +7,7 @@
 import { getCollection } from 'astro:content';
 import { business } from '../data/business';
 import { t, type Lang } from '../i18n/utils';
-import HeroBouquet from './hero/HeroBouquet.astro';
-import HeroFullBleed from './hero/HeroFullBleed.astro';
-import HeroLine from './hero/HeroLine.astro';
 import HeroMeadow from './hero/HeroMeadow.astro';
-import HeroBleed from './hero/HeroBleed.astro';
 import Photo from './Photo.astro';
 import OrderForm from './OrderForm.astro';
 import PageDrift from './PageDrift.astro';
@@ -22,9 +18,8 @@ import bench4 from '../assets/stock/STOCK-butik-narcisser.jpg';
 import bench5 from '../assets/stock/STOCK-brudbukett-eukalyptus.jpg';
 import shopImage from '../assets/stock/STOCK-florist-i-butik.jpg';
 
-export type HeroVariant = 'bouquet' | 'fullbleed' | 'line' | 'meadow' | 'bleed';
-interface Props { lang: Lang; hero?: HeroVariant; }
-const { lang, hero = 'bouquet' } = Astro.props;
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
 
 const services = (await getCollection('services', (s) => s.id.startsWith(`${lang}/`)))
   .sort((a, b) => a.data.order - b.data.order);
@@ -41,11 +36,7 @@ const bench = [
 
 <PageDrift />
 
-{hero === 'bouquet' && <HeroBouquet lang={lang} />}
-{hero === 'fullbleed' && <HeroFullBleed lang={lang} />}
-{hero === 'line' && <HeroLine lang={lang} />}
-{hero === 'meadow' && <HeroMeadow lang={lang} />}
-{hero === 'bleed' && <HeroBleed lang={lang} />}
+<HeroMeadow lang={lang} />
 
 {season && (
   <section class="season" aria-labelledby="season-heading">
