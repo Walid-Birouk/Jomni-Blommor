@@ -51,6 +51,8 @@ Confirmed from the Google Maps listing, checked 5 Nov 2026:
 
 Listed on Google but not confirmed by the client (attributes are often user-suggested, so verify before publishing): LGBTQ+ friendly, transgender safe space, hearing loop, wheelchair-accessible seating and toilet, gender-neutral toilets, free Wi-Fi, parking.
 
+Ordering: the shop sells via Wolt (delivery). The website shows the range with prices and sends order requests; it is not a web shop with checkout.
+
 Open decisions: phone, email, full weekly and holiday opening hours (Google showed "closes 18:30" on one day only), delivery area and price, Swish or invoice, online ordering model, form service, hosting, domain, who edits content after launch.
 
 Technical: Astro static site, sv at `/` and en at `/en/`, no cookies or tracking without consent (GDPR), Lighthouse 95+ on mobile.
@@ -63,6 +65,8 @@ Technical: Astro static site, sv at `/` and en at `/en/`, no cookies or tracking
 ## Evidence on Hand
 
 - Google Maps listing data: `~/Downloads/jomni-blommor-listing.pdf` and `.xlsx` (5 Nov 2026).
+- The shop's Wolt menu (https://wolt.com/sv/swe/stockholm/venue/jomni-blommor), found online 10 Nov 2026: product names and prices for roses, bunches, potted plants and pots, plus four product photos of rose bouquets. Used in the shop page; confirm range, prices and photo use with the client.
+- Four Google reviews (Leila M., banan kaka, Victoria P., Kayla P.) quoted on the site; permission to quote still to confirm.
 - Google rating 4.8 from 40 reviews. Do not quote individual reviews, or show the rating as on-site structured data, without the client's permission.
 - Photos exist on the Google Maps listing, but they belong to the uploaders and Google. Do not copy them. Ask the client for original photos or a photoshoot.
 - Absent and must not be fabricated: testimonials, years in business, florist names, prices, awards.

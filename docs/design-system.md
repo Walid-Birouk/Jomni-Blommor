@@ -46,6 +46,20 @@ Peony is reserved for the single main action on each screen, so it always means 
 - Services appear as an editorial list. Each row pairs a photo with a name and one sentence, and the layout alternates sides on desktop. There are no rows of identical cards.
 - A sticky bottom bar on mobile shows "Beställ" and, once the number is known, "Ring oss". The page reserves space for it so it never covers content.
 
+## Site map
+
+| Page | Swedish | English |
+|---|---|---|
+| Home | `/` | `/en/` |
+| Shop: roses, bunches, plants, pots | `/butik/` | `/en/shop/` |
+| Build a bouquet (step-by-step with live preview) | `/butik/skapa-bukett/` | `/en/shop/build-a-bouquet/` |
+| Weddings and events | `/brollop-och-event/` | `/en/weddings-and-events/` |
+| Funerals (calmer page, no cursor petals) | `/begravning/` | `/en/funerals/` |
+| Business and subscriptions | `/foretag/` | `/en/business/` |
+| About and contact (story, map, reviews, form) | `/om-oss/` | `/en/about/` |
+
+Service pages share one template: intro with photo, what we offer with line-drawn stamps, a numbered how-it-works sequence, and a dark closing band with the next step. Shop items without a photo get a line-drawn illustration in the same hand as the meadow.
+
 ## Page sections (mock)
 
 1. Hero: the meadow in the wind with the headline, place and address; then a short lead, the order button and the opening slot.
