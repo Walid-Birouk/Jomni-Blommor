@@ -1,0 +1,183 @@
+---
+/**
+ * Order request form. DEMO: it validates and shows a success state but sends nothing.
+ * TODO: connect to the form service once hosting is chosen (Netlify Forms or Formspree),
+ * keep the honeypot, and replace the demo success text.
+ * Service links with data-occasion="..." pre-select the occasion.
+ */
+import { t, type Lang, type UiKey } from '../i18n/utils';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const occasions = ['bouquet', 'wedding', 'funeral', 'event', 'other'] as const;
+const opt = `(${t(lang, 'form.optional')})`;
+---
+
+<form class="order" novalidate data-order-form>
+  <div class="order__fields">
+    <div class="field field--wide">
+      <label for="of-name">{t(lang, 'form.name')}</label>
+      <input id="of-name" name="name" type="text" autocomplete="name" required aria-describedby="of-name-error" />
+      <p class="field__error" id="of-name-error" data-error-for="name" hidden>{t(lang, 'form.error.name')}</p>
+    </div>
+
+    <fieldset class="field field--wide field--group" aria-describedby="of-contact-hint of-contact-error">
+      <legend>{t(lang, 'form.phone')} / {t(lang, 'form.email')}</legend>
+      <p class="field__hint" id="of-contact-hint">{t(lang, 'form.contactHint')}</p>
+      <div class="field__pair">
+        <div class="field">
+          <label for="of-phone">{t(lang, 'form.phone')}</label>
+          <input id="of-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" />
+        </div>
+        <div class="field">
+          <label for="of-email">{t(lang, 'form.email')}</label>
+          <input id="of-email" name="email" type="email" autocomplete="email" aria-describedby="of-email-error" />
+          <p class="field__error" id="of-email-error" data-error-for="email" hidden>{t(lang, 'form.error.email')}</p>
+        </div>
+      </div>
+      <p class="field__error" id="of-contact-error" data-error-for="contact" hidden>{t(lang, 'form.error.contact')}</p>
+    </fieldset>
+
+    <div class="field">
+      <label for="of-occasion">{t(lang, 'form.occasion')}</label>
+      <select id="of-occasion" name="occasion">
+        {occasions.map((o) => <option value={o}>{t(lang, `form.occasion.${o}` as UiKey)}</option>)}
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="of-date">{t(lang, 'form.date')} <span class="field__opt">{opt}</span></label>
+      <input id="of-date" name="date" type="date" />
+    </div>
+
+    <div class="field field--wide">
+      <label for="of-budget">{t(lang, 'form.budget')} <span class="field__opt">{opt}</span></label>
+      <input id="of-budget" name="budget" type="text" inputmode="numeric" aria-describedby="of-budget-hint" />
+      <p class="field__hint" id="of-budget-hint">{t(lang, 'form.budgetHint')}</p>
+    </div>
+
+    <div class="field field--wide">
+      <label for="of-message">{t(lang, 'form.message')} <span class="field__opt">{opt}</span></label>
+      <textarea id="of-message" name="message" rows="4" aria-describedby="of-message-hint"></textarea>
+      <p class="field__hint" id="of-message-hint">{t(lang, 'form.messageHint')}</p>
+    </div>
+
+    <div class="order__hp" aria-hidden="true">
+      <label for="of-website">{t(lang, 'form.honeypot')}</label>
+      <input id="of-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+  </div>
+
+  <button class="btn btn--primary order__submit" type="submit">{t(lang, 'form.submit')}</button>
+
+  <div class="order__done" role="status" tabindex="-1" hidden>
+    <p class="order__done-title">{t(lang, 'form.demoTitle')}</p>
+    <p>{t(lang, 'form.demoBody')}</p>
+    <button class="btn btn--secondary" type="button" data-order-again>{t(lang, 'form.again')}</button>
+  </div>
+</form>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-order-form]');
+  if (form) {
+    const fields = form.querySelector<HTMLElement>('.order__fields')!;
+    const submit = form.querySelector<HTMLButtonElement>('.order__submit')!;
+    const done = form.querySelector<HTMLElement>('.order__done')!;
+    const el = (name: string) => form.elements.namedItem(name) as HTMLInputElement;
+    const err = (key: string) => form.querySelector<HTMLElement>(`[data-error-for="${key}"]`)!;
+
+    const show = (key: string, input: HTMLInputElement | null, on: boolean) => {
+      err(key).hidden = !on;
+      input?.setAttribute('aria-invalid', String(on));
+    };
+
+    const validate = () => {
+      const name = el('name'), phone = el('phone'), email = el('email');
+      const badName = !name.value.trim();
+      const badContact = !phone.value.trim() && !email.value.trim();
+      const badEmail = !!email.value.trim() && !email.validity.valid;
+      show('name', name, badName);
+      show('contact', null, badContact);
+      phone.setAttribute('aria-invalid', String(badContact));
+      show('email', email, badEmail);
+      if (!badContact && !badEmail) email.setAttribute('aria-invalid', 'false');
+      const first = badName ? name : badContact ? phone : badEmail ? email : null;
+      return first;
+    };
+
+    // Check again on blur once the visitor has tried to submit.
+    let tried = false;
+    form.addEventListener('focusout', () => { if (tried) validate(); });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      tried = true;
+      if (el('website').value) return; // honeypot: likely a bot
+      const first = validate();
+      if (first) { first.focus(); return; }
+      // DEMO: nothing is sent. TODO: post to the form service here.
+      fields.hidden = true;
+      submit.hidden = true;
+      done.hidden = false;
+      done.focus();
+    });
+
+    form.querySelector('[data-order-again]')?.addEventListener('click', () => {
+      form.reset();
+      tried = false;
+      done.hidden = true;
+      fields.hidden = false;
+      submit.hidden = false;
+      el('name').focus();
+    });
+
+    // Service links pre-select the occasion.
+    document.addEventListener('click', (e) => {
+      const link = (e.target as HTMLElement).closest<HTMLElement>('[data-occasion]');
+      if (link?.dataset.occasion) (form.elements.namedItem('occasion') as HTMLSelectElement).value = link.dataset.occasion;
+    });
+  }
+</script>
+
+<style>
+  .order { display: grid; gap: var(--space-5); }
+  .order__fields { display: grid; gap: var(--space-5); }
+  .field { display: grid; gap: var(--space-2); min-width: 0; }
+  .field--group { border: 0; padding: 0; margin: 0; }
+  .field--group legend { font-weight: 700; padding: 0; margin-bottom: var(--space-1); }
+  .field__pair { display: grid; gap: var(--space-4); margin-top: var(--space-3); }
+  label { font-weight: 600; }
+  .field__opt, .field__hint { color: var(--color-text-muted); font-weight: 400; font-size: var(--step--1); }
+  .field__error { color: var(--peony-deep); font-weight: 600; font-size: var(--step--1); }
+  input, select, textarea {
+    width: 100%;
+    min-height: var(--tap-min);
+    padding: var(--space-2) var(--space-3);
+    background: var(--white);
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    font-size: var(--step-0);
+    line-height: 1.4;
+  }
+  textarea { resize: vertical; min-height: 7rem; }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline-offset: 1px; border-color: var(--ink); }
+  [aria-invalid='true'] { border-color: var(--peony-deep); box-shadow: inset 0 0 0 1px var(--peony-deep); }
+  .order__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .order__submit { justify-self: start; }
+  .order__done {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+    padding: var(--space-6);
+    background: var(--white);
+    border: 1.5px solid var(--moss);
+    border-radius: var(--radius-control);
+  }
+  .order__done[hidden], .order__fields[hidden], .order__submit[hidden] { display: none; }
+  .order__done-title { font-family: var(--font-display-stack); font-size: var(--step-2); line-height: var(--leading-snug); }
+
+  @media (min-width: 40rem) {
+    .order__fields { grid-template-columns: 1fr 1fr; }
+    .field--wide { grid-column: 1 / -1; }
+    .field__pair { grid-template-columns: 1fr 1fr; }
+  }
+</style>

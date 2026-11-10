@@ -2,9 +2,10 @@
 title: "Event och företag"
 summary: "Blommor till kontoret, receptionen eller festen, en gång eller varje vecka."
 order: 4
-image: "../../../assets/placeholder/PLACEHOLDER-event.jpg"
-imageAlt: "Platshållarbild för blommor till event. Ersätts med kundens foto."
+image: "../../../assets/stock/STOCK-middagsbord-dahlior.jpg"
+imageAlt: "Exempelbild: dukat middagsbord med dahlior i en glasvas."
 placeholder: true
+occasion: "event"
 ---
 
 <!-- TODO: client copy -->

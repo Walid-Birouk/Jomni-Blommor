@@ -1,25 +1,43 @@
 ---
 /**
  * Home page content shared by / (sv) and /en/ (en), so both languages stay in sync.
- * TODO: client copy. All text here comes from src/i18n and src/content/services.
+ * TODO: client copy. All text comes from src/i18n, src/content/services and src/content/seasons.
+ * Stock photos are marked "Exempelbild" and listed in src/assets/stock/CREDITS.md.
  */
-import { Picture } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { business } from '../data/business';
 import { t, type Lang } from '../i18n/utils';
 import WindPetals from './WindPetals.astro';
 import Bouquet from './Bouquet.astro';
-import shopImage from '../assets/placeholder/PLACEHOLDER-butiken.jpg';
+import Photo from './Photo.astro';
+import OrderForm from './OrderForm.astro';
+import PageDrift from './PageDrift.astro';
+import bench1 from '../assets/stock/STOCK-binder-bukett.jpg';
+import bench2 from '../assets/stock/STOCK-hortensia-hander.jpg';
+import bench3 from '../assets/stock/STOCK-sax-och-blommor.jpg';
+import bench4 from '../assets/stock/STOCK-butik-narcisser.jpg';
+import bench5 from '../assets/stock/STOCK-brudbukett-eukalyptus.jpg';
+import shopImage from '../assets/stock/STOCK-florist-i-butik.jpg';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 
 const services = (await getCollection('services', (s) => s.id.startsWith(`${lang}/`)))
   .sort((a, b) => a.data.order - b.data.order);
-
+const season = (await getCollection('seasons', (s) => s.data.active))[0];
 const place = business.locality?.[lang];
-const hasContact = business.phoneE164 || business.email || business.mapUrl;
+const address = [business.streetAddress, business.district].filter(Boolean).join(', ');
+const instagram = business.social.find((s) => /instagram/i.test(s.label));
+const bench = [
+  { src: bench1, alt: t(lang, 'home.bench.alt1'), cls: 'bench__a' },
+  { src: bench2, alt: t(lang, 'home.bench.alt2'), cls: 'bench__b' },
+  { src: bench3, alt: t(lang, 'home.bench.alt3'), cls: 'bench__c' },
+  { src: bench4, alt: t(lang, 'home.bench.alt4'), cls: 'bench__d' },
+  { src: bench5, alt: t(lang, 'home.bench.alt5'), cls: 'bench__e' },
+];
 ---
+
+<PageDrift />
 
 <section class="hero container" aria-labelledby="hero-heading">
   <div class="hero__text">
@@ -36,7 +54,7 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
     <ul class="hero__facts" data-wind-quiet aria-label={t(lang, 'hero.facts.label')}>
       <li>
         {business.streetAddress && business.mapUrl
-          ? <a href={business.mapUrl}>{[business.streetAddress, business.district].filter(Boolean).join(', ')}<span class="visually-hidden">{t(lang, 'hero.facts.mapSuffix')}</span></a>
+          ? <a href={business.mapUrl}>{address}<span class="visually-hidden">{t(lang, 'hero.facts.mapSuffix')}</span></a>
           : <em class="todo">{t(lang, 'todo.address')}</em>}
       </li>
       <li>
@@ -53,27 +71,39 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
   <WindPetals lang={lang} />
 </section>
 
+{season && (
+  <section class="season" aria-labelledby="season-heading">
+    <div class="container season__inner">
+      <Photo src={season.data.image} alt={season.data[lang].imageAlt} lang={lang} ratio="3 / 2" sizes="(min-width: 64rem) 55vw, 100vw" class="season__photo" />
+      <div class="season__text">
+        <h2 id="season-heading">{season.data[lang].title}</h2>
+        <p>{season.data[lang].body}</p>
+        <p><a class="btn btn--on-dark" href="#kontakt">{season.data[lang].cta}</a></p>
+      </div>
+    </div>
+  </section>
+)}
+
 <section id="tjanster" class="services" aria-labelledby="services-heading">
   <div class="container">
     <header class="services__head">
       <h2 id="services-heading">{t(lang, 'home.services.heading')}</h2>
       <p>{t(lang, 'home.services.intro')}</p>
     </header>
-    <ul class="services__list">
-      {services.map((s) => (
-        <li class="service">
-          <Picture
+    <ul class="services__grid">
+      {services.map((s, i) => (
+        <li class:list={['service', `service--${s.data.occasion}`]}>
+          <Photo
             src={s.data.image}
             alt={s.data.imageAlt}
-            formats={['avif', 'webp']}
-            widths={[360, 540, 720, 900]}
-            sizes="(min-width: 48rem) 40vw, 100vw"
-            class="service__img"
+            lang={lang}
+            ratio={i === 0 ? '4 / 5' : i === 3 ? '4 / 3' : '1 / 1'}
+            sizes={i === 0 ? '(min-width: 64rem) 55vw, 100vw' : '(min-width: 64rem) 40vw, 100vw'}
           />
           <div class="service__text">
             <h3>{s.data.title}</h3>
             <p>{s.data.summary}</p>
-            <a href="#kontakt">{t(lang, 'home.services.more', { service: s.data.title.toLowerCase() })}</a>
+            <a href="#kontakt" data-occasion={s.data.occasion}>{t(lang, 'home.services.more', { service: s.data.title.toLowerCase() })}</a>
           </div>
         </li>
       ))}
@@ -81,65 +111,66 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
   </div>
 </section>
 
+<section class="bench" aria-labelledby="bench-heading">
+  <div class="container">
+    <header class="bench__head">
+      <h2 id="bench-heading">{t(lang, 'home.bench.heading')}</h2>
+      <p>{t(lang, 'home.bench.body')}</p>
+    </header>
+    <div class="bench__grid">
+      {bench.map((b) => (
+        <Photo src={b.src} alt={b.alt} lang={lang} class={b.cls} ratio="auto" sizes="(min-width: 64rem) 30vw, 50vw" widths={[360, 540, 720, 960]} />
+      ))}
+    </div>
+    <p class="bench__follow">
+      {instagram
+        ? <a href={instagram.url}>{t(lang, 'home.bench.follow')}</a>
+        : <em class="todo">{t(lang, 'todo.social')}</em>}
+    </p>
+  </div>
+</section>
+
 <section id="om-oss" class="about" aria-labelledby="about-heading">
   <div class="container about__inner">
-    <Picture
-      src={shopImage}
-      alt={t(lang, 'home.about.alt')}
-      formats={['avif', 'webp']}
-      widths={[360, 540, 720, 960]}
-      sizes="(min-width: 48rem) 50vw, 100vw"
-      class="about__img"
-    />
+    <Photo src={shopImage} alt={t(lang, 'home.about.alt')} lang={lang} ratio="4 / 5" sizes="(min-width: 64rem) 45vw, 100vw" class="about__photo" />
     <div class="about__text">
       <!-- TODO: client copy -->
       <h2 id="about-heading">{t(lang, 'home.about.heading')}</h2>
       <p>{t(lang, 'home.about.body')}</p>
+      <p class="about__facts">{t(lang, 'hero.facts.services')}.</p>
     </div>
   </div>
 </section>
 
 <section id="kontakt" class="contact" aria-labelledby="contact-heading">
   <div class="container contact__inner">
-    <div>
+    <div class="contact__intro">
       <h2 id="contact-heading">{t(lang, 'home.contact.heading')}</h2>
       <p class="contact__body">{t(lang, 'home.contact.body')}</p>
-      {hasContact ? (
-        <p class="contact__actions">
-          {business.phoneE164 && <a class="btn btn--primary" href={`tel:${business.phoneE164}`}>{t(lang, 'cta.call')}</a>}
-          {business.email && <a class="btn btn--secondary" href={`mailto:${business.email}`}>{t(lang, 'home.contact.email.cta')}</a>}
-          {business.mapUrl && <a class="btn btn--secondary" href={business.mapUrl}>{t(lang, 'cta.map')}</a>}
-        </p>
-      ) : (
-        <p><em class="todo">{t(lang, 'home.contact.missing')}</em></p>
-      )}
+      <dl class="contact__facts">
+        <div>
+          <dt>{t(lang, 'home.contact.address')}</dt>
+          <dd>{business.streetAddress
+            ? <>{business.streetAddress}, {business.postalCode} {business.city}{business.mapUrl && <><br /><a class="contact__map" href={business.mapUrl}>{t(lang, 'cta.map')}</a></>}</>
+            : <em class="todo">{t(lang, 'todo.address')}</em>}</dd>
+        </div>
+        <div>
+          <dt>{t(lang, 'home.contact.phone')}</dt>
+          <dd>{business.phoneE164
+            ? <a href={`tel:${business.phoneE164}`}>{business.phoneDisplay}</a>
+            : <em class="todo">{t(lang, 'todo.phone')}</em>}</dd>
+        </div>
+        <div>
+          <dt>{t(lang, 'home.contact.hours')}</dt>
+          <dd>{business.openingHours
+            ? business.openingHours.map((r) => <span class="contact__hour">{r[lang]} {r.hours}</span>)
+            : <em class="todo">{t(lang, 'todo.hours')}</em>}</dd>
+        </div>
+      </dl>
     </div>
-    <dl class="contact__facts">
-      <div>
-        <dt>{t(lang, 'home.contact.address')}</dt>
-        <dd>{business.streetAddress
-          ? <>{business.streetAddress}, {business.postalCode} {business.city}</>
-          : <em class="todo">{t(lang, 'todo.address')}</em>}</dd>
-      </div>
-      <div>
-        <dt>{t(lang, 'home.contact.phone')}</dt>
-        <dd>{business.phoneE164
-          ? <a href={`tel:${business.phoneE164}`}>{business.phoneDisplay}</a>
-          : <em class="todo">{t(lang, 'todo.phone')}</em>}</dd>
-      </div>
-      <div>
-        <dt>{t(lang, 'home.contact.email')}</dt>
-        <dd>{business.email
-          ? <a href={`mailto:${business.email}`}>{business.email}</a>
-          : <em class="todo">{t(lang, 'todo.email')}</em>}</dd>
-      </div>
-      <div>
-        <dt>{t(lang, 'home.contact.hours')}</dt>
-        <dd>{business.openingHours
-          ? business.openingHours.map((r) => <span class="contact__hour">{r[lang]} {r.hours}</span>)
-          : <em class="todo">{t(lang, 'todo.hours')}</em>}</dd>
-      </div>
-    </dl>
+    <div class="contact__form">
+      <OrderForm lang={lang} />
+    </div>
   </div>
 </section>
 
@@ -152,6 +183,7 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
     gap: var(--space-6);
     padding-block: var(--space-6) var(--section-y);
   }
+  .hero__text { position: relative; z-index: 2; }
   .hero__lead {
     margin-top: var(--space-4);
     max-width: 34ch;
@@ -159,7 +191,6 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
     line-height: 1.45;
     color: var(--color-text-muted);
   }
-  .hero__text { position: relative; z-index: 2; }
   .hero__actions { margin-top: var(--space-5); }
   .hero__facts {
     list-style: none;
@@ -179,25 +210,37 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
   }
   .hero__media { position: relative; z-index: 0; justify-self: stretch; }
 
-  .services { padding-block: var(--section-y); border-top: 1px solid var(--color-border); }
-  .services__head { max-width: var(--measure); }
-  .services__head p { margin-top: var(--space-3); color: var(--color-text-muted); }
-  .services__list {
+  /* Seasonal banner: the one dark band on the page. */
+  .season {
+    --color-focus: var(--birch);
+    background: var(--moss-deep);
+    color: var(--birch);
+    padding-block: var(--section-y);
+  }
+  .season__inner { display: grid; gap: var(--space-6); align-items: center; }
+  .season__text { max-width: 36rem; }
+  .season__text h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
+  .season__text p { margin-top: var(--space-4); }
+  .season__text p:last-child { margin-top: var(--space-6); }
+  .btn--on-dark { background: var(--birch); color: var(--ink); }
+  .btn--on-dark:hover { background: var(--white); color: var(--ink); }
+
+  /* Services: an editorial spread, not a row of equal cards. */
+  .services { padding-block: var(--section-y); }
+  .services__head { display: grid; gap: var(--space-3); max-width: var(--measure); }
+  .services__head h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
+  .services__head p { color: var(--color-text-muted); font-size: var(--step-1); line-height: 1.45; }
+  .services__grid {
     list-style: none;
     padding: 0;
     margin-top: var(--space-7);
     display: grid;
-    gap: var(--space-8);
+    gap: var(--space-8) var(--space-6);
   }
-  .service { display: grid; gap: var(--space-4); }
-  .service :global(.service__img) {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    border-radius: var(--radius-photo);
-  }
-  .service__text { max-width: 40ch; }
-  .service__text p { margin-top: var(--space-2); }
+  .service { display: grid; gap: var(--space-4); align-content: start; }
+  .service__text { max-width: 42ch; }
+  .service__text h3 { font-size: var(--step-3); font-weight: 400; }
+  .service__text p { margin-top: var(--space-2); font-size: var(--step-1); line-height: 1.5; }
   .service__text a {
     display: inline-flex;
     align-items: center;
@@ -205,25 +248,45 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
     margin-top: var(--space-2);
     font-weight: 600;
   }
+  /* Funeral flowers: calmer, with a quiet rule and more air. */
+  .service--funeral .service__text { padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
 
-  .about { background: var(--color-surface); padding-block: var(--section-y); }
-  .about__inner { display: grid; gap: var(--space-6); align-items: center; }
-  .about :global(.about__img) {
-    width: 100%;
-    aspect-ratio: 4 / 3;
-    object-fit: cover;
-    border-radius: var(--radius-photo);
+  /* From the bench: a collage of the work. */
+  .bench { padding-block: var(--section-y); background: var(--color-surface); }
+  .bench__head { display: grid; gap: var(--space-3); max-width: var(--measure); }
+  .bench__head p { color: var(--color-text-muted); }
+  .bench__grid {
+    margin-top: var(--space-6);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 11rem;
+    gap: var(--space-3);
   }
-  .about__text { max-width: var(--measure); }
-  .about__text p { margin-top: var(--space-4); }
+  .bench__grid :global(.photo) { height: 100%; }
+  /* Phone: tall tying shot beside two small ones, then the shop wide, then the bridal bouquet large. */
+  .bench__grid :global(.bench__a) { grid-column: 1; grid-row: 1 / span 2; }
+  .bench__grid :global(.bench__b) { grid-column: 2; grid-row: 1; }
+  .bench__grid :global(.bench__c) { grid-column: 2; grid-row: 2; }
+  .bench__grid :global(.bench__d) { grid-column: 1 / span 2; grid-row: 3; }
+  .bench__grid :global(.bench__e) { grid-column: 1 / span 2; grid-row: 4 / span 2; }
+  .bench__follow { margin-top: var(--space-5); }
 
-  .contact { padding-block: var(--section-y); }
+  /* About: large photo, quiet text. */
+  .about { padding-block: var(--section-y); }
+  .about__inner { display: grid; gap: var(--space-6); align-items: center; }
+  .about__text { max-width: var(--measure); }
+  .about__text p { margin-top: var(--space-4); font-size: var(--step-1); line-height: 1.5; }
+  .about__text .about__facts { color: var(--color-text-muted); font-size: var(--step-0); }
+
+  /* Contact and order form */
+  .contact { padding-block: var(--section-y); border-top: 1px solid var(--color-border); }
   .contact__inner { display: grid; gap: var(--space-7); }
+  .contact__intro h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
   .contact__body { margin-top: var(--space-4); max-width: var(--measure); }
-  .contact__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-5); }
-  .contact__facts { display: grid; gap: var(--space-5); }
+  .contact__facts { display: grid; gap: var(--space-5); margin-top: var(--space-6); }
   .contact__facts dt { font-weight: 700; }
   .contact__facts dd { margin: var(--space-1) 0 0; }
+  .contact__map { display: inline-flex; align-items: center; min-height: var(--tap-min); font-weight: 600; }
   .contact__hour { display: block; font-variant-numeric: tabular-nums; }
 
   @media (min-width: 48rem) {
@@ -234,16 +297,23 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
       padding-top: var(--space-8);
     }
     .hero__text { padding-bottom: var(--space-8); }
+    .bench__grid { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 13rem; }
+    .bench__grid :global(.bench__a) { grid-column: 1 / span 2; grid-row: 1 / span 2; }
+    .bench__grid :global(.bench__b) { grid-column: 3 / span 2; grid-row: 1; }
+    .bench__grid :global(.bench__c) { grid-column: 3; grid-row: 2; }
+    .bench__grid :global(.bench__d) { grid-column: 4; grid-row: 2; }
+    .bench__grid :global(.bench__e) { grid-column: 5 / span 2; grid-row: 1 / span 2; }
+    .contact__inner { grid-template-columns: 1fr 1.25fr; align-items: start; gap: var(--space-8); }
+  }
 
-    .service {
-      grid-template-columns: 5fr 4fr;
-      align-items: center;
-      gap: var(--space-8);
-    }
-    .service:nth-child(even) .service__text { order: -1; justify-self: end; }
-    .service :global(.service__img) { aspect-ratio: 4 / 5; }
-
-    .about__inner { grid-template-columns: 1fr 1fr; gap: var(--space-8); }
-    .contact__inner { grid-template-columns: 1.2fr 1fr; align-items: start; }
+  @media (min-width: 64rem) {
+    .season__inner { grid-template-columns: 1.2fr 1fr; gap: var(--space-8); }
+    .services__head { grid-template-columns: 1fr 1fr; max-width: none; align-items: end; gap: var(--space-8); }
+    .services__grid { grid-template-columns: repeat(12, 1fr); }
+    .service:nth-child(1) { grid-column: 1 / span 7; }
+    .service:nth-child(2) { grid-column: 9 / span 4; margin-top: var(--space-9); }
+    .service:nth-child(3) { grid-column: 2 / span 4; }
+    .service:nth-child(4) { grid-column: 7 / span 6; margin-top: var(--space-9); }
+    .about__inner { grid-template-columns: 1fr 1fr; gap: var(--space-9); }
   }
 </style>

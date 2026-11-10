@@ -14,7 +14,16 @@ const services = defineCollection({
       imageAlt: z.string(),
       /** Mark copy that still needs the client's text. */
       placeholder: z.boolean().default(true),
+      /** Pre-selects the occasion in the order form. */
+      occasion: z.enum(['bouquet', 'wedding', 'funeral', 'event']),
     }),
 });
 
-export const collections = { services };
+/** Seasonal banners (Alla hjärtans dag, Mors dag, studenten, midsommar, Allhelgona, jul). */
+const copy = z.object({ title: z.string(), body: z.string(), cta: z.string(), imageAlt: z.string() });
+const seasons = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/seasons' }),
+  schema: ({ image }) => z.object({ active: z.boolean(), image: image(), sv: copy, en: copy }),
+});
+
+export const collections = { services, seasons };
