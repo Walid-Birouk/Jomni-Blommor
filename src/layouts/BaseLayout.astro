@@ -60,7 +60,17 @@ if (business.social.length) jsonLd.sameAs = business.social.map((s) => s.url);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        d.classList.add('js');
+        // Arm scroll reveals only when motion is welcome; show everything if the reveal script never runs.
+        if ('IntersectionObserver' in window && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          d.classList.add('reveal');
+          setTimeout(function () { if (!d.classList.contains('reveal-ready')) d.classList.remove('reveal'); }, 3000);
+        }
+      })();
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
@@ -97,5 +107,6 @@ if (business.social.length) jsonLd.sameAs = business.social.map((s) => s.url);
     <Footer lang={lang} />
     <StickyCta lang={lang} />
     <CursorTrail />
+    <script>import '../scripts/reveal';</script>
   </body>
 </html>

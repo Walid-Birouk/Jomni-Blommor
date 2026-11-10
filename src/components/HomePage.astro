@@ -12,6 +12,7 @@ import VisitReviews from './VisitReviews.astro';
 import Photo from './Photo.astro';
 import OrderForm from './OrderForm.astro';
 import PageDrift from './PageDrift.astro';
+import MeadowEdge from './art/MeadowEdge.astro';
 import bench1 from '../assets/stock/STOCK-binder-bukett.jpg';
 import bench2 from '../assets/stock/STOCK-hortensia-hander.jpg';
 import bench3 from '../assets/stock/STOCK-sax-och-blommor.jpg';
@@ -43,9 +44,10 @@ const bench = [
 
 {season && (
   <section class="season" aria-labelledby="season-heading">
+    <MeadowEdge seed={11} />
     <div class="container season__inner">
       <Photo src={season.data.image} alt={season.data[lang].imageAlt} lang={lang} ratio="3 / 2" sizes="(min-width: 64rem) 55vw, 100vw" class="season__photo" />
-      <div class="season__text">
+      <div class="season__text" data-reveal>
         <h2 id="season-heading">{season.data[lang].title}</h2>
         <p>{season.data[lang].body}</p>
         <p><a class="btn btn--on-dark" href="#kontakt">{season.data[lang].cta}</a></p>
@@ -56,11 +58,11 @@ const bench = [
 
 <section id="tjanster" class="services" aria-labelledby="services-heading">
   <div class="container">
-    <header class="services__head">
+    <header class="services__head" data-reveal>
       <h2 id="services-heading">{t(lang, 'home.services.heading')}</h2>
       <p>{t(lang, 'home.services.intro')}</p>
     </header>
-    <ul class="services__grid">
+    <ul class="services__grid" data-reveal-group>
       {services.map((s, i) => (
         <li class:list={['service', `service--${s.data.occasion}`]}>
           <Photo
@@ -70,7 +72,7 @@ const bench = [
             ratio={i === 0 ? '4 / 5' : i === 3 ? '4 / 3' : '1 / 1'}
             sizes={i === 0 ? '(min-width: 64rem) 55vw, 100vw' : '(min-width: 64rem) 40vw, 100vw'}
           />
-          <div class="service__text">
+          <div class="service__text" data-reveal>
             <h3>{s.data.title}</h3>
             <p>{s.data.summary}</p>
             <a href="#kontakt" data-occasion={s.data.occasion}>{t(lang, 'home.services.more', { service: s.data.title.toLowerCase() })}</a>
@@ -82,12 +84,13 @@ const bench = [
 </section>
 
 <section class="bench" aria-labelledby="bench-heading">
+  <MeadowEdge seed={23} />
   <div class="container">
-    <header class="bench__head">
+    <header class="bench__head" data-reveal>
       <h2 id="bench-heading">{t(lang, 'home.bench.heading')}</h2>
       <p>{t(lang, 'home.bench.body')}</p>
     </header>
-    <div class="bench__grid">
+    <div class="bench__grid" data-reveal-group>
       {bench.map((b) => (
         <Photo src={b.src} alt={b.alt} lang={lang} class={b.cls} ratio="auto" sizes="(min-width: 64rem) 30vw, 50vw" widths={[360, 540, 720, 960]} />
       ))}
@@ -103,7 +106,7 @@ const bench = [
 <section id="om-oss" class="about" aria-labelledby="about-heading">
   <div class="container about__inner">
     <Photo src={shopImage} alt={t(lang, 'home.about.alt')} lang={lang} ratio="4 / 5" sizes="(min-width: 64rem) 45vw, 100vw" class="about__photo" />
-    <div class="about__text">
+    <div class="about__text" data-reveal>
       <!-- TODO: client copy -->
       <h2 id="about-heading">{t(lang, 'home.about.heading')}</h2>
       <p>{t(lang, 'home.about.body')}</p>
@@ -114,7 +117,7 @@ const bench = [
 
 <section id="kontakt" class="contact" aria-labelledby="contact-heading">
   <div class="container contact__inner">
-    <div class="contact__intro">
+    <div class="contact__intro" data-reveal>
       <h2 id="contact-heading">{t(lang, 'home.contact.heading')}</h2>
       <p class="contact__body">{t(lang, 'home.contact.body')}</p>
       <dl class="contact__facts">
@@ -138,7 +141,7 @@ const bench = [
         </div>
       </dl>
     </div>
-    <div class="contact__form">
+    <div class="contact__form" data-reveal>
       <OrderForm lang={lang} />
     </div>
   </div>
@@ -147,6 +150,7 @@ const bench = [
 <style>
   /* Seasonal banner: the one dark band on the page. */
   .season {
+    position: relative;
     --color-focus: var(--birch);
     background: var(--moss-deep);
     color: var(--birch);
@@ -188,7 +192,7 @@ const bench = [
   .service--funeral .service__text { padding-top: var(--space-4); border-top: 1px solid var(--color-border); }
 
   /* From the bench: a collage of the work. */
-  .bench { padding-block: var(--section-y); background: var(--color-surface); }
+  .bench { position: relative; padding-block: var(--section-y); background: var(--color-surface); }
   .bench__head { display: grid; gap: var(--space-3); max-width: var(--measure); }
   .bench__head p { color: var(--color-text-muted); }
   .bench__grid {

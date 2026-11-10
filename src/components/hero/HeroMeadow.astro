@@ -10,86 +10,15 @@
 import { business } from '../../data/business';
 import { t, type Lang } from '../../i18n/utils';
 import WindPetals from '../WindPetals.astro';
+import { botanical } from '../../lib/botanical';
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 const place = business.locality?.[lang];
 const address = [business.streetAddress, business.district].filter(Boolean).join(', ');
 
-// Deterministic random so the meadow is the same on every build.
-let seed = 7;
-const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-const r = (a: number, b: number) => a + rnd() * (b - a);
-const n = (v: number) => v.toFixed(1);
-
+// Deterministic drawing kit so the meadow is the same on every build.
+const { r, meadow } = botanical(7);
 const INK = '#3e5b40';
-type Stem = { x: number; h: number; svg: string; phase: number; delay: number };
-const kinds = ['cosmos', 'tulip', 'umbel', 'bud', 'cosmos', 'grass', 'umbel', 'tulip'] as const;
-const fills = { peony: '#9e2f4f', rose: '#c25a78', blush: '#e3a3b5', pale: '#f1d5dc', white: '#fbfbf8' };
-
-const leafAt = (x: number, y: number, len: number, ang: number) =>
-  `<path d="M${n(x)} ${n(y)} q${n(len * 0.35)} ${n(-len * 0.25)} ${n(len)} 0 q${n(-len * 0.45)} ${n(len * 0.3)} ${n(-len)} 0 Z" transform="rotate(${n(ang)} ${n(x)} ${n(y)})" fill="#dfe6d8" stroke="${INK}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>`;
-
-const head = (kind: string, x: number, y: number, s: number) => {
-  if (kind === 'cosmos') {
-    const c = [fills.blush, fills.pale, fills.rose, fills.white][Math.floor(r(0, 4))];
-    let p = '';
-    for (let i = 0; i < 8; i++) {
-      const a = (i / 8) * 360;
-      p += `<ellipse cx="${n(x)}" cy="${n(y - s * 0.55)}" rx="${n(s * 0.28)}" ry="${n(s * 0.55)}" transform="rotate(${a} ${n(x)} ${n(y)})" fill="${c}" fill-opacity="0.9" stroke="${INK}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
-    }
-    return p + `<circle cx="${n(x)}" cy="${n(y)}" r="${n(s * 0.2)}" fill="#c9a24a" stroke="${INK}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
-  }
-  if (kind === 'tulip') {
-    const c = rnd() > 0.5 ? fills.peony : fills.rose;
-    return `<path d="M${n(x - s * 0.5)} ${n(y - s * 0.2)} Q${n(x - s * 0.55)} ${n(y + s * 0.7)} ${n(x)} ${n(y + s * 0.7)} Q${n(x + s * 0.55)} ${n(y + s * 0.7)} ${n(x + s * 0.5)} ${n(y - s * 0.2)} L${n(x + s * 0.22)} ${n(y + s * 0.05)} L${n(x)} ${n(y - s * 0.45)} L${n(x - s * 0.22)} ${n(y + s * 0.05)} Z" fill="${c}" fill-opacity="0.92" stroke="${INK}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
-  }
-  if (kind === 'umbel') {
-    let p = '';
-    for (let i = 0; i < 9; i++) {
-      const a = Math.PI * (1.1 + (i / 8) * 0.8);
-      const ex = x + Math.cos(a) * s * 0.9, ey = y + Math.sin(a) * s * 0.7;
-      p += `<path d="M${n(x)} ${n(y + s * 0.3)} L${n(ex)} ${n(ey)}" stroke="${INK}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
-      p += `<circle cx="${n(ex)}" cy="${n(ey)}" r="${n(s * 0.13)}" fill="${fills.white}" stroke="${INK}" stroke-width="0.9" vector-effect="non-scaling-stroke"/>`;
-    }
-    return p;
-  }
-  if (kind === 'bud') {
-    return `<path d="M${n(x)} ${n(y - s * 0.7)} Q${n(x + s * 0.45)} ${n(y)} ${n(x)} ${n(y + s * 0.4)} Q${n(x - s * 0.45)} ${n(y)} ${n(x)} ${n(y - s * 0.7)} Z" fill="${fills.blush}" stroke="${INK}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
-  }
-  return '';
-};
-
-/**
- * Build one meadow. `height(t)` gives each stem's height as a share of H for its
- * position t (0 = left, 1 = right); `scale` sizes the flower heads.
- */
-const meadow = (W: number, H: number, count: number, height: (t: number) => number, scale: number) => {
-  const stems: Stem[] = [];
-  for (let i = 0; i < count; i++) {
-    const x = 16 + (i / (count - 1)) * (W - 32) + r(-10, 10);
-    const t = x / W;
-    const h = H * height(t);
-    const kind = kinds[i % kinds.length];
-    const bend = r(-30, 30);
-    const tx = x + bend * 0.6, ty = H - h;
-    let svg = `<path d="M${n(x)} ${H} Q${n(x + bend)} ${n(H - h * 0.55)} ${n(tx)} ${n(ty)}" fill="none" stroke="${INK}" stroke-width="1.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
-    const leaves = kind === 'grass' ? 0 : Math.round(r(1, 3));
-    for (let k = 0; k < leaves; k++) {
-      const u = r(0.2, 0.6);
-      const lx = x + (bend * 2 * (1 - u) * u) + (tx - x) * u * u;
-      const ly = H - h * 0.55 * 2 * (1 - u) * u - h * u * u;
-      svg += leafAt(lx, ly, r(20, 34) * scale, k % 2 ? r(-160, -120) : r(-60, -20));
-    }
-    if (kind === 'grass') {
-      svg = `<path d="M${n(x)} ${H} Q${n(x + bend)} ${n(H - h * 0.5)} ${n(x + bend * 1.4)} ${n(H - h * 0.75)}" fill="none" stroke="${INK}" stroke-width="1.3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
-    } else {
-      svg += head(kind, tx, ty, r(18, 28) * scale);
-    }
-    // Arrival: growth rolls left to right like the wind, with a little jitter.
-    stems.push({ x, h, svg, phase: rnd() * 6.28, delay: Math.round(t * 450 + r(0, 120)) });
-  }
-  return stems;
-};
 
 // Desktop: low on the left where the words sit, tall on the right.
 const DW = 1200, DH = 640;

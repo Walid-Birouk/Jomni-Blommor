@@ -1,5 +1,6 @@
 ---
 import { business } from '../data/business';
+import MeadowEdge from './art/MeadowEdge.astro';
 import { t, type Lang } from '../i18n/utils';
 
 interface Props { lang: Lang; }
@@ -8,6 +9,7 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
+  <MeadowEdge seed={37} />
   <div class="container site-footer__grid">
     <div class="site-footer__brand">
       <p class="site-footer__name">{business.name}</p>
@@ -53,6 +55,7 @@ const year = new Date().getFullYear();
 
 <style>
   .site-footer {
+    position: relative;
     --color-focus: var(--birch);
     background: var(--moss);
     color: var(--birch);

@@ -22,7 +22,7 @@ interface Props {
 const { src, alt, lang, sizes, widths = [360, 540, 720, 960, 1280], sample = true, ratio, class: cls, eager = false } = Astro.props;
 ---
 
-<figure class:list={['photo', cls]} style={ratio ? `--ratio: ${ratio}` : undefined}>
+<figure class:list={['photo', cls]} style={ratio ? `--ratio: ${ratio}` : undefined} data-reveal={eager ? undefined : 'photo'}>
   <Picture
     src={src}
     alt={alt}

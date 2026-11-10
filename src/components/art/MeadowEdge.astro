@@ -1,0 +1,42 @@
+---
+/**
+ * A strip of small line-drawn flowers growing up from the top edge of a section,
+ * in the same hand as the hero meadow. Stems draw themselves in when scrolled into view.
+ * Place it as the first child of a section with position: relative.
+ */
+import { botanical } from '../../lib/botanical';
+interface Props { seed?: number; }
+const { seed = 11 } = Astro.props;
+const { r, meadow } = botanical(seed);
+const W = 2400, H = 110;
+const stems = meadow(W, H, 64, () => r(0.35, 0.95), 0.55);
+---
+
+<div class="edge" aria-hidden="true" data-reveal="draw">
+  <svg viewBox={`0 0 ${W} ${H}`} focusable="false">
+    {stems.map((s) => <g style={`--d: ${Math.round(s.delay * 1.6)}ms`} set:html={s.svg} />)}
+  </svg>
+</div>
+
+<style>
+  .edge {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: clamp(3.5rem, 2.5rem + 3vw, 5.5rem);
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .edge svg {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    height: 100%;
+    width: auto;
+    aspect-ratio: 2400 / 110;
+    max-width: none;
+    transform: translateX(-50%);
+  }
+</style>

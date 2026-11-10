@@ -102,8 +102,8 @@
   "reviews.heading": "What customers say",
   "reviews.ratingLabel": "Rated {rating} out of 5 on Google",
   "reviews.count": "{count} reviews on Google",
-  "reviews.checked": "According to Google on {date}.",
   "reviews.readAll": "Read all reviews on Google",
-  "reviews.placeholder": "A selected review from Google will appear here once the shop and the reviewer have approved it.",
-  "todo.rating": "[rating missing]"
+  "todo.rating": "[rating missing]",
+  "reviews.by": "{name} on Google",
+  "reviews.stars": "{rating} out of 5 stars"
 }

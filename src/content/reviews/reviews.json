@@ -1,0 +1,38 @@
+[
+  {
+    "id": "leila",
+    "name": "Leila M.",
+    "lang": "en",
+    "rating": 5,
+    "featured": true,
+    "order": 1,
+    "text": "The team were brilliant at organising a last minute large floral order for us. The flowers were absolutely beautiful, and assembled and wrapped with care. Definitely recommend for floral arrangements in Stockholm."
+  },
+  {
+    "id": "banan-kaka",
+    "name": "banan kaka",
+    "lang": "sv",
+    "rating": 5,
+    "featured": true,
+    "order": 2,
+    "text": "Hjälpsam, trevlig och rolig personal! Det var en lätt kaotisk stämning 10 min innan stängningstid då mors dag är imorgon. Dem tog det dock med gott humör och hjälpte alla kunder som kom strömmande. Bra priser dessutom! Kan starkt rekommendera!"
+  },
+  {
+    "id": "victoria",
+    "name": "Victoria P.",
+    "lang": "en",
+    "rating": 5,
+    "featured": false,
+    "order": 3,
+    "text": "Good attention and good prices. The place is small but has good variety and the bouquets are pretty."
+  },
+  {
+    "id": "kayla",
+    "name": "Kayla P.",
+    "lang": "sv",
+    "rating": 5,
+    "featured": false,
+    "order": 4,
+    "text": "Jättesnäll och hjälpsam ägare som hjälpte mig med en custom bouquet."
+  }
+]

@@ -102,8 +102,8 @@
   "reviews.heading": "Vad kunderna säger",
   "reviews.ratingLabel": "{rating} av 5 i betyg på Google",
   "reviews.count": "{count} omdömen på Google",
-  "reviews.checked": "Enligt Google den {date}.",
   "reviews.readAll": "Läs alla omdömen på Google",
-  "reviews.placeholder": "Här visas ett utvalt omdöme från Google, när butiken och kunden har godkänt det.",
-  "todo.rating": "[betyg saknas]"
+  "todo.rating": "[betyg saknas]",
+  "reviews.by": "{name} på Google",
+  "reviews.stars": "{rating} av 5 stjärnor"
 }
