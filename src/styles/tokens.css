@@ -1,0 +1,84 @@
+/*
+ * Design tokens for Jomni Blommor, direction "Nordic botanical".
+ * TODO: replace palette and fonts with the client's brand once known.
+ * Contrast ratios are documented in docs/design-system.md.
+ */
+:root {
+  /* Palette: base values */
+  --birch: #f3f4ef;       /* page background, cool northern paper */
+  --sage-mist: #e3e8de;   /* quiet surface for alternating sections */
+  --ink: #1e2a24;         /* text, 13.5:1 on birch */
+  --lichen: #53604f;      /* secondary text, 6.0:1 on birch */
+  --moss: #3e5b40;        /* brand green, links, 6.9:1 on birch */
+  --moss-deep: #2f4631;   /* moss hover/pressed */
+  --peony: #9e2f4f;       /* primary CTA, white text 7.1:1 */
+  --peony-deep: #7f2440;  /* CTA hover/pressed */
+  --white: #ffffff;
+
+  /* Semantic roles (use these in components) */
+  --color-bg: var(--birch);
+  --color-surface: var(--sage-mist);
+  --color-text: var(--ink);
+  --color-text-muted: var(--lichen);
+  --color-link: var(--moss);
+  --color-link-hover: var(--moss-deep);
+  --color-cta: var(--peony);
+  --color-cta-hover: var(--peony-deep);
+  --color-on-cta: var(--white);
+  --color-secondary: var(--moss);
+  --color-on-secondary: var(--white);
+  --color-border: #c4cbbd;      /* decorative dividers */
+  --color-border-strong: #6f7a69; /* form/UI borders, 4.2:1 on birch */
+  --color-focus: var(--peony);
+  --color-placeholder-bg: #fff3c4; /* dev-only TODO markers */
+
+  /* Typography */
+  --font-display-stack: var(--font-display), Georgia, serif;
+  --font-body-stack: var(--font-body), system-ui, sans-serif;
+
+  /* Fluid type scale, ratio ~1.25 on mobile growing to ~1.333 on desktop */
+  --step--1: clamp(0.875rem, 0.85rem + 0.1vw, 0.9375rem);
+  --step-0: clamp(1rem, 0.97rem + 0.15vw, 1.0625rem);
+  --step-1: clamp(1.2rem, 1.13rem + 0.35vw, 1.4rem);
+  --step-2: clamp(1.44rem, 1.3rem + 0.7vw, 1.875rem);
+  --step-3: clamp(1.75rem, 1.5rem + 1.25vw, 2.5rem);
+  --step-4: clamp(2.2rem, 1.7rem + 2.5vw, 3.75rem);
+  --step-5: clamp(2.6rem, 1.8rem + 4vw, 5rem);
+
+  --leading-tight: 1.08;
+  --leading-snug: 1.25;
+  --leading-body: 1.6;
+  --measure: 62ch;
+
+  /* Spacing, 4px base, spacious marketing rhythm */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --section-y: clamp(3.5rem, 2.5rem + 5vw, 7rem);
+  --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
+  --container: 72rem;
+
+  /* Radii: different per role, not one radius for everything */
+  --radius-control: 0.375rem; /* buttons, inputs */
+  --radius-photo: 0.125rem;   /* photos stay almost square */
+  --radius-arch: 999px 999px var(--radius-photo) var(--radius-photo); /* hero glasshouse arch */
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 150ms;
+  --duration-base: 240ms;
+
+  /* Layers */
+  --z-header: 20;
+  --z-sticky-cta: 30;
+  --z-menu: 40;
+
+  /* Tap targets */
+  --tap-min: 2.75rem; /* 44px */
+}
