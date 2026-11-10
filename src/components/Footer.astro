@@ -1,6 +1,7 @@
 ---
 import { business } from '../data/business';
 import MeadowEdge from './art/MeadowEdge.astro';
+import { groupHours } from '../lib/hours';
 import { t, type Lang } from '../i18n/utils';
 
 interface Props { lang: Lang; }
@@ -28,9 +29,9 @@ const year = new Date().getFullYear();
 
     <section aria-labelledby="footer-hours">
       <h2 id="footer-hours" class="site-footer__heading">{t(lang, 'footer.hours')}</h2>
-      {business.openingHours
-        ? <dl class="hours">{business.openingHours.map((row) => <><dt>{row[lang]}</dt><dd>{row.hours}</dd></>)}</dl>
-        : <p><em class="todo">{t(lang, 'todo.hours')}</em></p>}
+      {business.openingHours && (
+        <dl class="hours">{groupHours(business.openingHours, lang, t(lang, 'hours.closed')).map((row) => <><dt>{row.label}</dt><dd>{row.hours}</dd></>)}</dl>
+      )}
     </section>
 
     <section aria-labelledby="footer-contact">

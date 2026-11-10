@@ -53,7 +53,9 @@ Listed on Google but not confirmed by the client (attributes are often user-sugg
 
 Ordering: the shop sells via Wolt (delivery). The website shows the range with prices and sends order requests; it is not a web shop with checkout.
 
-Open decisions: phone, email, full weekly and holiday opening hours (Google showed "closes 18:30" on one day only), delivery area and price, Swish or invoice, online ordering model, form service, hosting, domain, who edits content after launch.
+Opening hours (from the Google listing, 10 Nov 2026): Mon–Fri 09:30–18:30, Sat 09:30–17:00, Sun 10:00–16:00.
+
+Open decisions: phone, email, holiday opening hours, delivery area and price, Swish or invoice, online ordering model, form service, hosting, domain, who edits content after launch.
 
 Technical: Astro static site, sv at `/` and en at `/en/`, no cookies or tracking without consent (GDPR), Lighthouse 95+ on mobile.
 

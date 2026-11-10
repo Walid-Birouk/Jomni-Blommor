@@ -19,8 +19,8 @@ export interface Business {
   email: string | null;
   /** Google or Apple Maps link for "Visa på karta". */
   mapUrl: string | null;
-  /** One line per row, e.g. { days: 'Mån–fre', hours: '10:00–18:00' }. */
-  openingHours: { sv: string; en: string; hours: string }[] | null;
+  /** Weekly hours, Monday first (index 0 = Monday). null for a closed day. Times in Stockholm time. */
+  openingHours: ({ opens: string; closes: string } | null)[] | null;
   social: { label: string; url: string }[];
   /** The shop's Wolt page, used for delivery orders. */
   wolt: string | null;
@@ -43,7 +43,17 @@ export const business: Business = {
   email: null, // TODO: email
   mapUrl:
     'https://www.google.com/maps/place/Jomni+Blommor/@59.3186797,18.0592419,17z/data=!3m1!4b1!4m6!3m5!1s0x465f77eeaa85a707:0xb2d94a6d5b320287!8m2!3d59.3186797!4d18.0618168!16s%2Fg%2F11lnmpg9ny',
-  openingHours: null, // TODO: opening hours incl. holiday hours
+  // From the Google Maps listing, given by the developer on 10 Nov 2026.
+  // TODO: holiday hours (alla hjärtans dag, mors dag, midsommar, jul) once the client confirms them.
+  openingHours: [
+    { opens: '09:30', closes: '18:30' }, // Monday
+    { opens: '09:30', closes: '18:30' }, // Tuesday
+    { opens: '09:30', closes: '18:30' }, // Wednesday
+    { opens: '09:30', closes: '18:30' }, // Thursday
+    { opens: '09:30', closes: '18:30' }, // Friday
+    { opens: '09:30', closes: '17:00' }, // Saturday
+    { opens: '10:00', closes: '16:00' }, // Sunday
+  ],
   social: [], // TODO: Instagram, Facebook, Google Business Profile
   // Found online by the developer on 10 Nov 2026. TODO: confirm the client wants it linked.
   wolt: 'https://wolt.com/sv/swe/stockholm/venue/jomni-blommor',

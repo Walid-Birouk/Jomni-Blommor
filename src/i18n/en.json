@@ -15,7 +15,6 @@
   "todo.address": "[address missing]",
   "todo.phone": "[phone missing]",
   "todo.email": "[email missing]",
-  "todo.hours": "[opening hours missing]",
   "todo.social": "[social media missing]",
   "footer.visit": "Visit us",
   "footer.contact": "Contact",
@@ -47,7 +46,6 @@
   "home.contact.missing": "Contact details will be added once the client confirms them.",
   "hero.facts.label": "Find the shop",
   "hero.facts.mapSuffix": ", opens map",
-  "hero.facts.openToday": "Open today",
   "hero.facts.services": "Shop, pick-up and delivery",
   "cta.directions": "Directions",
   "wind.pause": "Stop the wind",
@@ -281,5 +279,11 @@
   "shop.request.clear": "Clear",
   "shop.request.addedLive": "Added to your request: {product}",
   "shop.request.label": "Your request",
-  "shop.how.pickup.link": "Browse the range"
+  "shop.how.pickup.link": "Browse the range",
+  "hours.openNow": "Open now, until {time}",
+  "hours.opensToday": "Closed now, opens at {time}",
+  "hours.opensTomorrow": "Closed now, opens tomorrow at {time}",
+  "hours.everyDay": "Open every day",
+  "hours.closed": "Closed",
+  "hours.label": "Opening hours"
 }

@@ -3,6 +3,7 @@
 import { business } from '../data/business';
 import { t, type Lang } from '../i18n/utils';
 import OrderForm from './OrderForm.astro';
+import { groupHours } from '../lib/hours';
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
 ---
@@ -27,9 +28,9 @@ const { lang } = Astro.props;
         </div>
         <div>
           <dt>{t(lang, 'home.contact.hours')}</dt>
-          <dd>{business.openingHours
-            ? business.openingHours.map((r) => <span class="contact__hour">{r[lang]} {r.hours}</span>)
-            : <em class="todo">{t(lang, 'todo.hours')}</em>}</dd>
+          <dd>{business.openingHours && groupHours(business.openingHours, lang, t(lang, 'hours.closed')).map((r) => (
+            <span class="contact__hour"><span class="contact__days">{r.label}</span> {r.hours}</span>
+          ))}</dd>
         </div>
       </dl>
     </div>
@@ -50,6 +51,7 @@ const { lang } = Astro.props;
   .contact__facts dd { margin: var(--space-1) 0 0; }
   .contact__map { display: inline-flex; align-items: center; min-height: var(--tap-min); font-weight: 600; }
   .contact__hour { display: block; font-variant-numeric: tabular-nums; }
+  .contact__days { display: inline-block; min-width: 5.5rem; }
 
   @media (min-width: 48rem) {
     .contact__inner { grid-template-columns: 1fr 1.25fr; align-items: start; gap: var(--space-8); }

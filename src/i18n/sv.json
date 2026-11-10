@@ -15,7 +15,6 @@
   "todo.address": "[adress saknas]",
   "todo.phone": "[telefon saknas]",
   "todo.email": "[e-post saknas]",
-  "todo.hours": "[öppettider saknas]",
   "todo.social": "[sociala medier saknas]",
   "footer.visit": "Besök oss",
   "footer.contact": "Kontakt",
@@ -47,7 +46,6 @@
   "home.contact.missing": "Kontaktuppgifter läggs in när kunden bekräftat dem.",
   "hero.facts.label": "Hitta till butiken",
   "hero.facts.mapSuffix": ", öppnar karta",
-  "hero.facts.openToday": "Öppet idag",
   "hero.facts.services": "Butik, upphämtning och leverans",
   "cta.directions": "Hitta hit",
   "wind.pause": "Stoppa vinden",
@@ -281,5 +279,11 @@
   "shop.request.clear": "Töm",
   "shop.request.addedLive": "Tillagd i förfrågan: {product}",
   "shop.request.label": "Din förfrågan",
-  "shop.how.pickup.link": "Se sortimentet"
+  "shop.how.pickup.link": "Se sortimentet",
+  "hours.openNow": "Öppet nu, till {time}",
+  "hours.opensToday": "Stängt nu, öppnar {time}",
+  "hours.opensTomorrow": "Stängt nu, öppnar i morgon {time}",
+  "hours.everyDay": "Öppet alla dagar",
+  "hours.closed": "Stängt",
+  "hours.label": "Öppettider"
 }

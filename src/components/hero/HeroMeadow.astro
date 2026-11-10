@@ -61,6 +61,16 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
           ? <a href={business.mapUrl}>{address}<span class="visually-hidden">{t(lang, 'hero.facts.mapSuffix')}</span></a>
           : <em class="todo">{t(lang, 'todo.address')}</em>}
       </p>
+      {business.openingHours && (
+        <p class="hero-c__status" data-hours-status
+          data-week={JSON.stringify(business.openingHours)}
+          data-open={t(lang, 'hours.openNow', { time: '{time}' })}
+          data-today={t(lang, 'hours.opensToday', { time: '{time}' })}
+          data-tomorrow={t(lang, 'hours.opensTomorrow', { time: '{time}' })}
+          data-later={t(lang, 'hours.opensToday', { time: '{time}' })}>
+          <span class="hero-c__dot" aria-hidden="true"></span><span data-hours-text>{t(lang, 'hours.everyDay')}</span>
+        </p>
+      )}
     </div></div>
   </div>
 
@@ -70,11 +80,6 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
       <p class="hero-c__lead">{t(lang, 'home.hero.leadShort')}</p>
       <p class="hero-c__actions"><a class="btn btn--primary" href={routes.shop[lang]}>{t(lang, 'cta.order')}</a></p>
       <ul class="hero-c__facts" aria-label={t(lang, 'hero.facts.label')}>
-        <li>
-          {t(lang, 'hero.facts.openToday')}{' '}
-          {/* TODO: compute "Öppet idag till 18:30" from machine-readable hours once confirmed. */}
-          <em class="todo">{t(lang, 'todo.hours')}</em>
-        </li>
         <li>{t(lang, 'hero.facts.services')}</li>
       </ul>
     </div></div>
@@ -84,6 +89,24 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
 </section>
 
 <script>
+  import { hoursStatus, type Week } from '../../lib/hours';
+
+  // "Open now, until 18:30" or "Closed now, opens 09:30", judged in Stockholm time.
+  const status = document.querySelector<HTMLElement>('[data-hours-status]');
+  if (status) {
+    const week = JSON.parse(status.dataset.week!) as Week;
+    const text = status.querySelector<HTMLElement>('[data-hours-text]')!;
+    const render = () => {
+      const s = hoursStatus(week);
+      if (!s) return;
+      const key = s.open ? 'open' : s.when;
+      text.textContent = status.dataset[key]!.replace('{time}', s.time);
+      status.classList.toggle('is-open', s.open);
+      status.classList.toggle('is-closed', !s.open);
+    };
+    render();
+    setInterval(render, 60_000);
+  }
   import { wind, onTick, onState } from '../../scripts/wind';
 
   // Each stem is its own layer; rotating it with a CSS transform needs no repaint.
@@ -173,6 +196,11 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
     line-height: 1.4;
     color: var(--color-text-muted);
   }
+  .hero-c__status { display: flex; align-items: center; gap: var(--space-2); font-size: var(--step--1); font-weight: 600; color: var(--color-text-muted); }
+  .hero-c__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--color-border-strong); flex: none; }
+  .hero-c__status.is-open { color: var(--moss); }
+  .hero-c__status.is-open .hero-c__dot { background: #3f8a4a; box-shadow: 0 0 0 3px rgb(63 138 74 / 0.18); }
+  .hero-c__status.is-closed .hero-c__dot { background: var(--peony); }
   .hero-c__address a {
     display: inline-flex;
     align-items: center;
