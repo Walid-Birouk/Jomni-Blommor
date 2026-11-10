@@ -1,0 +1,155 @@
+---
+/**
+ * Under the hero: where the shop is (click-to-load Google map) beside what customers say.
+ * The map follows CLAUDE.md: nothing loads from Google until the visitor clicks.
+ * Reviews: the Google rating from the listing, a link to all reviews, and slots for quotes
+ * the client approves. TODO: real quotes (with permission) or a Places API fetch.
+ */
+import { business } from '../data/business';
+import { t, type Lang } from '../i18n/utils';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+
+const query = [business.name, business.streetAddress, business.postalCode, business.city].filter(Boolean).join(', ');
+const embed = `https://maps.google.com/maps?q=${encodeURIComponent(query)}&z=16&output=embed`;
+const apple = business.geo
+  ? `https://maps.apple.com/?q=${encodeURIComponent(business.name)}&ll=${business.geo.latitude},${business.geo.longitude}`
+  : null;
+const g = business.googleRating;
+const fmt = (v: number) => v.toLocaleString(lang === 'sv' ? 'sv-SE' : 'en-GB', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const date = g ? new Date(g.checked).toLocaleDateString(lang === 'sv' ? 'sv-SE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+// Star fill per star (0..1) for the rating.
+const stars = g ? [0, 1, 2, 3, 4].map((i) => Math.max(0, Math.min(1, g.rating - i))) : [];
+const STAR = 'M8 1.2l2.1 4.3 4.7.7-3.4 3.3.8 4.7L8 11.9l-4.2 2.3.8-4.7L1.2 6.2l4.7-.7z';
+---
+
+<section class="visit" aria-labelledby="visit-heading">
+  <div class="container visit__inner">
+    <div class="visit__where">
+      <h2 id="visit-heading">{t(lang, 'visit.heading')}</h2>
+      <p class="visit__body">{t(lang, 'visit.body')}</p>
+      <address class="visit__address">
+        {business.streetAddress
+          ? <>{business.streetAddress}<br />{business.postalCode} {business.city}</>
+          : <em class="todo">{t(lang, 'todo.address')}</em>}
+      </address>
+
+      <div class="map" data-map data-src={embed} data-title={t(lang, 'visit.mapTitle')}>
+        <div class="map__facade">
+          <svg class="map__pin" viewBox="0 0 24 32" aria-hidden="true"><path d="M12 1C6 1 1.5 5.4 1.5 11.2 1.5 19 12 31 12 31s10.5-12 10.5-19.8C22.5 5.4 18 1 12 1Z" fill="var(--peony)" stroke="var(--birch)" stroke-width="1.5"/><circle cx="12" cy="11.2" r="4" fill="var(--birch)"/></svg>
+          <button type="button" class="btn btn--secondary map__load">{t(lang, 'visit.mapButton')}</button>
+          <p class="map__note">{t(lang, 'visit.mapNote')}</p>
+        </div>
+      </div>
+
+      <p class="visit__links">
+        {business.mapUrl && <a href={business.mapUrl}>{t(lang, 'visit.google')}</a>}
+        {apple && <a href={apple}>{t(lang, 'visit.apple')}</a>}
+      </p>
+    </div>
+
+    <div class="visit__reviews">
+      <h2>{t(lang, 'reviews.heading')}</h2>
+      {g ? (
+        <div class="rating">
+          <p class="rating__score" aria-label={t(lang, 'reviews.ratingLabel', { rating: fmt(g.rating) })}>
+            <span aria-hidden="true">{fmt(g.rating)}</span>
+          </p>
+          <div>
+            <span class="rating__stars" aria-hidden="true">
+              {stars.map((f, i) => (
+                <svg viewBox="0 0 16 16" class="star">
+                  <defs><clipPath id={`star-${lang}-${i}`}><rect width={16 * f} height="16" /></clipPath></defs>
+                  <path d={STAR} class="star__empty" />
+                  <path d={STAR} class="star__full" clip-path={`url(#star-${lang}-${i})`} />
+                </svg>
+              ))}
+            </span>
+            <p class="rating__count">{t(lang, 'reviews.count', { count: String(g.count) })}</p>
+            <p class="rating__checked">{t(lang, 'reviews.checked', { date })}</p>
+          </div>
+        </div>
+      ) : <p><em class="todo">{t(lang, 'todo.rating')}</em></p>}
+
+      <ul class="quotes">
+        {[0, 1].map(() => (
+          <li class="quote">
+            <p><em class="todo">{t(lang, 'reviews.placeholder')}</em></p>
+          </li>
+        ))}
+      </ul>
+
+      {business.mapUrl && <p class="visit__all"><a href={business.mapUrl}>{t(lang, 'reviews.readAll')}</a></p>}
+    </div>
+  </div>
+</section>
+
+<script>
+  // Load the Google map only when the visitor asks for it.
+  document.querySelectorAll<HTMLElement>('[data-map]').forEach((map) => {
+    map.querySelector('.map__load')?.addEventListener('click', () => {
+      const frame = document.createElement('iframe');
+      frame.src = map.dataset.src!;
+      frame.title = map.dataset.title!;
+      frame.loading = 'lazy';
+      frame.referrerPolicy = 'no-referrer-when-downgrade';
+      frame.className = 'map__frame';
+      map.replaceChildren(frame);
+      frame.focus();
+    });
+  });
+</script>
+
+<style>
+  .visit { padding-block: var(--section-y); }
+  .visit__inner { display: grid; gap: var(--space-8); }
+  .visit h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
+  .visit__body { margin-top: var(--space-3); max-width: var(--measure); color: var(--color-text-muted); }
+  .visit__address { margin-top: var(--space-4); font-style: normal; font-weight: 600; }
+
+  .map {
+    margin-top: var(--space-5);
+    aspect-ratio: 4 / 3;
+    border-radius: var(--radius-photo);
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 50% 42%, rgb(158 47 79 / 0.08), transparent 45%),
+      var(--color-surface);
+  }
+  .map__facade {
+    height: 100%;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    text-align: center;
+  }
+  .map__pin { width: 2.25rem; height: auto; filter: drop-shadow(0 6px 6px rgb(30 42 36 / 0.2)); }
+  .map__note { max-width: 30ch; font-size: var(--step--1); color: var(--color-text-muted); }
+  .map :global(.map__frame) { width: 100%; height: 100%; border: 0; display: block; }
+  .visit__links { display: flex; flex-wrap: wrap; gap: 0 var(--space-5); margin-top: var(--space-2); }
+  .visit__links a, .visit__all a { display: inline-flex; align-items: center; min-height: var(--tap-min); font-weight: 600; }
+
+  .rating { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-5); }
+  .rating__score {
+    font-family: var(--font-display-stack);
+    font-size: var(--step-5);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .rating__stars { display: flex; gap: 2px; }
+  .star { width: 1.25rem; height: 1.25rem; }
+  .star__empty { fill: var(--color-border); }
+  .star__full { fill: var(--peony); }
+  .rating__count { margin-top: var(--space-1); font-weight: 600; }
+  .rating__checked { font-size: var(--step--1); color: var(--color-text-muted); }
+
+  .quotes { list-style: none; padding: 0; margin-top: var(--space-6); display: grid; gap: var(--space-4); }
+  .quote { padding: var(--space-5); background: var(--white); border-left: 1px solid var(--color-border); border-radius: var(--radius-photo); }
+  .visit__all { margin-top: var(--space-3); }
+
+  @media (min-width: 48rem) {
+    .visit__inner { grid-template-columns: 1.15fr 1fr; gap: var(--space-9); align-items: start; }
+  }
+</style>

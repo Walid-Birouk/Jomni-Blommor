@@ -25,6 +25,10 @@ body {
 
 img, picture, svg { display: block; max-width: 100%; height: auto; }
 
+/* Text selection and the caret carry the palette instead of browser blue. */
+::selection { background: var(--color-selection); color: var(--color-on-selection); }
+input, textarea { caret-color: var(--peony); }
+
 /* Fitting cursors. Text fields keep the text cursor; high-contrast mode keeps system cursors. */
 html { cursor: var(--cursor-default); }
 a, button, select, summary, label[for], [role='button'], input[type='checkbox'], input[type='radio'] { cursor: var(--cursor-hover); }

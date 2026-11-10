@@ -91,5 +91,19 @@
   "form.demoBody": "This is a demo version of the site, so nothing was sent. On the real site the request goes straight to the shop.",
   "form.again": "Write a new request",
   "form.honeypot": "Leave this field empty",
-  "home.hero.leadShort": "Come in and choose, or order a bouquet and we will make it for you."
+  "home.hero.leadShort": "Come in and choose, or order a bouquet and we will make it for you.",
+  "visit.heading": "Find us",
+  "visit.body": "The shop is on Hornsgatan on Södermalm. Come in and look around, or pick up what you have ordered.",
+  "visit.mapButton": "Show map",
+  "visit.mapNote": "The map loads from Google only when you click, and Google may then set cookies.",
+  "visit.mapTitle": "Map showing Jomni Blommor at Hornsgatan 33A in Stockholm",
+  "visit.google": "Open in Google Maps",
+  "visit.apple": "Open in Apple Maps",
+  "reviews.heading": "What customers say",
+  "reviews.ratingLabel": "Rated {rating} out of 5 on Google",
+  "reviews.count": "{count} reviews on Google",
+  "reviews.checked": "According to Google on {date}.",
+  "reviews.readAll": "Read all reviews on Google",
+  "reviews.placeholder": "A selected review from Google will appear here once the shop and the reviewer have approved it.",
+  "todo.rating": "[rating missing]"
 }

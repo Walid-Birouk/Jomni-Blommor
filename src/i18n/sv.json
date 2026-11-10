@@ -91,5 +91,19 @@
   "form.demoBody": "Det här är en demoversion av sidan, så inget skickades. På den riktiga sidan går förfrågan direkt till butiken.",
   "form.again": "Skriv en ny förfrågan",
   "form.honeypot": "Lämna det här fältet tomt",
-  "home.hero.leadShort": "Kom in och välj själv, eller beställ en bukett så gör vi den åt dig."
+  "home.hero.leadShort": "Kom in och välj själv, eller beställ en bukett så gör vi den åt dig.",
+  "visit.heading": "Hitta hit",
+  "visit.body": "Butiken ligger på Hornsgatan på Södermalm. Kom in och titta, eller hämta det du har beställt.",
+  "visit.mapButton": "Visa karta",
+  "visit.mapNote": "Kartan hämtas från Google först när du klickar, och Google kan då sätta cookies.",
+  "visit.mapTitle": "Karta som visar Jomni Blommor på Hornsgatan 33A i Stockholm",
+  "visit.google": "Öppna i Google Maps",
+  "visit.apple": "Öppna i Apple Kartor",
+  "reviews.heading": "Vad kunderna säger",
+  "reviews.ratingLabel": "{rating} av 5 i betyg på Google",
+  "reviews.count": "{count} omdömen på Google",
+  "reviews.checked": "Enligt Google den {date}.",
+  "reviews.readAll": "Läs alla omdömen på Google",
+  "reviews.placeholder": "Här visas ett utvalt omdöme från Google, när butiken och kunden har godkänt det.",
+  "todo.rating": "[betyg saknas]"
 }

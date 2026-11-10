@@ -31,6 +31,8 @@
   --color-border-strong: #6f7a69; /* form/UI borders, 4.2:1 on birch */
   --color-focus: var(--peony);
   --color-placeholder-bg: #fff3c4; /* dev-only TODO markers */
+  --color-selection: #f1d5dc;     /* pale peony; ink text on it is 10.8:1 */
+  --color-on-selection: var(--ink);
 
   /* Typography */
   --font-display-stack: var(--font-display), Georgia, serif;

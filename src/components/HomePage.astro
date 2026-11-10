@@ -8,6 +8,7 @@ import { getCollection } from 'astro:content';
 import { business } from '../data/business';
 import { t, type Lang } from '../i18n/utils';
 import HeroMeadow from './hero/HeroMeadow.astro';
+import VisitReviews from './VisitReviews.astro';
 import Photo from './Photo.astro';
 import OrderForm from './OrderForm.astro';
 import PageDrift from './PageDrift.astro';
@@ -37,6 +38,8 @@ const bench = [
 <PageDrift />
 
 <HeroMeadow lang={lang} />
+
+<VisitReviews lang={lang} />
 
 {season && (
   <section class="season" aria-labelledby="season-heading">
@@ -149,6 +152,7 @@ const bench = [
     color: var(--birch);
     padding-block: var(--section-y);
   }
+  .season :global(::selection), .season::selection { background: var(--peony); color: var(--white); }
   .season__inner { display: grid; gap: var(--space-6); align-items: center; }
   .season__text { max-width: 36rem; }
   .season__text h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
