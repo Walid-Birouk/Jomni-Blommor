@@ -79,6 +79,10 @@
   --z-sticky-cta: 30;
   --z-menu: 40;
 
+  /* Cursors: a peony petal, opening into a bloom over anything clickable. */
+  --cursor-default: url('/cursors/petal.svg') 2 2, url('/cursors/petal.png') 2 2, auto;
+  --cursor-hover: url('/cursors/bloom.svg') 14 14, url('/cursors/bloom.png') 14 14, pointer;
+
   /* Tap targets */
   --tap-min: 2.75rem; /* 44px */
 }

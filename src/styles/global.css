@@ -24,6 +24,14 @@ body {
 }
 
 img, picture, svg { display: block; max-width: 100%; height: auto; }
+
+/* Fitting cursors. Text fields keep the text cursor; high-contrast mode keeps system cursors. */
+html { cursor: var(--cursor-default); }
+a, button, select, summary, label[for], [role='button'], input[type='checkbox'], input[type='radio'] { cursor: var(--cursor-hover); }
+input:not([type='checkbox'], [type='radio']), textarea { cursor: text; }
+@media (forced-colors: active) {
+  :root { --cursor-default: auto; --cursor-hover: pointer; }
+}
 input, button, textarea, select { font: inherit; color: inherit; }
 
 h1, h2, h3 {
@@ -90,7 +98,7 @@ a:hover { color: var(--color-link-hover); text-decoration-thickness: 2px; }
   font-size: var(--step-0);
   line-height: 1.2;
   text-decoration: none;
-  cursor: pointer;
+  cursor: var(--cursor-hover);
   touch-action: manipulation;
   transition: background-color var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
 }
