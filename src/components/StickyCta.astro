@@ -12,6 +12,9 @@ const orderHref = `${routes.home[lang]}#kontakt`;
   {business.phoneE164 && (
     <a class="btn btn--secondary sticky-cta__btn" href={`tel:${business.phoneE164}`}>{t(lang, 'cta.call')}</a>
   )}
+  {business.mapUrl && (
+    <a class="btn btn--secondary sticky-cta__btn" href={business.mapUrl}>{t(lang, 'cta.directions')}</a>
+  )}
   <a class="btn btn--primary sticky-cta__btn" href={orderHref}>{t(lang, 'cta.orderShort')}</a>
 </nav>
 
@@ -26,7 +29,7 @@ const orderHref = `${routes.home[lang]}#kontakt`;
     background: var(--color-bg);
     border-top: 1px solid var(--color-border);
   }
-  .sticky-cta__btn { flex: 1; }
+  .sticky-cta__btn { flex: 1; padding-inline: var(--space-3); white-space: nowrap; }
   .sticky-cta .btn--secondary { background: var(--color-bg); }
   .sticky-cta .btn--secondary:hover { background: var(--color-secondary); }
 

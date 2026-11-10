@@ -50,5 +50,12 @@
   "404.home": "Till startsidan",
   "site.taglineCity": "Blomsterbutik {place}",
   "home.contact.email.cta": "Mejla oss",
-  "home.contact.missing": "Kontaktuppgifter läggs in när kunden bekräftat dem."
+  "home.contact.missing": "Kontaktuppgifter läggs in när kunden bekräftat dem.",
+  "hero.facts.label": "Hitta till butiken",
+  "hero.facts.mapSuffix": ", öppnar karta",
+  "hero.facts.openToday": "Öppet idag",
+  "hero.facts.services": "Butik, upphämtning och leverans",
+  "cta.directions": "Hitta hit",
+  "wind.pause": "Stoppa vinden",
+  "wind.play": "Starta vinden"
 }

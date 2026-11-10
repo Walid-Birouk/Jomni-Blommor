@@ -1,0 +1,263 @@
+---
+/**
+ * Petals and leaves carried on a breeze across the hero.
+ * One authored moment: a gust blows them in on load, then they drift.
+ * Scrolling or moving the pointer stirs a new gust.
+ * Decorative only (aria-hidden). Pausable (WCAG 2.2.2), stops off-screen and
+ * when the tab is hidden, and draws a still frame for prefers-reduced-motion.
+ */
+import { t, type Lang } from '../i18n/utils';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<canvas class="wind" aria-hidden="true"></canvas>
+<button
+  class="wind-toggle"
+  type="button"
+  data-label-pause={t(lang, 'wind.pause')}
+  data-label-play={t(lang, 'wind.play')}
+  hidden
+>{t(lang, 'wind.pause')}</button>
+
+<script>
+  type Bit = {
+    x: number; y: number; size: number; kind: 'petal' | 'leaf';
+    color: string; vy: number; rot: number; spin: number;
+    flip: number; flipSpeed: number; sway: number; swaySpeed: number; depth: number;
+  };
+
+  const PETALS = ['#9e2f4f', '#c25a78', '#e3a3b5', '#f1d5dc', '#fbfbf8'];
+  const LEAVES = ['#3e5b40', '#5f7a5c', '#8a9a7b'];
+  const STORE_KEY = 'jomni-wind-paused';
+
+  const canvas = document.querySelector<HTMLCanvasElement>('canvas.wind');
+  const toggle = document.querySelector<HTMLButtonElement>('.wind-toggle');
+  const host = canvas?.parentElement;
+  const ctx = canvas?.getContext('2d');
+
+  if (canvas && toggle && host && ctx) {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let w = 0, h = 0, dpr = 1;
+    let bits: Bit[] = [];
+    let wind = 0;            // current horizontal wind, px/s
+    let gust = 0;            // extra wind from gusts, decays
+    let last = 0, raf = 0;
+    let visible = true, paused = false, nextGust = 0;
+    // Areas with small text where petals fade so they never hurt legibility.
+    let quiet: DOMRect[] = [];
+
+    const rand = (a: number, b: number) => a + Math.random() * (b - a);
+    const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
+
+    const make = (fromLeft: boolean): Bit => {
+      const kind = Math.random() < 0.7 ? 'petal' : 'leaf';
+      const depth = rand(0.55, 1);
+      return {
+        x: fromLeft ? rand(-w * 0.3, -15) : rand(0, w),
+        y: fromLeft ? rand(-h * 0.05, h * 0.75) : rand(-h * 0.6, h),
+        size: rand(9, 17) * depth * (kind === 'leaf' ? 1.15 : 1),
+        kind,
+        color: kind === 'petal' ? pick(PETALS) : pick(LEAVES),
+        vy: rand(18, 38) * depth,
+        rot: rand(0, Math.PI * 2),
+        spin: rand(-1.2, 1.2),
+        flip: rand(0, Math.PI * 2),
+        flipSpeed: rand(1.5, 3.5),
+        sway: rand(0, Math.PI * 2),
+        swaySpeed: rand(0.6, 1.4),
+        depth,
+      };
+    };
+
+    const count = () => Math.round(Math.min(34, Math.max(14, (w * h) / 22000)));
+
+    const resize = () => {
+      const r = host.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = r.width; h = r.height;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      quiet = [...host.querySelectorAll<HTMLElement>('[data-wind-quiet]')].map((el) => {
+        const q = el.getBoundingClientRect();
+        return new DOMRect(q.left - r.left - 8, q.top - r.top - 8, q.width + 16, q.height + 16);
+      });
+      const n = count();
+      while (bits.length < n) bits.push(make(false));
+      bits.length = n;
+    };
+
+    const drawBit = (b: Bit) => {
+      const s = b.size;
+      ctx.save();
+      ctx.translate(b.x, b.y);
+      ctx.rotate(b.rot);
+      // Tumbling: squash one axis so the bit seems to turn in 3D.
+      ctx.scale(1, Math.max(0.15, Math.abs(Math.cos(b.flip))));
+      const inQuiet = quiet.some((q) => b.x > q.left && b.x < q.right && b.y > q.top && b.y < q.bottom);
+      ctx.globalAlpha = (0.55 + b.depth * 0.4) * (inQuiet ? 0.22 : 1);
+      ctx.fillStyle = b.color;
+      ctx.beginPath();
+      if (b.kind === 'petal') {
+        ctx.moveTo(0, -s);
+        ctx.bezierCurveTo(s * 0.9, -s * 0.6, s * 0.7, s * 0.7, 0, s);
+        ctx.bezierCurveTo(-s * 0.7, s * 0.7, -s * 0.9, -s * 0.6, 0, -s);
+        ctx.fill();
+        ctx.strokeStyle = 'rgb(30 42 36 / 0.12)';
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+      } else {
+        ctx.moveTo(0, -s * 1.3);
+        ctx.quadraticCurveTo(s * 0.75, 0, 0, s * 1.3);
+        ctx.quadraticCurveTo(-s * 0.75, 0, 0, -s * 1.3);
+        ctx.fill();
+        ctx.strokeStyle = 'rgb(243 244 239 / 0.45)';
+        ctx.lineWidth = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(0, -s * 1.1);
+        ctx.lineTo(0, s * 1.1);
+        ctx.stroke();
+      }
+      ctx.restore();
+    };
+
+    const draw = () => {
+      ctx.clearRect(0, 0, w, h);
+      for (const b of bits) drawBit(b);
+    };
+
+    const step = (dt: number, now: number) => {
+      if (now > nextGust) {
+        gust += rand(60, 140);
+        nextGust = now + rand(7000, 13000);
+      }
+      gust *= Math.pow(0.55, dt);          // gusts die down over a few seconds
+      wind = 24 + gust;
+      for (const b of bits) {
+        b.sway += b.swaySpeed * dt;
+        b.flip += b.flipSpeed * dt * (1 + gust / 120);
+        b.rot += b.spin * dt * (1 + gust / 200);
+        b.x += (wind * b.depth + Math.sin(b.sway) * 16) * dt;
+        b.y += (b.vy + Math.cos(b.sway * 0.7) * 6 - gust * 0.08) * dt;
+        if (b.y > h + 30 || b.x > w + 40) {
+          Object.assign(b, make(Math.random() < 0.5));
+          if (b.x >= 0) b.y = rand(-60, -15);
+        }
+      }
+    };
+
+    const frame = (now: number) => {
+      const dt = Math.min((now - last) / 1000, 0.05);
+      last = now;
+      step(dt, now);
+      draw();
+      raf = requestAnimationFrame(frame);
+    };
+
+    const running = () => raf !== 0;
+    const start = () => {
+      if (running() || paused || !visible || document.hidden || reduce.matches) return;
+      last = performance.now();
+      raf = requestAnimationFrame(frame);
+    };
+    const stop = () => { cancelAnimationFrame(raf); raf = 0; };
+
+    const setPaused = (value: boolean) => {
+      paused = value;
+      toggle.textContent = value ? toggle.dataset.labelPlay! : toggle.dataset.labelPause!;
+      try { localStorage.setItem(STORE_KEY, value ? '1' : '0'); } catch { /* storage unavailable */ }
+      value ? stop() : start();
+    };
+
+    const stir = (strength: number) => {
+      if (!running()) return;
+      gust = Math.min(gust + strength, 220);
+    };
+
+    const stillFrame = () => {
+      // Reduced motion: a few petals resting where they fell, no movement.
+      stop();
+      bits.forEach((b) => { b.flip = 0.4; });
+      draw();
+      toggle.hidden = true;
+    };
+
+    const init = () => {
+      resize();
+      if (reduce.matches) { stillFrame(); return; }
+      toggle.hidden = false;
+      try { paused = localStorage.getItem(STORE_KEY) === '1'; } catch { paused = false; }
+      setPaused(paused);
+      // The opening gust: bits blow in from the left through the shop door.
+      bits = bits.map((_, i) => (i % 3 === 0 ? make(false) : make(true)));
+      gust = paused ? 0 : 320;
+      nextGust = performance.now() + 9000;
+      if (paused) draw();
+      start();
+    };
+
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      visible ? start() : stop();
+    }).observe(host);
+
+    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+    toggle.addEventListener('click', () => setPaused(!paused));
+
+    let lastY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      const dy = Math.abs(window.scrollY - lastY);
+      lastY = window.scrollY;
+      stir(Math.min(dy * 0.6, 40));
+    }, { passive: true });
+
+    let lastX = 0;
+    host.addEventListener('pointermove', (e) => {
+      const dx = Math.abs(e.clientX - lastX);
+      lastX = e.clientX;
+      if (e.pointerType === 'mouse') stir(Math.min(dx * 0.25, 12));
+    }, { passive: true });
+
+    let resizeTimer = 0;
+    new ResizeObserver(() => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => { resize(); if (!running()) draw(); }, 120);
+    }).observe(host);
+
+    reduce.addEventListener('change', () => (reduce.matches ? stillFrame() : init()));
+
+    // Start after first paint so the hero image stays the LCP priority.
+    if ('requestIdleCallback' in window) requestIdleCallback(init, { timeout: 1200 });
+    else setTimeout(init, 300);
+  }
+</script>
+
+<style>
+  .wind {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .wind-toggle {
+    position: absolute;
+    right: var(--gutter);
+    bottom: var(--space-4);
+    z-index: 3;
+    min-height: var(--tap-min);
+    padding: 0 var(--space-4);
+    background: rgb(243 244 239 / 0.92);
+    color: var(--color-text);
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    font-size: var(--step--1);
+    font-weight: 600;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .wind-toggle:hover { background: var(--white); }
+  .wind-toggle[hidden] { display: none; }
+</style>

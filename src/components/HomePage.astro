@@ -7,6 +7,7 @@ import { Picture } from 'astro:assets';
 import { getCollection } from 'astro:content';
 import { business } from '../data/business';
 import { t, type Lang } from '../i18n/utils';
+import WindPetals from './WindPetals.astro';
 import heroImage from '../assets/placeholder/PLACEHOLDER-hero.jpg';
 import shopImage from '../assets/placeholder/PLACEHOLDER-butiken.jpg';
 
@@ -24,14 +25,27 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
   <div class="hero__text">
     <!-- TODO: client copy -->
     <h1 id="hero-heading">{t(lang, 'home.hero.heading')}</h1>
-    <p class="hero__lead">
+    <p class="hero__lead" data-wind-quiet>
       {place
         ? t(lang, 'home.hero.lead', { place })
         : <Fragment set:html={t(lang, 'home.hero.lead', { place: `<em class="todo">${t(lang, 'todo.city')}</em>` })} />}
     </p>
-    <p class="hero__actions">
+    <p class="hero__actions" data-wind-quiet>
       <a class="btn btn--primary" href="#kontakt">{t(lang, 'cta.order')}</a>
     </p>
+    <ul class="hero__facts" data-wind-quiet aria-label={t(lang, 'hero.facts.label')}>
+      <li>
+        {business.streetAddress && business.mapUrl
+          ? <a href={business.mapUrl}>{[business.streetAddress, business.district].filter(Boolean).join(', ')}<span class="visually-hidden">{t(lang, 'hero.facts.mapSuffix')}</span></a>
+          : <em class="todo">{t(lang, 'todo.address')}</em>}
+      </li>
+      <li>
+        {t(lang, 'hero.facts.openToday')}{' '}
+        {/* TODO: compute "Öppet idag till 18:30" from machine-readable hours once confirmed. */}
+        <em class="todo">{t(lang, 'todo.hours')}</em>
+      </li>
+      <li>{t(lang, 'hero.facts.services')}</li>
+    </ul>
   </div>
   <div class="hero__media">
     <Picture
@@ -45,6 +59,7 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
       class="hero__img"
     />
   </div>
+  <WindPetals lang={lang} />
 </section>
 
 <section id="tjanster" class="services" aria-labelledby="services-heading">
@@ -140,6 +155,8 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
 <style>
   /* Hero: text first on phones so what, where and the button sit above the fold. */
   .hero {
+    position: relative;
+    isolation: isolate;
     display: grid;
     gap: var(--space-6);
     padding-block: var(--space-6) var(--section-y);
@@ -151,8 +168,25 @@ const hasContact = business.phoneE164 || business.email || business.mapUrl;
     line-height: 1.45;
     color: var(--color-text-muted);
   }
+  .hero__text { position: relative; z-index: 2; }
   .hero__actions { margin-top: var(--space-5); }
-  .hero__media { justify-self: stretch; }
+  .hero__facts {
+    list-style: none;
+    padding: 0;
+    margin-top: var(--space-5);
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--step--1);
+    color: var(--color-text-muted);
+  }
+  .hero__facts a {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    margin-block: calc(var(--space-3) * -1);
+    font-weight: 600;
+  }
+  .hero__media { position: relative; z-index: 0; justify-self: stretch; }
   /* The glasshouse arch: the one shape on the site that is not a rectangle. */
   .hero__media :global(.hero__img) {
     width: 100%;

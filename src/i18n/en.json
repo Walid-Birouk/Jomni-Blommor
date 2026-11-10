@@ -50,5 +50,12 @@
   "404.home": "Go to the home page",
   "site.taglineCity": "Flower shop {place}",
   "home.contact.email.cta": "Email us",
-  "home.contact.missing": "Contact details will be added once the client confirms them."
+  "home.contact.missing": "Contact details will be added once the client confirms them.",
+  "hero.facts.label": "Find the shop",
+  "hero.facts.mapSuffix": ", opens map",
+  "hero.facts.openToday": "Open today",
+  "hero.facts.services": "Shop, pick-up and delivery",
+  "cta.directions": "Directions",
+  "wind.pause": "Stop the wind",
+  "wind.play": "Start the wind"
 }

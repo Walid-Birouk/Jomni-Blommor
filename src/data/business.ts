@@ -6,6 +6,7 @@
 export interface Business {
   name: string;
   city: string | null;
+  district: string | null;
   /** Neighbourhood phrase used in copy, per language. */
   locality: { sv: string; en: string } | null;
   geo: { latitude: number; longitude: number } | null;
@@ -28,6 +29,7 @@ export const business: Business = {
   // Address, coordinates and map link: Google Maps listing checked 5 Nov 2026.
   // TODO: confirm with the client that the listing is current.
   city: 'Stockholm',
+  district: 'Södermalm',
   locality: { sv: 'på Södermalm i Stockholm', en: 'on Södermalm in Stockholm' },
   geo: { latitude: 59.3186797, longitude: 18.0618168 },
   streetAddress: 'Hornsgatan 33A',

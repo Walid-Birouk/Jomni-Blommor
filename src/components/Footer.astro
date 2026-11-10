@@ -21,7 +21,7 @@ const year = new Date().getFullYear();
           ? <>{business.streetAddress}<br />{business.postalCode} {business.city}</>
           : <em class="todo">{t(lang, 'todo.address')}</em>}
       </address>
-      {business.mapUrl && <p><a href={business.mapUrl}>{t(lang, 'cta.map')}</a></p>}
+      {business.mapUrl && <p><a class="site-footer__map" href={business.mapUrl}>{t(lang, 'cta.map')}</a></p>}
     </section>
 
     <section aria-labelledby="footer-hours">
@@ -77,7 +77,8 @@ const year = new Date().getFullYear();
   }
   address { font-style: normal; }
   .site-footer__list { list-style: none; padding: 0; display: grid; gap: var(--space-1); }
-  .site-footer__list a { display: inline-flex; align-items: center; min-height: var(--tap-min); }
+  .site-footer__list a,
+  .site-footer__map { display: inline-flex; align-items: center; min-height: var(--tap-min); }
   .hours { display: grid; grid-template-columns: auto auto; justify-content: start; gap: var(--space-1) var(--space-5); }
   .hours dd { font-variant-numeric: tabular-nums; }
   .site-footer__base {
