@@ -2,8 +2,12 @@
 import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// TODO: replace with the real domain once confirmed with the client.
-const SITE = 'https://jomniblommor.example';
+// The site's public address. Set SITE_URL in Vercel once the client's domain is live
+// (for example https://jomniblommor.se); until then Vercel's own production address is used.
+// TODO: confirm the domain with the client.
+const SITE =
+  process.env.SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://jomniblommor.example');
 
 export default defineConfig({
   site: SITE,

@@ -22,6 +22,9 @@ interface Props {
 
 const { lang, route, title, description, noindex = false, calm = false, ogImage = '/og-image.jpg' } = Astro.props;
 const site = Astro.site!;
+// Until launch the whole site asks search engines not to index it (stock photos, placeholders).
+// At launch set PUBLIC_ALLOW_INDEXING=true in Vercel and redeploy.
+const allowIndexing = import.meta.env.PUBLIC_ALLOW_INDEXING === 'true';
 const canonical = new URL(routes[route][lang], site).href;
 const alternates = (Object.keys(routes[route]) as Lang[]).map((l) => ({
   lang: l,
@@ -75,7 +78,8 @@ if (business.social.length) jsonLd.sameAs = business.social.map((s) => s.url);
     </script>
     <title>{title}</title>
     <meta name="description" content={description} />
-    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {(noindex || !allowIndexing) && <meta name="robots" content="noindex, nofollow" />}
+    {!noindex && <link rel="canonical" href={canonical} />}
     {!noindex && alternates.map((a) => <link rel="alternate" hreflang={a.lang} href={a.href} />)}
     {!noindex && <link rel="alternate" hreflang="x-default" href={xDefault} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
