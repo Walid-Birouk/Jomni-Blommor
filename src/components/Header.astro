@@ -1,0 +1,177 @@
+---
+import { routes, t, otherLang, type Lang, type RouteId } from '../i18n/utils';
+
+interface Props { lang: Lang; route: RouteId; }
+const { lang, route } = Astro.props;
+const home = routes.home[lang];
+const alt = otherLang(lang);
+
+// Until the sub-pages exist, the menu points to sections on the home page.
+// TODO: switch to /tjanster/, /om-oss/, /kontakt/ when those pages are built.
+const links = [
+  { href: `${home}#tjanster`, label: t(lang, 'nav.services') },
+  { href: `${home}#om-oss`, label: t(lang, 'nav.about') },
+  { href: `${home}#kontakt`, label: t(lang, 'nav.contact') },
+];
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="wordmark" href={home}>
+      <span class="wordmark__name">{t(lang, 'site.name')}</span>
+    </a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-expanded="false"
+      aria-controls="site-nav"
+      data-label-open={t(lang, 'nav.menu')}
+      data-label-close={t(lang, 'nav.close')}
+    >
+      <span class="menu-toggle__bars" aria-hidden="true"></span>
+      <span class="menu-toggle__label">{t(lang, 'nav.menu')}</span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label={t(lang, 'nav.label')}>
+      <ul class="site-nav__list">
+        {links.map((l) => (
+          <li><a class="site-nav__link" href={l.href}>{l.label}</a></li>
+        ))}
+        <li class="site-nav__lang">
+          <a
+            class="site-nav__link"
+            href={routes[route][alt]}
+            hreflang={alt}
+            lang={alt}
+            aria-label={t(lang, 'lang.switchLabel')}
+          >{t(lang, 'lang.switch')}</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.menu-toggle');
+  const nav = document.getElementById('site-nav');
+  if (toggle && nav) {
+    const label = toggle.querySelector('.menu-toggle__label');
+    const setOpen = (open: boolean) => {
+      toggle.setAttribute('aria-expanded', String(open));
+      nav.classList.toggle('is-open', open);
+      if (label) label.textContent = open ? toggle.dataset.labelClose! : toggle.dataset.labelOpen!;
+    };
+    toggle.addEventListener('click', () => setOpen(toggle.getAttribute('aria-expanded') !== 'true'));
+    nav.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0 var(--space-4);
+    min-height: 4rem;
+  }
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--tap-min);
+    color: var(--color-text);
+    text-decoration: none;
+  }
+  .wordmark__name {
+    font-family: var(--font-display-stack);
+    font-size: var(--step-1);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-height: var(--tap-min);
+    min-width: var(--tap-min);
+    padding: 0 var(--space-3);
+    background: none;
+    border: 1.5px solid var(--color-border-strong);
+    border-radius: var(--radius-control);
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .menu-toggle__bars,
+  .menu-toggle__bars::before {
+    display: block;
+    width: 1.1rem;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform var(--duration-base) var(--ease-out);
+  }
+  .menu-toggle__bars { position: relative; transform: translateY(-3px); }
+  .menu-toggle__bars::before { content: ''; position: absolute; top: 6px; }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__bars { transform: translateY(0) rotate(45deg); }
+  .menu-toggle[aria-expanded='true'] .menu-toggle__bars::before { transform: translateY(-6px) rotate(-90deg); }
+
+  .site-nav {
+    display: none;
+    position: absolute;
+    inset: 100% 0 auto 0;
+    z-index: var(--z-menu);
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--space-2) var(--gutter) var(--space-5);
+  }
+  .site-nav.is-open { display: block; }
+  .site-nav__list { list-style: none; padding: 0; }
+  .site-nav__link {
+    display: flex;
+    align-items: center;
+    min-height: 3rem;
+    color: var(--color-text);
+    font-family: var(--font-display-stack);
+    font-size: var(--step-2);
+    text-decoration: none;
+  }
+  .site-nav__link:hover { color: var(--color-link); text-decoration: underline; }
+  .site-nav__lang { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
+  .site-nav__lang .site-nav__link { font-family: var(--font-body-stack); font-size: var(--step-0); font-weight: 600; }
+
+  /* No-JS fallback: show the menu inline. */
+  :global(html:not(.js)) .menu-toggle { display: none; }
+  :global(html:not(.js)) .site-nav { display: block; position: static; width: 100%; padding: 0 0 var(--space-3); border: 0; }
+
+  @media (min-width: 48rem) {
+    .menu-toggle { display: none; }
+    .site-nav,
+    :global(html:not(.js)) .site-nav {
+      display: block;
+      position: static;
+      padding: 0;
+      width: auto;
+      border: 0;
+      background: none;
+    }
+    .site-nav__list { display: flex; align-items: center; gap: var(--space-5); }
+    .site-nav__link { font-family: var(--font-body-stack); font-size: var(--step-0); font-weight: 500; min-height: var(--tap-min); }
+    .site-nav__lang { margin: 0 0 0 var(--space-3); padding: 0 0 0 var(--space-5); border-top: 0; border-left: 1px solid var(--color-border); }
+  }
+</style>

@@ -1,0 +1,41 @@
+---
+import { business } from '../data/business';
+import { routes, t, type Lang } from '../i18n/utils';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+// TODO: point "Beställ" to the order form page once it exists.
+const orderHref = `${routes.home[lang]}#kontakt`;
+---
+
+<nav class="sticky-cta" aria-label={t(lang, 'cta.barLabel')}>
+  {business.phoneE164 && (
+    <a class="btn btn--secondary sticky-cta__btn" href={`tel:${business.phoneE164}`}>{t(lang, 'cta.call')}</a>
+  )}
+  <a class="btn btn--primary sticky-cta__btn" href={orderHref}>{t(lang, 'cta.orderShort')}</a>
+</nav>
+
+<style>
+  .sticky-cta {
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: var(--z-sticky-cta);
+    display: flex;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--gutter) calc(var(--space-3) + env(safe-area-inset-bottom));
+    background: var(--color-bg);
+    border-top: 1px solid var(--color-border);
+  }
+  .sticky-cta__btn { flex: 1; }
+  .sticky-cta .btn--secondary { background: var(--color-bg); }
+  .sticky-cta .btn--secondary:hover { background: var(--color-secondary); }
+
+  /* Reserve room so the bar never covers the end of the page. */
+  :global(body) { padding-bottom: calc(4.5rem + env(safe-area-inset-bottom)); }
+  :global(html) { scroll-padding-bottom: 5rem; }
+
+  @media (min-width: 48rem) {
+    .sticky-cta { display: none; }
+    :global(body) { padding-bottom: 0; }
+  }
+</style>

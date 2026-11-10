@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HomePage from '../../components/HomePage.astro';
+import { t } from '../../i18n/utils';
+const lang = 'en';
+---
+
+<BaseLayout lang={lang} route="home" title={t(lang, 'home.title')} description={t(lang, 'home.description')}>
+  <HomePage lang={lang} />
+</BaseLayout>

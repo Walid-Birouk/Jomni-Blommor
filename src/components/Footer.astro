@@ -1,0 +1,92 @@
+---
+import { business } from '../data/business';
+import { t, type Lang } from '../i18n/utils';
+
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__grid">
+    <div class="site-footer__brand">
+      <p class="site-footer__name">{business.name}</p>
+      <p>{business.city ? t(lang, 'site.taglineCity', { city: business.city }) : <>{t(lang, 'site.tagline')} <em class="todo">{t(lang, 'todo.city')}</em></>}</p>
+    </div>
+
+    <section aria-labelledby="footer-visit">
+      <h2 id="footer-visit" class="site-footer__heading">{t(lang, 'footer.visit')}</h2>
+      <address>
+        {business.streetAddress
+          ? <>{business.streetAddress}<br />{business.postalCode} {business.city}</>
+          : <em class="todo">{t(lang, 'todo.address')}</em>}
+      </address>
+      {business.mapUrl && <p><a href={business.mapUrl}>{t(lang, 'cta.map')}</a></p>}
+    </section>
+
+    <section aria-labelledby="footer-hours">
+      <h2 id="footer-hours" class="site-footer__heading">{t(lang, 'footer.hours')}</h2>
+      {business.openingHours
+        ? <dl class="hours">{business.openingHours.map((row) => <><dt>{row[lang]}</dt><dd>{row.hours}</dd></>)}</dl>
+        : <p><em class="todo">{t(lang, 'todo.hours')}</em></p>}
+    </section>
+
+    <section aria-labelledby="footer-contact">
+      <h2 id="footer-contact" class="site-footer__heading">{t(lang, 'footer.contact')}</h2>
+      <ul class="site-footer__list">
+        <li>{business.phoneE164
+          ? <a href={`tel:${business.phoneE164}`}>{business.phoneDisplay}</a>
+          : <em class="todo">{t(lang, 'todo.phone')}</em>}</li>
+        <li>{business.email
+          ? <a href={`mailto:${business.email}`}>{business.email}</a>
+          : <em class="todo">{t(lang, 'todo.email')}</em>}</li>
+        {business.social.length
+          ? business.social.map((s) => <li><a href={s.url}>{s.label}</a></li>)
+          : <li><em class="todo">{t(lang, 'todo.social')}</em></li>}
+      </ul>
+    </section>
+  </div>
+  <div class="container site-footer__base">
+    <p>© {year} {t(lang, 'footer.rights')}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    --color-focus: var(--birch);
+    background: var(--moss);
+    color: var(--birch);
+    padding-block: var(--space-8) var(--space-6);
+  }
+  .site-footer a { color: var(--birch); }
+  .site-footer a:hover { color: var(--white); }
+  .site-footer__grid {
+    display: grid;
+    gap: var(--space-6);
+  }
+  .site-footer__name {
+    font-family: var(--font-display-stack);
+    font-size: var(--step-3);
+    line-height: var(--leading-tight);
+  }
+  .site-footer__heading {
+    font-family: var(--font-body-stack);
+    font-size: var(--step-0);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+  }
+  address { font-style: normal; }
+  .site-footer__list { list-style: none; padding: 0; display: grid; gap: var(--space-1); }
+  .site-footer__list a { display: inline-flex; align-items: center; min-height: var(--tap-min); }
+  .hours { display: grid; grid-template-columns: auto auto; justify-content: start; gap: var(--space-1) var(--space-5); }
+  .hours dd { font-variant-numeric: tabular-nums; }
+  .site-footer__base {
+    margin-top: var(--space-7);
+    padding-top: var(--space-4);
+    border-top: 1px solid rgb(243 244 239 / 0.3);
+    font-size: var(--step--1);
+  }
+  @media (min-width: 48rem) {
+    .site-footer__grid { grid-template-columns: 1.4fr 1fr 1fr 1fr; }
+  }
+</style>

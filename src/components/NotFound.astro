@@ -1,0 +1,16 @@
+---
+import { routes, t, type Lang } from '../i18n/utils';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<section class="not-found container" aria-labelledby="nf-heading">
+  <h1 id="nf-heading">{t(lang, '404.heading')}</h1>
+  <p>{t(lang, '404.body')}</p>
+  <p><a class="btn btn--primary" href={routes.home[lang]}>{t(lang, '404.home')}</a></p>
+</section>
+
+<style>
+  .not-found { padding-block: var(--section-y); max-width: 44rem; margin-inline: 0; }
+  .not-found p { margin-top: var(--space-5); max-width: var(--measure); }
+</style>
