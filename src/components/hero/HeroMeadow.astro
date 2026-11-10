@@ -31,12 +31,22 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
 
 <section class="hero-c" aria-labelledby="hero-heading">
   <div class="hero-c__meadow" aria-hidden="true">
-    <svg class="meadow meadow--wide" viewBox={`0 0 ${DW} ${DH}`} preserveAspectRatio="xMidYMax meet" focusable="false">
-      {wide.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase}><g class="m-grow" style={`--d: ${s.delay}ms`} set:html={s.svg} /></g>)}
-    </svg>
-    <svg class="meadow meadow--narrow" viewBox={`0 0 ${PW} ${PH}`} preserveAspectRatio="xMidYMax meet" focusable="false">
-      {narrow.map((s) => <g class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase}><g class="m-grow" style={`--d: ${s.delay}ms`} set:html={s.svg} /></g>)}
-    </svg>
+    {[{ cls: 'meadow--wide', W: DW, H: DH, stems: wide }, { cls: 'meadow--narrow', W: PW, H: PH, stems: narrow }].map((m) => (
+      <div class:list={['meadow', m.cls]} data-meadow data-w={m.W} data-h={m.H}>
+        {m.stems.map((s) => {
+          const b = s.box;
+          const pct = (v: number, of: number) => `${((v / of) * 100).toFixed(3)}%`;
+          return (
+            <div class="m-stem" data-x={s.x} data-h={s.h} data-phase={s.phase}
+              style={`left:${pct(b.x, m.W)};top:${pct(b.y, m.H)};width:${pct(b.w, m.W)};height:${pct(b.h, m.H)};--ox:${pct(s.x - b.x, b.w)};--d:${s.delay}ms`}>
+              <div class="m-grow">
+                <svg viewBox={`${b.x.toFixed(1)} ${b.y.toFixed(1)} ${b.w.toFixed(1)} ${b.h.toFixed(1)}`} preserveAspectRatio="none" focusable="false" set:html={s.svg} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    ))}
   </div>
 
   <div class="hero-c__top" data-wind-quiet>
@@ -76,34 +86,36 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
 <script>
   import { wind, onTick, onState } from '../../scripts/wind';
 
-  const svgs = [...document.querySelectorAll<SVGSVGElement>('svg.meadow')].map((svg) => {
-    const vb = svg.viewBox.baseVal;
-    return {
-      svg, W: vb.width, H: vb.height, wide: svg.classList.contains('meadow--wide'),
-      stems: [...svg.querySelectorAll<SVGGElement>('.m-stem')].map((g) => ({
-        g, x: Number(g.dataset.x), h: Number(g.dataset.h), phase: Number(g.dataset.phase), a: 0, v: 0,
-      })),
-    };
-  });
+  // Each stem is its own layer; rotating it with a CSS transform needs no repaint.
+  const meadows = [...document.querySelectorAll<HTMLElement>('[data-meadow]')].map((box) => ({
+    box, W: Number(box.dataset.w), H: Number(box.dataset.h),
+    stems: [...box.querySelectorAll<HTMLElement>('.m-stem')].map((el) => ({
+      el, x: Number(el.dataset.x), h: Number(el.dataset.h), phase: Number(el.dataset.phase), a: 0, v: 0, shown: 0,
+    })),
+  }));
   let time = 0;
-  onState(() => { if (wind.reduced) svgs.forEach((m) => m.stems.forEach((s) => s.g.removeAttribute('transform'))); });
-  onTick((dt) => {
+  onState(() => { if (wind.reduced) meadows.forEach((m) => m.stems.forEach((s) => { s.el.style.transform = ''; s.shown = 0; })); });
+  let carry = 0;
+  onTick((frameDt) => {
+    // On a struggling device, update the sway every other frame (with the time of both).
+    carry += frameDt;
+    if (wind.lowPower && wind.frame % 2) return;
+    const dt = Math.min(carry, 0.05);
+    carry = 0;
     time += dt;
     const strength = Math.min((wind.base + wind.gust) / 120, 2.2);
     const p = wind.pointer;
-    for (const m of svgs) {
-      const rect = m.svg.getBoundingClientRect();
-      if (!rect.height) continue; // the composition for the other screen size
-      // Each SVG is sized to the hero's height with its own aspect ratio, so its box is the drawing.
+    for (const m of meadows) {
+      const rect = m.box.getBoundingClientRect();
+      if (!rect.height) continue; // the drawing for the other screen size
       const k = rect.height / m.H;
-      const left = rect.left;
       for (const s of m.stems) {
         // The breeze travels as a wave from left to right across the meadow.
         const wave = Math.sin(time * 1.6 - (s.x / m.W) * 7 + s.phase * 0.3);
         const tall = 0.6 + (s.h / m.H) * 0.8;
         let push = 0;
         if (p.active) {
-          const sx = left + s.x * k, sy = rect.bottom - s.h * k * 0.8;
+          const sx = rect.left + s.x * k, sy = rect.bottom - s.h * k * 0.8;
           const dx = sx - p.x, dy = sy - p.y, d = Math.hypot(dx, dy), R = 170;
           // Cursor and touch effect: the stems part around the pointer.
           if (d < R) push = (dx / R) * (1 - d / R) * 18 + p.vx * 0.005 * (1 - d / R);
@@ -111,7 +123,7 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
         const target = wave * 3.2 * tall * (0.4 + strength * 0.6) + (wind.gust / 220) * 9 * tall + Math.max(-20, Math.min(20, push));
         s.v += (30 * (target - s.a) - 6 * s.v) * dt;
         s.a += s.v * dt;
-        s.g.setAttribute('transform', `rotate(${s.a.toFixed(2)} ${s.x.toFixed(1)} ${m.H})`);
+        if (Math.abs(s.a - s.shown) > 0.05) { s.el.style.transform = `rotate(${s.a.toFixed(2)}deg)`; s.shown = s.a; }
       }
     }
   });
@@ -130,7 +142,7 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
   .hero-c__meadow { grid-area: screen; position: relative; z-index: 0; overflow: hidden; border-bottom: 1.5px solid #3e5b40; }
   /* Scale each drawing to the hero's height so the top is never cropped: narrow screens trim the
      sides (the phone drawing stays centred), wide screens keep the desktop drawing right-aligned. */
-  .meadow { position: absolute; bottom: 0; display: block; height: 100%; width: auto; max-width: none; }
+  .meadow { position: absolute; bottom: 0; height: 100%; max-width: none; }
   .meadow--narrow { left: 50%; transform: translateX(-50%); aspect-ratio: 400 / 640; }
   .meadow--wide {
     right: 0;
@@ -139,6 +151,9 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
     -webkit-mask-image: linear-gradient(to right, transparent 0, #000 7%);
     mask-image: linear-gradient(to right, transparent 0, #000 7%);
   }
+  .m-stem { position: absolute; transform-origin: var(--ox) 100%; will-change: transform; }
+  .m-grow { width: 100%; height: 100%; transform-origin: var(--ox) 100%; }
+  .m-stem svg { display: block; width: 100%; height: 100%; overflow: visible; }
   .meadow--wide { display: none; }
 
   .hero-c__top {
@@ -181,8 +196,6 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
   /* Arrival: each flower grows up from the ground, rolling left to right. */
   @media (prefers-reduced-motion: no-preference) {
     .m-grow {
-      transform-box: fill-box;
-      transform-origin: 50% 100%;
       animation: m-grow 1.1s cubic-bezier(0.16, 1, 0.3, 1) both;
       animation-delay: var(--d);
     }

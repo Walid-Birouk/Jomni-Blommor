@@ -6,7 +6,11 @@ export const INK = '#3e5b40';
 const fills = { peony: '#9e2f4f', rose: '#c25a78', blush: '#e3a3b5', pale: '#f1d5dc', white: '#fbfbf8' };
 const kinds = ['cosmos', 'tulip', 'umbel', 'bud', 'cosmos', 'grass', 'umbel', 'tulip'] as const;
 export type FlowerKind = 'cosmos' | 'tulip' | 'umbel' | 'bud';
-export type Stem = { x: number; h: number; svg: string; phase: number; delay: number };
+export type Stem = {
+  x: number; h: number; svg: string; phase: number; delay: number;
+  /** Bounding box of the drawing in the meadow's viewBox, so each stem can be its own layer. */
+  box: { x: number; y: number; w: number; h: number };
+};
 const n = (v: number) => v.toFixed(1);
 
 /** Make a drawing kit with its own seeded random. `ink` is the line colour. */
@@ -79,7 +83,12 @@ export function botanical(seed: number, ink = INK, leafFill = '#dfe6d8') {
         svg += `<g class="b-bloom">${bloom}${head(kind, tx, ty, r(18, 28) * scale)}</g>`;
       }
       // Arrival: growth rolls left to right like the wind, with a little jitter.
-      stems.push({ x, h, svg, phase: rnd() * 6.28, delay: Math.round(t * 450 + r(0, 120)) });
+      // Generous box around stem, leaves and head (head size up to 28 * scale, leaves up to 34 * scale).
+      const pad = 42 * scale;
+      const minX = Math.min(x, x + bend * 1.4, tx) - pad, maxX = Math.max(x, x + bend * 1.4, tx) + pad;
+      const minY = Math.max(0, H - h - pad);
+      const box = { x: minX, y: minY, w: maxX - minX, h: H - minY };
+      stems.push({ x, h, svg, phase: rnd() * 6.28, delay: Math.round(t * 450 + r(0, 120)), box });
     }
     return stems;
   };

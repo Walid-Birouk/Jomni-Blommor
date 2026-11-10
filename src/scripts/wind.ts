@@ -22,6 +22,10 @@ export const wind = {
   visible: true,
   reduced: false,
   pointer: { x: -1e4, y: -1e4, vx: 0, vy: 0, active: false, type: 'mouse' },
+  /** Set when the device keeps missing frames; subscribers then do less work. */
+  lowPower: false,
+  /** Counts frames, so low-power subscribers can update every other one. */
+  frame: 0,
 };
 
 let raf = 0;
@@ -29,9 +33,17 @@ let last = 0;
 let nextGust = 0;
 let started = false;
 
+// Smoothed frame time. Above ~22 ms for a couple of seconds means the device is struggling.
+let avgMs = 16.7;
+let slowFor = 0;
 const frame = (now: number) => {
-  const dt = Math.min((now - last) / 1000, 0.05);
+  const raw = now - last;
+  const dt = Math.min(raw / 1000, 0.05);
   last = now;
+  wind.frame++;
+  avgMs += (Math.min(raw, 100) - avgMs) * 0.05;
+  slowFor = avgMs > 22 ? slowFor + dt : 0;
+  if (!wind.lowPower && slowFor > 2) wind.lowPower = true;
   if (now > nextGust) {
     wind.gust += 60 + Math.random() * 80;
     nextGust = now + 7000 + Math.random() * 6000;

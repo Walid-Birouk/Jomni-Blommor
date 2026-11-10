@@ -126,22 +126,24 @@ a:hover { color: var(--color-link-hover); text-decoration-thickness: 2px; }
 .reveal [data-reveal] {
   transition:
     opacity 800ms var(--ease-out),
-    transform 900ms var(--ease-out),
-    clip-path 1100ms var(--ease-out);
+    transform 900ms var(--ease-out);
   transition-delay: calc(var(--i, 0) * 110ms);
 }
 .reveal [data-reveal]:not(.is-in) { opacity: 0; transform: translateY(1.25rem); }
-/* Photos wipe up from the bottom. The clip sits on the inner picture so the observed
-   figure keeps its size (a fully clipped target never reports as intersecting). */
+/* Photos fade in while settling from a slight zoom. Opacity and transform only, so the GPU
+   does the work and phones do not repaint the photo on every frame. */
 .reveal [data-reveal='photo'],
-.reveal [data-reveal='photo']:not(.is-in) { opacity: 1; transform: none; }
-.reveal [data-reveal='photo'] picture { transition: clip-path 1100ms var(--ease-out); transition-delay: calc(var(--i, 0) * 110ms); }
-.reveal [data-reveal='photo']:not(.is-in) picture { clip-path: inset(100% 0 0 0); }
+.reveal [data-reveal='photo']:not(.is-in) { transform: none; }
+.reveal [data-reveal='photo'] picture { transition: opacity 900ms var(--ease-out); transition-delay: calc(var(--i, 0) * 110ms); }
+.reveal [data-reveal='photo']:not(.is-in) picture { opacity: 0; }
 .reveal [data-reveal='photo'] img { transition: transform 1400ms var(--ease-out); transition-delay: calc(var(--i, 0) * 110ms); }
 .reveal [data-reveal='photo']:not(.is-in) img { transform: scale(1.08); }
 .reveal [data-reveal='photo'] .photo__tag { transition: opacity 600ms var(--ease-out); transition-delay: calc(var(--i, 0) * 110ms + 700ms); }
 .reveal [data-reveal='photo']:not(.is-in) .photo__tag { opacity: 0; }
 .reveal [data-reveal='draw']:not(.is-in) { opacity: 1; transform: none; }
+/* Meadow edges grow up from the ground as one layer. */
+.reveal [data-reveal='grow'] { transform-origin: 50% 100%; transition: transform 1100ms var(--ease-out), opacity 700ms var(--ease-out); }
+.reveal [data-reveal='grow']:not(.is-in) { opacity: 0; transform: scaleY(0.2); }
 .reveal [data-reveal='draw'] .b-line {
   stroke-dasharray: 1;
   transition: stroke-dashoffset 1300ms var(--ease-out);

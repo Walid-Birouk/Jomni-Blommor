@@ -51,6 +51,7 @@ const { lang } = Astro.props;
     let bits: Bit[] = [];
     // Areas with small text where petals fade so they never hurt legibility.
     let quiet: DOMRect[] = [];
+    let halved = false;
 
     const rand = (a: number, b: number) => a + Math.random() * (b - a);
     const pick = <T,>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)];
@@ -77,11 +78,12 @@ const { lang } = Astro.props;
       };
     };
 
-    const count = () => Math.round(Math.min(34, Math.max(14, (w * h) / 22000)));
+    // Fewer petals on small screens; the canvas is decorative, so 1.5x density is sharp enough.
+    const count = () => Math.round(Math.min(30, Math.max(10, (w * h) / 30000)));
 
     const resize = () => {
       const r = host.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       w = r.width; h = r.height;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
@@ -146,6 +148,8 @@ const { lang } = Astro.props;
       const p = wind.pointer;
       const px = p.x - hostRect.left, py = p.y - hostRect.top;
       const decay = Math.pow(0.12, dt);
+      // On a struggling device, keep every other petal.
+      if (wind.lowPower && !halved) { bits = bits.filter((b, i) => b.extra || i % 2 === 0); halved = true; }
       for (let i = bits.length - 1; i >= 0; i--) {
         const b = bits[i];
         b.sway += b.swaySpeed * dt;
