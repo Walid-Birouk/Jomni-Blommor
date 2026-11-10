@@ -1,0 +1,58 @@
+---
+/**
+ * About and contact: who the shop is, where it is (map + reviews), and the order form.
+ * TODO: client copy and real photos of the shop and the florist.
+ */
+import { t, type Lang } from '../../i18n/utils';
+import Photo from '../Photo.astro';
+import VisitReviews from '../VisitReviews.astro';
+import ContactSection from '../ContactSection.astro';
+import MeadowEdge from '../art/MeadowEdge.astro';
+import shop from '../../assets/stock/STOCK-florist-i-butik.jpg';
+import bench from '../../assets/stock/STOCK-binder-bukett.jpg';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<section class="about-intro" aria-labelledby="page-heading">
+  <div class="container about-intro__inner">
+    <div>
+      <!-- TODO: client copy -->
+      <h1 id="page-heading">{t(lang, 'about.heading')}</h1>
+      <p class="about-intro__lead">{t(lang, 'about.lead')}</p>
+      <p class="about-intro__facts">{t(lang, 'hero.facts.services')}.</p>
+    </div>
+    <Photo src={shop} alt={t(lang, 'about.alt')} lang={lang} eager ratio="4 / 5" sizes="(min-width: 48rem) 45vw, 100vw" />
+  </div>
+</section>
+
+<section class="story" aria-labelledby="story-heading">
+  <MeadowEdge seed={57} />
+  <div class="container story__inner">
+    <Photo src={bench} alt={t(lang, 'home.bench.alt1')} lang={lang} ratio="1 / 1" sizes="(min-width: 48rem) 35vw, 100vw" />
+    <div data-reveal>
+      <!-- TODO: client copy -->
+      <h2 id="story-heading">{t(lang, 'about.storyHeading')}</h2>
+      <p>{t(lang, 'about.story')}</p>
+    </div>
+  </div>
+</section>
+
+<VisitReviews lang={lang} />
+
+<ContactSection lang={lang} />
+
+<style>
+  .about-intro { padding-block: var(--space-7) var(--section-y); }
+  .about-intro__inner { display: grid; gap: var(--space-7); align-items: center; }
+  .about-intro__lead { margin-top: var(--space-4); max-width: 38ch; font-size: var(--step-1); line-height: 1.5; color: var(--color-text-muted); }
+  .about-intro__facts { margin-top: var(--space-4); font-weight: 600; }
+  .story { position: relative; padding-block: var(--section-y); background: var(--color-surface); }
+  .story__inner { display: grid; gap: var(--space-7); align-items: center; }
+  .story h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
+  .story p { margin-top: var(--space-4); max-width: var(--measure); font-size: var(--step-1); line-height: 1.5; }
+  @media (min-width: 48rem) {
+    .about-intro__inner { grid-template-columns: 1.1fr 0.9fr; gap: var(--space-9); }
+    .story__inner { grid-template-columns: 0.8fr 1.2fr; gap: var(--space-9); }
+  }
+</style>

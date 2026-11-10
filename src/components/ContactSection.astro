@@ -1,0 +1,57 @@
+---
+/** Contact facts beside the order request form. Used on the home page and on About. */
+import { business } from '../data/business';
+import { t, type Lang } from '../i18n/utils';
+import OrderForm from './OrderForm.astro';
+interface Props { lang: Lang; }
+const { lang } = Astro.props;
+---
+
+<section id="kontakt" class="contact" aria-labelledby="contact-heading">
+  <div class="container contact__inner">
+    <div class="contact__intro" data-reveal>
+      <h2 id="contact-heading">{t(lang, 'home.contact.heading')}</h2>
+      <p class="contact__body">{t(lang, 'home.contact.body')}</p>
+      <dl class="contact__facts">
+        <div>
+          <dt>{t(lang, 'home.contact.address')}</dt>
+          <dd>{business.streetAddress
+            ? <>{business.streetAddress}, {business.postalCode} {business.city}{business.mapUrl && <><br /><a class="contact__map" href={business.mapUrl}>{t(lang, 'cta.map')}</a></>}</>
+            : <em class="todo">{t(lang, 'todo.address')}</em>}</dd>
+        </div>
+        <div>
+          <dt>{t(lang, 'home.contact.phone')}</dt>
+          <dd>{business.phoneE164
+            ? <a href={`tel:${business.phoneE164}`}>{business.phoneDisplay}</a>
+            : <em class="todo">{t(lang, 'todo.phone')}</em>}</dd>
+        </div>
+        <div>
+          <dt>{t(lang, 'home.contact.hours')}</dt>
+          <dd>{business.openingHours
+            ? business.openingHours.map((r) => <span class="contact__hour">{r[lang]} {r.hours}</span>)
+            : <em class="todo">{t(lang, 'todo.hours')}</em>}</dd>
+        </div>
+      </dl>
+    </div>
+    <div class="contact__form" data-reveal>
+      <OrderForm lang={lang} />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Contact and order form */
+  .contact { padding-block: var(--section-y); border-top: 1px solid var(--color-border); }
+  .contact__inner { display: grid; gap: var(--space-7); }
+  .contact__intro h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
+  .contact__body { margin-top: var(--space-4); max-width: var(--measure); }
+  .contact__facts { display: grid; gap: var(--space-5); margin-top: var(--space-6); }
+  .contact__facts dt { font-weight: 700; }
+  .contact__facts dd { margin: var(--space-1) 0 0; }
+  .contact__map { display: inline-flex; align-items: center; min-height: var(--tap-min); font-weight: 600; }
+  .contact__hour { display: block; font-variant-numeric: tabular-nums; }
+
+  @media (min-width: 48rem) {
+    .contact__inner { grid-template-columns: 1fr 1.25fr; align-items: start; gap: var(--space-8); }
+  }
+</style>

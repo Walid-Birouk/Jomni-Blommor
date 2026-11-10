@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServicePage from '../components/page/ServicePage.astro';
+import photo from '../assets/stock/STOCK-middagsbord-dahlior.jpg';
+import shop from '../assets/stock/STOCK-butik-narcisser.jpg';
+import { t } from '../i18n/utils';
+const lang = 'sv';
+---
+
+<BaseLayout lang={lang} route="business" title={t(lang, 'business.title')} description={t(lang, 'business.description')}>
+  <ServicePage lang={lang} prefix="business" photo={photo} secondPhoto={{ src: shop, altKey: 'home.bench.alt4' }} occasion="event" steps={3} stamps={['tulip', 'cosmos', 'bud', 'umbel']} />
+</BaseLayout>

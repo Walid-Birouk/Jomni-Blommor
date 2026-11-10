@@ -16,6 +16,8 @@ const services = defineCollection({
       placeholder: z.boolean().default(true),
       /** Pre-selects the occasion in the order form. */
       occasion: z.enum(['bouquet', 'wedding', 'funeral', 'event']),
+      /** The page this service links to (a route id in src/i18n/utils.ts). */
+      page: z.enum(['shop', 'weddings', 'funerals', 'business']),
     }),
 });
 

@@ -4,8 +4,7 @@ import { routes, t, type Lang } from '../i18n/utils';
 
 interface Props { lang: Lang; }
 const { lang } = Astro.props;
-// TODO: point "Beställ" to the order form page once it exists.
-const orderHref = `${routes.home[lang]}#kontakt`;
+const orderHref = routes.shop[lang];
 ---
 
 <nav class="sticky-cta" aria-label={t(lang, 'cta.barLabel')}>

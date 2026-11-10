@@ -5,6 +5,7 @@ order: 3
 image: "../../../assets/stock/STOCK-vita-liljor.jpg"
 imageAlt: "Sample image: white lilies in soft light."
 placeholder: true
+page: "funerals"
 occasion: "funeral"
 ---
 

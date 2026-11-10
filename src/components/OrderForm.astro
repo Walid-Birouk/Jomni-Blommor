@@ -3,7 +3,8 @@
  * Order request form. DEMO: it validates and shows a success state but sends nothing.
  * TODO: connect to the form service once hosting is chosen (Netlify Forms or Formspree),
  * keep the honeypot, and replace the demo success text.
- * Service links with data-occasion="..." pre-select the occasion.
+ * Service links with data-occasion="..." pre-select the occasion; the URL parameters
+ * ?tillfalle= and ?produkt= pre-fill the occasion and product (see orderHref in i18n/utils).
  */
 import { t, type Lang, type UiKey } from '../i18n/utils';
 interface Props { lang: Lang; }
@@ -36,6 +37,12 @@ const opt = `(${t(lang, 'form.optional')})`;
       </div>
       <p class="field__error" id="of-contact-error" data-error-for="contact" hidden>{t(lang, 'form.error.contact')}</p>
     </fieldset>
+
+    <div class="field field--wide">
+      <label for="of-product">{t(lang, 'form.product')} <span class="field__opt">{opt}</span></label>
+      <input id="of-product" name="product" type="text" aria-describedby="of-product-hint" />
+      <p class="field__hint" id="of-product-hint">{t(lang, 'form.productHint')}</p>
+    </div>
 
     <div class="field">
       <label for="of-occasion">{t(lang, 'form.occasion')}</label>
@@ -129,6 +136,14 @@ const opt = `(${t(lang, 'form.optional')})`;
       submit.hidden = false;
       el('name').focus();
     });
+
+    // Links like /om-oss/?tillfalle=funeral&produkt=... pre-fill the occasion and product.
+    const params = new URLSearchParams(location.search);
+    const occasionSelect = form.elements.namedItem('occasion') as HTMLSelectElement;
+    const wanted = params.get('tillfalle');
+    if (wanted && [...occasionSelect.options].some((o) => o.value === wanted)) occasionSelect.value = wanted;
+    const product = params.get('produkt');
+    if (product) el('product').value = product.slice(0, 200);
 
     // Service links pre-select the occasion.
     document.addEventListener('click', (e) => {

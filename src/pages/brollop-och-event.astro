@@ -1,0 +1,12 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServicePage from '../components/page/ServicePage.astro';
+import photo from '../assets/stock/STOCK-brudbukett-eukalyptus.jpg';
+import table from '../assets/stock/STOCK-middagsbord-dahlior.jpg';
+import { t } from '../i18n/utils';
+const lang = 'sv';
+---
+
+<BaseLayout lang={lang} route="weddings" title={t(lang, 'weddings.title')} description={t(lang, 'weddings.description')}>
+  <ServicePage lang={lang} prefix="weddings" photo={photo} secondPhoto={{ src: table, altKey: 'weddings.altTable' }} occasion="wedding" steps={4} stamps={['cosmos', 'tulip', 'umbel', 'bud']} />
+</BaseLayout>

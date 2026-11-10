@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ServicePage from '../components/page/ServicePage.astro';
+import photo from '../assets/stock/STOCK-vita-liljor.jpg';
+import { t } from '../i18n/utils';
+const lang = 'sv';
+---
+
+<BaseLayout lang={lang} route="funerals" title={t(lang, 'funerals.title')} description={t(lang, 'funerals.description')} calm>
+  <ServicePage lang={lang} prefix="funerals" photo={photo} occasion="funeral" steps={3} stamps={['umbel', 'bud', 'cosmos', 'umbel']} calm />
+</BaseLayout>

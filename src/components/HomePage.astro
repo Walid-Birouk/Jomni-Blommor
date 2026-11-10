@@ -6,11 +6,11 @@
  */
 import { getCollection } from 'astro:content';
 import { business } from '../data/business';
-import { t, type Lang } from '../i18n/utils';
+import { t, routes, orderHref, type Lang } from '../i18n/utils';
 import HeroMeadow from './hero/HeroMeadow.astro';
 import VisitReviews from './VisitReviews.astro';
 import Photo from './Photo.astro';
-import OrderForm from './OrderForm.astro';
+import ContactSection from './ContactSection.astro';
 import PageDrift from './PageDrift.astro';
 import MeadowEdge from './art/MeadowEdge.astro';
 import bench1 from '../assets/stock/STOCK-binder-bukett.jpg';
@@ -50,7 +50,7 @@ const bench = [
       <div class="season__text" data-reveal>
         <h2 id="season-heading">{season.data[lang].title}</h2>
         <p>{season.data[lang].body}</p>
-        <p><a class="btn btn--on-dark" href="#kontakt">{season.data[lang].cta}</a></p>
+        <p><a class="btn btn--on-dark" href={orderHref(lang, 'bouquet', season.data[lang].title)}>{season.data[lang].cta}</a></p>
       </div>
     </div>
   </section>
@@ -75,7 +75,7 @@ const bench = [
           <div class="service__text" data-reveal>
             <h3>{s.data.title}</h3>
             <p>{s.data.summary}</p>
-            <a href="#kontakt" data-occasion={s.data.occasion}>{t(lang, 'home.services.more', { service: s.data.title.toLowerCase() })}</a>
+            <a href={routes[s.data.page][lang]}>{s.data.page === 'shop' ? t(lang, 'cta.toShop') : t(lang, 'home.services.more', { service: s.data.title.toLowerCase() })}</a>
           </div>
         </li>
       ))}
@@ -115,37 +115,7 @@ const bench = [
   </div>
 </section>
 
-<section id="kontakt" class="contact" aria-labelledby="contact-heading">
-  <div class="container contact__inner">
-    <div class="contact__intro" data-reveal>
-      <h2 id="contact-heading">{t(lang, 'home.contact.heading')}</h2>
-      <p class="contact__body">{t(lang, 'home.contact.body')}</p>
-      <dl class="contact__facts">
-        <div>
-          <dt>{t(lang, 'home.contact.address')}</dt>
-          <dd>{business.streetAddress
-            ? <>{business.streetAddress}, {business.postalCode} {business.city}{business.mapUrl && <><br /><a class="contact__map" href={business.mapUrl}>{t(lang, 'cta.map')}</a></>}</>
-            : <em class="todo">{t(lang, 'todo.address')}</em>}</dd>
-        </div>
-        <div>
-          <dt>{t(lang, 'home.contact.phone')}</dt>
-          <dd>{business.phoneE164
-            ? <a href={`tel:${business.phoneE164}`}>{business.phoneDisplay}</a>
-            : <em class="todo">{t(lang, 'todo.phone')}</em>}</dd>
-        </div>
-        <div>
-          <dt>{t(lang, 'home.contact.hours')}</dt>
-          <dd>{business.openingHours
-            ? business.openingHours.map((r) => <span class="contact__hour">{r[lang]} {r.hours}</span>)
-            : <em class="todo">{t(lang, 'todo.hours')}</em>}</dd>
-        </div>
-      </dl>
-    </div>
-    <div class="contact__form" data-reveal>
-      <OrderForm lang={lang} />
-    </div>
-  </div>
-</section>
+<ContactSection lang={lang} />
 
 <style>
   /* Seasonal banner: the one dark band on the page. */
@@ -218,17 +188,6 @@ const bench = [
   .about__text p { margin-top: var(--space-4); font-size: var(--step-1); line-height: 1.5; }
   .about__text .about__facts { color: var(--color-text-muted); font-size: var(--step-0); }
 
-  /* Contact and order form */
-  .contact { padding-block: var(--section-y); border-top: 1px solid var(--color-border); }
-  .contact__inner { display: grid; gap: var(--space-7); }
-  .contact__intro h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
-  .contact__body { margin-top: var(--space-4); max-width: var(--measure); }
-  .contact__facts { display: grid; gap: var(--space-5); margin-top: var(--space-6); }
-  .contact__facts dt { font-weight: 700; }
-  .contact__facts dd { margin: var(--space-1) 0 0; }
-  .contact__map { display: inline-flex; align-items: center; min-height: var(--tap-min); font-weight: 600; }
-  .contact__hour { display: block; font-variant-numeric: tabular-nums; }
-
   @media (min-width: 48rem) {
     .bench__grid { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 13rem; }
     .bench__grid :global(.bench__a) { grid-column: 1 / span 2; grid-row: 1 / span 2; }
@@ -236,7 +195,6 @@ const bench = [
     .bench__grid :global(.bench__c) { grid-column: 3; grid-row: 2; }
     .bench__grid :global(.bench__d) { grid-column: 4; grid-row: 2; }
     .bench__grid :global(.bench__e) { grid-column: 5 / span 2; grid-row: 1 / span 2; }
-    .contact__inner { grid-template-columns: 1fr 1.25fr; align-items: start; gap: var(--space-8); }
   }
 
   @media (min-width: 64rem) {

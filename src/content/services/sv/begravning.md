@@ -5,6 +5,7 @@ order: 3
 image: "../../../assets/stock/STOCK-vita-liljor.jpg"
 imageAlt: "Exempelbild: vita liljor i mjukt ljus."
 placeholder: true
+page: "funerals"
 occasion: "funeral"
 ---
 

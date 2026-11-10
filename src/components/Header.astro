@@ -1,18 +1,21 @@
 ---
-import { routes, t, otherLang, type Lang, type RouteId } from '../i18n/utils';
+import { routes, t, otherLang, type Lang, type RouteId, type UiKey } from '../i18n/utils';
 
 interface Props { lang: Lang; route: RouteId; }
 const { lang, route } = Astro.props;
 const home = routes.home[lang];
 const alt = otherLang(lang);
 
-// Until the sub-pages exist, the menu points to sections on the home page.
-// TODO: switch to /tjanster/, /om-oss/, /kontakt/ when those pages are built.
-const links = [
-  { href: `${home}#tjanster`, label: t(lang, 'nav.services') },
-  { href: `${home}#om-oss`, label: t(lang, 'nav.about') },
-  { href: `${home}#kontakt`, label: t(lang, 'nav.contact') },
+const nav: { id: RouteId; key: UiKey }[] = [
+  { id: 'shop', key: 'nav.shop' },
+  { id: 'weddings', key: 'nav.weddings' },
+  { id: 'funerals', key: 'nav.funerals' },
+  { id: 'business', key: 'nav.business' },
+  { id: 'about', key: 'nav.about' },
 ];
+// The builder lives under the shop, so the shop item stays current there.
+const current = route === 'builder' ? 'shop' : route;
+const links = nav.map((n) => ({ href: routes[n.id][lang], label: t(lang, n.key), current: n.id === current }));
 ---
 
 <header class="site-header">
@@ -36,9 +39,9 @@ const links = [
     <nav class="site-nav" id="site-nav" aria-label={t(lang, 'nav.label')}>
       <ul class="site-nav__list">
         {links.map((l) => (
-          <li><a class="site-nav__link" href={l.href}>{l.label}</a></li>
+          <li><a class="site-nav__link" href={l.href} aria-current={l.current ? 'page' : undefined}>{l.label}</a></li>
         ))}
-        <li class="site-nav__order"><a class="btn btn--primary" href={`${home}#kontakt`}>{t(lang, 'nav.order')}</a></li>
+        <li class="site-nav__order"><a class="btn btn--primary" href={routes.shop[lang]}>{t(lang, 'nav.order')}</a></li>
         <li class="site-nav__lang">
           <a
             class="site-nav__link"
@@ -153,6 +156,7 @@ const links = [
     text-decoration: none;
   }
   .site-nav__link:hover { color: var(--color-link); text-decoration: underline; }
+  .site-nav__link[aria-current='page'] { color: var(--color-link); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.35em; }
   .site-nav__order { display: none; }
   .site-nav__lang { margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--color-border); }
   .site-nav__lang .site-nav__link { font-family: var(--font-body-stack); font-size: var(--step-0); font-weight: 600; }
@@ -161,7 +165,7 @@ const links = [
   :global(html:not(.js)) .menu-toggle { display: none; }
   :global(html:not(.js)) .site-nav { display: block; position: static; width: 100%; padding: 0 0 var(--space-3); border: 0; }
 
-  @media (min-width: 48rem) {
+  @media (min-width: 64rem) {
     .menu-toggle { display: none; }
     .site-nav,
     :global(html:not(.js)) .site-nav {

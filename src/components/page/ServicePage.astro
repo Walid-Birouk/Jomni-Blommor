@@ -1,0 +1,149 @@
+---
+/**
+ * Template for the service pages (weddings, funerals, business): intro with photo,
+ * what we offer (with line-drawn stamps), how it works, an optional photo, and a
+ * closing next step to the contact form with the occasion pre-selected.
+ * All copy comes from src/i18n under `${prefix}.*`. TODO: client copy.
+ */
+import type { ImageMetadata } from 'astro';
+import { business } from '../../data/business';
+import { t, orderHref, type Lang, type UiKey } from '../../i18n/utils';
+import Photo from '../Photo.astro';
+import FlowerStamp from '../art/FlowerStamp.astro';
+import MeadowEdge from '../art/MeadowEdge.astro';
+import type { FlowerKind } from '../../lib/botanical';
+
+interface Props {
+  lang: Lang;
+  prefix: 'weddings' | 'funerals' | 'business';
+  photo: ImageMetadata;
+  secondPhoto?: { src: ImageMetadata; altKey: UiKey };
+  occasion: 'wedding' | 'funeral' | 'event';
+  steps: number;
+  stamps: FlowerKind[];
+  calm?: boolean;
+}
+const { lang, prefix, photo, secondPhoto, occasion, steps, stamps, calm = false } = Astro.props;
+const k = (key: string) => t(lang, `${prefix}.${key}` as UiKey);
+const offers = [1, 2, 3, 4].map((i) => ({ title: k(`o${i}.title`), text: k(`o${i}.text`) }));
+const stepTexts = Array.from({ length: steps }, (_, i) => k(`s${i + 1}`));
+const formLink = orderHref(lang, occasion);
+---
+
+<section class:list={['intro', { 'intro--calm': calm }]} aria-labelledby="page-heading">
+  <div class="container intro__inner">
+    <div class="intro__text">
+      <!-- TODO: client copy -->
+      <h1 id="page-heading">{k('heading')}</h1>
+      <p class="intro__lead">{k('lead')}</p>
+      <p class="intro__actions">
+        <a class="btn btn--primary" href={formLink}>{k('cta')}</a>
+        {business.phoneE164 && <a class="btn btn--secondary" href={`tel:${business.phoneE164}`}>{t(lang, 'cta.call')}</a>}
+      </p>
+    </div>
+    <Photo src={photo} alt={k('alt')} lang={lang} eager ratio="4 / 5" sizes="(min-width: 48rem) 45vw, 100vw" class="intro__photo" />
+  </div>
+</section>
+
+<section class="offer" aria-labelledby="offer-heading">
+  <MeadowEdge seed={prefix.length * 7} />
+  <div class="container">
+    <h2 id="offer-heading" data-reveal>{k('offer.heading')}</h2>
+    <ul class="offer__list" data-reveal-group>
+      {offers.map((o, i) => (
+        <li class="offer__item" data-reveal>
+          <FlowerStamp kind={stamps[i % stamps.length]} seed={40 + i + prefix.length} class="offer__stamp" />
+          <div>
+            <h3>{o.title}</h3>
+            <p>{o.text}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<section class="how" aria-labelledby="how-heading">
+  <div class="container how__inner">
+    <h2 id="how-heading" data-reveal>{t(lang, 'page.howHeading')}</h2>
+    <ol class="how__steps" data-reveal-group>
+      {stepTexts.map((text) => <li data-reveal><p>{text}</p></li>)}
+    </ol>
+  </div>
+</section>
+
+{secondPhoto && (
+  <div class="container band">
+    <Photo src={secondPhoto.src} alt={t(lang, secondPhoto.altKey)} lang={lang} ratio="21 / 9" sizes="100vw" widths={[480, 768, 1080, 1440]} />
+  </div>
+)}
+
+<section class="next" aria-labelledby="next-heading">
+  <div class="container next__inner" data-reveal>
+    <h2 id="next-heading">{k('ctaHeading')}</h2>
+    <p>{k('ctaText')}</p>
+    <p class="next__actions">
+      <a class="btn btn--primary" href={formLink}>{k('cta')}</a>
+      {business.phoneE164 && <a class="btn btn--secondary" href={`tel:${business.phoneE164}`}>{t(lang, 'cta.call')}</a>}
+    </p>
+  </div>
+</section>
+
+<style>
+  .intro { padding-block: var(--space-7) var(--section-y); }
+  .intro__inner { display: grid; gap: var(--space-7); align-items: center; }
+  .intro__lead { margin-top: var(--space-4); max-width: 38ch; font-size: var(--step-1); line-height: 1.5; color: var(--color-text-muted); }
+  .intro__actions, .next__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+  .intro :global(.intro__photo) { border-radius: var(--radius-photo); }
+
+  .offer { position: relative; padding-block: var(--section-y); background: var(--color-surface); }
+  .offer h2, .how h2, .next h2 { font-size: var(--step-4); line-height: var(--leading-tight); font-weight: 400; }
+  .offer__list { list-style: none; padding: 0; margin-top: var(--space-7); display: grid; gap: var(--space-6) var(--space-8); }
+  .offer__item { display: grid; grid-template-columns: auto 1fr; gap: var(--space-4); align-items: start; }
+  .offer__item :global(.offer__stamp) { width: 3rem; margin-top: calc(var(--space-2) * -1); }
+  .offer__item h3 { font-size: var(--step-2); font-weight: 400; }
+  .offer__item p { margin-top: var(--space-2); max-width: 40ch; color: var(--color-text-muted); }
+
+  .how { padding-block: var(--section-y); }
+  .how__inner { display: grid; gap: var(--space-6); }
+  .how__steps { list-style: none; padding: 0; display: grid; gap: var(--space-5); counter-reset: step; }
+  .how__steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: var(--space-4);
+    align-items: baseline;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--color-border);
+  }
+  /* The steps really are a sequence, so they are numbered. */
+  .how__steps li::before {
+    content: counter(step);
+    font-family: var(--font-display-stack);
+    font-size: var(--step-3);
+    line-height: 1;
+    color: var(--peony);
+  }
+  .how__steps p { font-size: var(--step-1); line-height: 1.5; max-width: 46ch; }
+
+  .band { padding-bottom: var(--section-y); }
+
+  /* Birch gap below the band so the footer's meadow edge stands on light ground. */
+  .next { padding-block: var(--section-y); margin-bottom: clamp(4.5rem, 3.5rem + 3vw, 7rem); background: var(--moss); color: var(--birch); --color-focus: var(--birch); }
+  .next :global(::selection), .next::selection { background: var(--peony); color: var(--white); }
+  .next__inner > * { max-width: 44rem; }
+  .next p { margin-top: var(--space-4); font-size: var(--step-1); line-height: 1.5; }
+  .next .btn--primary { background: var(--birch); color: var(--ink); }
+  .next .btn--primary:hover { background: var(--white); color: var(--ink); }
+  .next .btn--secondary { color: var(--birch); }
+  .next .btn--secondary:hover { background: var(--birch); color: var(--ink); }
+
+  /* Funerals: quieter. Softer intro, no peony numerals. */
+  .intro--calm ~ .how .how__steps li::before { color: var(--moss); }
+
+  @media (min-width: 48rem) {
+    .intro__inner { grid-template-columns: 1.1fr 0.9fr; gap: var(--space-9); }
+    .offer__list { grid-template-columns: 1fr 1fr; }
+    .how__inner { grid-template-columns: 1fr 1.6fr; gap: var(--space-9); align-items: start; }
+  }
+</style>

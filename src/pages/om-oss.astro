@@ -1,0 +1,10 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AboutPage from '../components/page/AboutPage.astro';
+import { t } from '../i18n/utils';
+const lang = 'sv';
+---
+
+<BaseLayout lang={lang} route="about" title={t(lang, 'about.title')} description={t(lang, 'about.description')}>
+  <AboutPage lang={lang} />
+</BaseLayout>

@@ -15,10 +15,12 @@ interface Props {
   description: string;
   /** Set for pages that must not be indexed (404). */
   noindex?: boolean;
+  /** Quieter page: no cursor petal trail (funerals). */
+  calm?: boolean;
   ogImage?: string;
 }
 
-const { lang, route, title, description, noindex = false, ogImage = '/og-image.jpg' } = Astro.props;
+const { lang, route, title, description, noindex = false, calm = false, ogImage = '/og-image.jpg' } = Astro.props;
 const site = Astro.site!;
 const canonical = new URL(routes[route][lang], site).href;
 const alternates = (Object.keys(routes[route]) as Lang[]).map((l) => ({
@@ -106,7 +108,7 @@ if (business.social.length) jsonLd.sameAs = business.social.map((s) => s.url);
     </main>
     <Footer lang={lang} />
     <StickyCta lang={lang} />
-    <CursorTrail />
+    {!calm && <CursorTrail />}
     <script>import '../scripts/reveal';</script>
   </body>
 </html>

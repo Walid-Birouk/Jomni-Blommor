@@ -8,7 +8,7 @@
  * Still for prefers-reduced-motion.
  */
 import { business } from '../../data/business';
-import { t, type Lang } from '../../i18n/utils';
+import { t, routes, type Lang } from '../../i18n/utils';
 import WindPetals from '../WindPetals.astro';
 import { botanical } from '../../lib/botanical';
 interface Props { lang: Lang; }
@@ -58,7 +58,7 @@ const narrow = meadow(PW, PH, 18, (t) => 0.46 + Math.sin(t * Math.PI * 2.4 + 0.4
     <div class="container"><div class="hero-c__col">
       <!-- TODO: client copy -->
       <p class="hero-c__lead">{t(lang, 'home.hero.leadShort')}</p>
-      <p class="hero-c__actions"><a class="btn btn--primary" href="#kontakt">{t(lang, 'cta.order')}</a></p>
+      <p class="hero-c__actions"><a class="btn btn--primary" href={routes.shop[lang]}>{t(lang, 'cta.order')}</a></p>
       <ul class="hero-c__facts" aria-label={t(lang, 'hero.facts.label')}>
         <li>
           {t(lang, 'hero.facts.openToday')}{' '}
